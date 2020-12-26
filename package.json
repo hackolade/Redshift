@@ -1,0 +1,44 @@
+{
+    "name": "Redshift",
+    "version": "0.0.1",
+    "versionDate": "2020-12-26",
+    "author": "hackolade",
+    "engines": {
+        "hackolade": "4.2.13",
+        "hackoladePlugin": "1.2.0"
+    },
+    "contributes": {
+        "target": {
+            "applicationTarget": "Redshift",
+            "title": "Redhift",
+            "versions": []
+        },
+        "features": {
+            "views": {
+                "enabled": true,
+                "viewLevel": "model",
+                "disablePipelines": true
+            },
+            "nestedCollections": false,
+            "disablePatternField": false,
+            "enableForwardEngineering": {
+                "jsonDocument": true,
+                "jsonSchema": true,
+                "excel": true,
+                "plugin": true
+			},
+            "enableReverseEngineering": true,
+            "disableChoices": true,
+            "enableJsonType": true,
+            "reverseSchemaIntoOneColumn": true,
+            "disableDenormalization": true,
+            "enableComplexTypesNormalization": true,
+            "relationships": {
+                "compositeRelationships": true
+            },
+            "FEScriptCommentsSupported": true
+        }
+    },
+    "description": "Hackolade plugin for Amazon Redhift",
+    "disabled": false
+}

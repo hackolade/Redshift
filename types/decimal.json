@@ -1,0 +1,37 @@
+{
+	"name": "decimal",
+	"erdAbbreviation": "<dec>",
+	"dtdAbbreviation": "{123}",
+	"parentType": "numeric",
+	"sample": 15,
+	"useSample": true,
+	"hiddenOnEntity": "view",
+	"defaultValues": {
+		"unit": "",
+		"minimum": "",
+		"exclusiveMinimum": false,
+		"maximum": "",
+		"exclusiveMaximum": false,
+		"multipleOf": "",
+		"divisibleBy": "",
+		"default": "",
+		"primaryKey": false,
+		"relationshipType": "",
+		"parentRelationship": "",
+		"childRelationships": [],
+		"foreignCollection": "",
+		"foreignField": [],
+		"enum": [],
+		"mode": "decimal",
+		"sample": ""
+	},
+	"descriptor": [
+		{
+			"schema": {
+				"mode": "numeric"
+			},
+			"capacity": 12,
+			"mode": "decimal"
+		}
+	]
+}

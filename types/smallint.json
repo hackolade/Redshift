@@ -1,0 +1,39 @@
+{
+	"name": "smallint",
+	"erdAbbreviation": "<smlint>",
+	"dtdAbbreviation": "{123}",
+	"parentType": "numeric",
+	"hiddenOnEntity": "view",
+	"sample": 15,
+	"useSample": true,
+	"defaultValues": {
+		"index": true,
+		"unit": "",
+		"minimum": "",
+		"exclusiveMinimum": false,
+		"maximum": "",
+		"exclusiveMaximum": false,
+		"multipleOf": "",
+		"divisibleBy": "",
+		"default": "",
+		"primaryKey": false,
+		"relationshipType": "",
+		"parentRelationship": "",
+		"childRelationships": [],
+		"foreignCollection": "",
+		"foreignField": [],
+		"enum": [],
+		"sample": ""
+	},
+	"descriptor": [
+		{
+			"capacity": 2
+		},
+		{
+			"schema": {
+				"mode": "int2"
+			},
+			"capacity": 2
+		}
+	]
+}

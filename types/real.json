@@ -1,0 +1,40 @@
+{
+	"name": "real",
+	"erdAbbreviation": "<real>",
+	"dtdAbbreviation": "{real}",
+	"parentType": "numeric",
+	"hiddenOnEntity": "view",
+	"sample": 15,
+	"useSample": true,
+	"defaultValues": {
+		"unit": "",
+		"minimum": "",
+		"exclusiveMinimum": false,
+		"maximum": "",
+		"exclusiveMaximum": false,
+		"multipleOf": "",
+		"divisibleBy": "",
+		"default": "",
+		"primaryKey": false,
+		"relationshipType": "",
+		"parentRelationship": "",
+		"childRelationships": [],
+		"foreignCollection": "",
+		"foreignField": [],
+		"enum": [],
+		"sample": ""
+	},
+	"descriptor": [
+		{
+			"capacity": 4,
+			"mode": "floating"
+		},
+		{
+			"schema": {
+				"mode": "float4"
+			},
+			"capacity": 4,
+			"mode": "floating"
+		}
+	]
+}

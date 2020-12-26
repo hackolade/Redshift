@@ -1,0 +1,47 @@
+{
+	"name": "double precision",
+	"erdAbbreviation": "<dbl>",
+	"dtdAbbreviation": "{dbl}",
+	"parentType": "numeric",
+	"hiddenOnEntity": "view",
+	"sample": 15,
+	"useSample": true,
+	"defaultValues": {
+		"unit": "",
+		"minimum": "",
+		"exclusiveMinimum": false,
+		"maximum": "",
+		"exclusiveMaximum": false,
+		"multipleOf": "",
+		"divisibleBy": "",
+		"default": "",
+		"primaryKey": false,
+		"relationshipType": "",
+		"parentRelationship": "",
+		"childRelationships": [],
+		"foreignCollection": "",
+		"foreignField": [],
+		"enum": [],
+		"sample": ""
+	},
+	"descriptor": [
+		{
+			"capacity": 8,
+			"mode": "floating"
+		},
+		{
+			"schema": {
+				"mode": "float8"
+			},
+			"capacity": 8,
+			"mode": "floating"
+		},
+		{
+			"schema": {
+				"mode": "float"
+			},
+			"capacity": 8,
+			"mode": "floating"
+		}
+	]
+}

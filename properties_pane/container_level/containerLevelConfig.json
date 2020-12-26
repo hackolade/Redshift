@@ -1,0 +1,490 @@
+/*
+* Copyright © 2016-2019 by IntegrIT S.A. dba Hackolade.  All rights reserved.
+*
+* The copyright to the computer software herein is the property of IntegrIT S.A.
+* The software may be used and/or copied only with the written permission of 
+* IntegrIT S.A. or in accordance with the terms and conditions stipulated in 
+* the agreement/contract under which the software has been supplied. 
+
+
+In order to define custom properties for any object's properties pane, you may copy/paste from the following,
+making sure that you maintain a proper JSON format.
+
+			{
+				"propertyName": "Simple text",
+				"propertyKeyword": "simpletextProp",
+				"propertyType": "text",
+				"sampleGen": "&containerName|&entityName|&random|<value>"
+			},
+			{
+				"propertyName": "Text area",
+				"propertyKeyword": "textareaProp",
+				"propertyTooltip": "Popup for multi-line text entry",
+				"propertyType": "details",
+				"template": "textarea"
+			},
+			{
+				"propertyName": "Dropdown selection",
+				"propertyKeyword": "dropdownProp",
+				"propertyTooltip": "Select from list of options",
+				"propertyType": "select",
+				"options": [
+					"Option 1",
+					"Option 2",
+					"Option 3",
+					"Option 4"
+				]
+			},
+			{
+				"propertyName": "Numeric",
+				"propertyKeyword": "numericProp",
+				"propertyValidate": true,
+				"propertyType": "numeric",
+				"valueType": "number",
+				"allowNegative": false,
+				"sampleGen": "&containerName|&entityName|&random|<value>"
+			},
+			{
+				"propertyName": "Checkbox",
+				"propertyKeyword": "checkboxProp",
+				"propertyType": "checkbox"
+			},
+			{
+				"propertyName": "Group",
+				"propertyType": "group",
+				"propertyKeyword": "grpProp",
+				"propertyTooltip": "",
+				"structure": [
+					{
+						"propertyName": "Simple Grp Text",
+						"propertyKeyword": "simpleGrpText",
+						"propertyTooltip": "",
+						"propertyType": "text"
+					},
+					{
+						"propertyName": "Group Number",
+						"propertyKeyword": "grpNumber",
+						"propertyType": "numeric",
+						"valueType": "number",
+						"allowNegative": false
+					}
+				]
+			},
+// “groupInput” can have the following states - 0 items, 1 item, and many items.
+// “blockInput” has only 2 states - 0 items or 1 item. 
+// This gives us an easy way to represent it as an object and not as an array internally which is beneficial for processing 
+// and forward-engineering in particular.
+			{
+				"propertyName": "Block",
+				"propertyType": "block",
+				"propertyKeyword": "grpProp",
+				"propertyTooltip": "",
+				"structure": [
+					{
+						"propertyName": "Simple Grp Text",
+						"propertyKeyword": "simpleGrpText",
+						"propertyTooltip": "",
+						"propertyType": "text"
+					},
+					{
+						"propertyName": "Group Number",
+						"propertyKeyword": "grpNumber",
+						"propertyType": "numeric",
+						"valueType": "number",
+						"allowNegative": false
+					}
+				]
+			},
+			{
+				"propertyName": "Field List",
+				"propertyKeyword": "keyList",
+				"propertyType": "fieldList",
+				"template": "orderedList"
+			}, 
+			{
+				"propertyName": "List with attribute",
+				"propertyKeyword": "keyListOrder",
+				"propertyType": "fieldList",
+				"template": "orderedList",
+				"attributeList": [
+					"ascending",
+					"descending"
+				]
+			}
+
+*/
+
+[
+	{
+		"lowerTab": "Details",
+		"structure": [
+			{
+				"propertyName": "Comments",
+				"propertyKeyword": "description",
+				"propertyTooltip": "comments",
+				"addTimestampButton": false,
+				"propertyType": "details",
+				"template": "textarea"
+			},
+			{
+				"propertyName": "Authorization username",
+				"propertyKeyword": "authorizationUsername",
+				"propertyType": "text",
+				"propertyTooltip": "Name of the schema owner"
+			},
+			{
+				"propertyName": "Unlimited quota",
+				"propertyKeyword": "unlimitedQuota",
+				"propertyType": "checkbox",
+				"propertyTooltip": "Amazon Redshift imposes no limit to the growth of the total size of the schema"
+			},
+			{
+				"propertyName": "Quota (in MB)",
+				"propertyKeyword": "quota",
+				"propertyValidate": true,
+				"propertyType": "numeric",
+				"valueType": "number",
+				"allowNegative": false,
+				"propertyTooltip": "The maximum amount of collective disk space that the specified schema can use. Expressed in megabytes.",
+				"dependency": {
+					"key": "unlimitedQuota",
+					"value": false
+				}
+			},
+			{
+				"propertyName": "External",
+				"propertyKeyword": "external",
+				"propertyType": "checkbox",
+				"propertyTooltip": "New external schema in the current database to connect to Amazon RDS for PostgreSQL or Amazon Aurora with PostgreSQL compatibility databases. Or that references a database in an external data catalog such as AWS Glue, Athena, or a database in an Apache Hive metastore, such as Amazon EMR."
+			},
+			{
+				"propertyName": "From",
+				"propertyKeyword": "fromSource",
+				"propertyTooltip": "from list of options",
+				"propertyType": "select",
+				"options": [
+					"",
+					"Redshift",
+					"Data catalog",
+					"Hive metastore",
+					"Postgres",
+					"MySQL"
+				],
+				"dependency": {
+					"key": "external",
+					"value": true
+				}
+			},
+			{
+				"propertyName": "Redshift database name",
+				"propertyKeyword": "redshiftDatabaseName",
+				"propertyType": "text",
+				"propertyTooltip": "The name of the Amazon Redshift database.",
+				"dependency": {
+					"key": "fromSource",
+					"value": "Redshift"
+				}
+			},
+			{
+				"propertyName": "Redshift schema name",
+				"propertyKeyword": "redshiftSchemaName",
+				"propertyType": "text",
+				"propertyTooltip": "The redshift_schema_name indicates the schema in Amazon Redshift. The default redshift_schema_name is public.",
+				"dependency": {
+					"key": "fromSource",
+					"value": "Redshift"
+				}
+			},
+			{
+				"propertyName": "Federated database name",
+				"propertyKeyword": "federatedDatabaseName",
+				"propertyType": "text",
+				"propertyTooltip": "A keyword that indicates the name of the external database in a supported PostgreSQL or MySQL database engine.",
+				"dependency": {
+					"type": "or",
+					"values": [{
+						"key": "fromSource",
+						"value": "Hive metastore"
+					},{
+						"key": "fromSource",
+						"value": "Postgres"
+					},{
+						"key": "fromSource",
+						"value": "MySQL"
+					}]
+				}
+			},
+			{
+				"propertyName": "Federated schema name",
+				"propertyKeyword": "federatedSchemaName",
+				"propertyType": "text",
+				"propertyTooltip": "The schema_name indicates the schema in a supported PostgreSQL database engine. The default schema_name is public.",
+				"dependency": {
+					"type": "or",
+					"values": [{
+						"key": "fromSource",
+						"value": "Postgres"
+					}]
+				}
+			},
+			{
+				"propertyName": "AWS region",
+				"propertyKeyword": "region",
+				"propertyType": "text",
+				"propertyTooltip": "If the external database is defined in an Athena data catalog or the AWS Glue Data Catalog, the AWS Region in which the database is located.",
+				"dependency": {
+					"key": "fromSource",
+					"value": "Data catalog"
+				}
+			},
+			{
+				"propertyName": "URI",
+				"propertyKeyword": "URI",
+				"propertyType": "text",
+				"propertyTooltip": "Hostname URI of a supported Hive metastore, PostgreSQL or MySQL database engine.  A URI doesn't contain a protocol specification",
+				"dependency": {
+					"type": "or",
+					"values": [{
+						"key": "fromSource",
+						"value": "Hive metastore"
+					},{
+						"key": "fromSource",
+						"value": "Postgres"
+					},{
+						"key": "fromSource",
+						"value": "MySQL"
+					}]
+				}
+			},
+			{
+				"propertyName": "Port",
+				"propertyKeyword": "port",
+				"propertyValidate": true,
+				"propertyType": "numeric",
+				"valueType": "number",
+				"allowNegative": false,
+				"dependency": {
+					"type": "or",
+					"values": [{
+						"key": "fromSource",
+						"value": "Hive metastore"
+					},{
+						"key": "fromSource",
+						"value": "Postgres"
+					},{
+						"key": "fromSource",
+						"value": "MySQL"
+					}]
+				}
+			},
+			{
+				"propertyName": "IAM Role",
+				"propertyKeyword": "IAM_ROLE",
+				"propertyType": "text",
+				"propertyTooltip": "The Amazon Resource Name (ARN) for an IAM role that your cluster uses for authentication and authorization, separated by commas if multiple.",
+				"inputPlaceholder": "arn:aws:iam::<aws-account-id>:role/<role-name>",
+				"dependency": {
+					"key": "external",
+					"value": true
+				}
+			},
+			{
+				"propertyName": "Secret ARN",
+				"propertyKeyword": "SECRET_ARN",
+				"propertyType": "text",
+				"propertyTooltip": "The Amazon Resource Name (ARN) of a supported PostgreSQL or MySQL database engine secret created using AWS Secrets Manager.",
+				"dependency": {
+					"type": "or",
+					"values": [{
+						"key": "fromSource",
+						"value": "Postgres"
+					},{
+						"key": "fromSource",
+						"value": "MySQL"
+					}]
+				}
+			},
+			{
+				"propertyName": "Catalog role",
+				"propertyKeyword": "CATALOG_ROLE",
+				"propertyType": "text",
+				"propertyTooltip": "The ARN for an IAM role that your cluster uses for authentication and authorization for the data catalog.",
+				"inputPlaceholder": "arn:aws:iam::<aws-account-id>:role/<catalog-role>",
+				"dependency": {
+					"key": "fromSource",
+					"value": "Data catalog"
+				}
+			},			{
+				"propertyName": "Create external DB if not exists",
+				"propertyKeyword": "createExternalDatabaseIfNotExists",
+				"propertyType": "checkbox",
+				"dependency": {
+					"key": "external",
+					"value": true
+				}
+			},
+			{
+				"propertyName": "Remarks",
+				"propertyKeyword": "comments",
+				"propertyTooltip": "remarks",
+				"addTimestampButton": true,
+				"propertyType": "details",
+				"template": "textarea"
+			}
+		],
+		"containerLevelKeys": []
+	},
+	{
+		"lowerTab": "Functions",
+		"structure": [{
+			"propertyName": "Functions",
+			"propertyType": "group",
+			"propertyKeyword": "Functions",
+			"propertyTooltip": "Creates a new scalar user-defined function (UDF) using either a SQL SELECT clause or a Python program.",
+			"structure": [
+				{
+					"propertyName": "Name",
+					"propertyKeyword": "name",
+					"propertyTooltip": "The name of the function.",
+					"propertyType": "text"
+				},
+				{
+					"propertyName": "Or replace",
+					"propertyKeyword": "orReplace",
+					"propertyType": "checkbox",
+					"propertyTooltip": "Specifies that if a function with the same name and input argument data types, or signature, as this one already exists, the existing function is replaced. You can only replace a function with a new function that defines an identical set of data types."
+				},
+				{
+					"propertyName": "Input arguments",
+					"propertyKeyword": "inputArgs",
+					"propertyTooltip": "For a Python UDF, a list of input argument names and data types. For a SQL UDF, a list of data types, without argument names.  You can specify a maximum of 32 arguments.",
+					"propertyType": "details",
+					"template": "textarea",
+					"markdown": false
+				},
+				{
+					"propertyName": "Returns data type",
+					"propertyKeyword": "storedProcDataType",
+					"propertyTooltip": "Data type",
+					"propertyType": "text"
+				},
+				{
+					"propertyName": "Volatility",
+					"propertyKeyword": "volatility",
+					"propertyTooltip": "You will get the best optimization if you label your function with the strictest volatility category that is valid for it.",
+					"propertyType": "select",
+					"defaultValue": "Volatile",
+					"options": [
+						"Volatile",
+						"Stable",
+						"Immutable"
+					]
+				},
+				{
+					"propertyName": "Statement",
+					"propertyKeyword": "statement",
+					"propertyTooltip": "A valid executable Python program that returns a value or a SQL SELECT clause.",
+					"propertyType": "details",
+					"template": "textarea",
+					"markdown": false
+				},
+				{
+					"propertyName": "Language",
+					"propertyKeyword": "storedProcLanguage",
+					"propertyTooltip": "language",
+					"propertyType": "select",
+					"defaultValue": "sql",
+					"options": [
+						"sql",
+						"plpythonu"
+					]
+				},
+				{
+					"propertyName": "Remarks",
+					"propertyKeyword": "storedProcComments",
+					"propertyTooltip": "comments",
+					"addTimestampButton": false,
+					"propertyType": "details",
+					"template": "textarea"
+				}
+			]
+		}]
+	},
+	{
+		"lowerTab": "Procedures",
+		"structure": [{
+			"propertyName": "Procedures",
+			"propertyType": "group",
+			"propertyKeyword": "Procedures",
+			"propertyTooltip": "Creates a new stored procedure or replaces an existing procedure for the current database.",
+			"structure": [
+				{
+					"propertyName": "Name",
+					"propertyKeyword": "name",
+					"propertyTooltip": "The name of the procedure.",
+					"propertyType": "text"
+				},
+				{
+					"propertyName": "Or replace",
+					"propertyKeyword": "orReplace",
+					"propertyType": "checkbox",
+					"propertyTooltip": "Specifies that if a function with the same name and input argument data types, or signature, as this one already exists, the existing function is replaced. You can only replace a function with a new function that defines an identical set of data types."
+				},
+				{
+					"propertyName": "Input arguments",
+					"propertyKeyword": "inputArgs",
+					"propertyTooltip": "A list of argument names, argument modes, and data types. Only the data type is required. Name and mode are optional and their position can be switched.  The argument mode can be IN, OUT, or INOUT. The default is IN.",
+					"propertyType": "details",
+					"template": "textarea",
+					"markdown": false
+				},
+				{
+					"propertyName": "Procedure body",
+					"propertyKeyword": "body",
+					"propertyTooltip": "A set of valid PL/pgSQL statements.",
+					"propertyType": "details",
+					"template": "textarea",
+					"markdown": false
+				},
+				{
+					"propertyName": "Language",
+					"propertyKeyword": "storedProcLanguage",
+					"propertyTooltip": "language",
+					"propertyType": "select",
+					"defaultValue": "plpgsql",
+					"options": [
+						"plpgsql"
+					]
+				},
+				{
+					"propertyName": "Security mode",
+					"propertyKeyword": "securityMode",
+					"propertyTooltip": "The security mode for the procedure determines the procedure's access privileges at runtime. ",
+					"propertyType": "select",
+					"defaultValue": "invoker",
+					"options": [
+						"invoker",
+						"definer"
+					]
+				},
+				{
+					"propertyName": "Configuration parameter",
+					"propertyKeyword": "configurationParameter",
+					"propertyTooltip": "The SET clause causes the specified configuration_parameter to be set to the specified value when the procedure is entered. This clause then restores configuration_parameter to its earlier value when the procedure exits.",
+					"propertyType": "details",
+					"template": "textarea",
+					"markdown": false
+				},
+				{
+					"propertyName": "Remarks",
+					"propertyKeyword": "storedProcComments",
+					"propertyTooltip": "comments",
+					"addTimestampButton": false,
+					"propertyType": "details",
+					"template": "textarea"
+				}
+			]
+		}]
+	}
+]
+
