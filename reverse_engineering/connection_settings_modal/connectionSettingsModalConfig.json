@@ -6,136 +6,121 @@
 				"inputLabel": "Name",
 				"inputKeyword": "name",
 				"inputType": "text",
-				"inputPlaceholder": "Name"
-				
-			},
-			{
-				"inputLabel": "Cloud platform",
-				"inputKeyword": "cloudPlatform",
-				"inputType": "select",
-				"options": [
-					{ "value": "", "label": "" },
-					{ "value": "AWS", "label": "Amazon Web Services" },
-					{ "value": "GCP", "label": "Google Cloud" },
-					{ "value": "Azure", "label": "Microsoft Azure" }
-				]
-			},
-			{
-				"inputLabel": "Host prefix",
-				"inputKeyword": "host",
-				"inputType": "text",
-				"inputPlaceholder": "<account>.<region>",
-				"inputTooltip": "account name provided by Snowflake, or <account> for US West region, or <account>.<region> for all others",
-				"dependency": {
-					"key": "cloudPlatform",
-					"value": "AWS"
+				"inputPlaceholder": "Name",
+				"validation": {
+					"regex": "([^\\s])"
 				}
-			},
-			{
-				"inputLabel": "Host prefix",
-				"inputKeyword": "host",
-				"inputType": "text",
-				"inputPlaceholder": "<account>.<region>.<gcp>",
-				"inputTooltip": "account name provided by Snowflake, or <account>.<region>.<gcp>",
-				"dependency": {
-					"key": "cloudPlatform",
-					"value": "GCP"
-				}
-			},
-			{
-				"inputLabel": "Host prefix",
-				"inputKeyword": "host",
-				"inputType": "text",
-				"inputPlaceholder": "<account>.<region>.<azure>",
-				"inputTooltip": "account name provided by Snowflake, or <account>.<region>.<azure>",
-				"dependency": {
-					"key": "cloudPlatform",
-					"value": "Azure"
-				}
-			},
-			{
-				"inputLabel": "Warehouse",
-				"inputKeyword": "warehouse",
-				"inputType": "text",
-				"inputTooltip": "Optionally specify the active/current warehouse for the session",
-				"defaultValue": ""
 			}
 		]
 	},
 	{
-		"tab": "Authentication",
+		"lowerTab": "Authentication",
 		"structure": [
 			{
-				"inputLabel": "Auth type",
-				"inputKeyword": "authType",
-				"inputType": "select",
-				"defaultValue": "credentials",
-				"options": [
-					{ "value": "credentials", "label": "Snowflake" },
-					{ "value": "okta", "label": "Native SSO (Okta only)" },
-					{ "value": "externalbrowser", "label": "Identity Provider SSO (via external browser)" }
-				]
-			},
-			{
-				"inputLabel": "Authenticator",
-				"inputKeyword": "authenticator",
+				"inputLabel": "Access Key ID",
+				"inputKeyword": "accessKeyId",
 				"inputType": "text",
-				"inputPlaceholder": "https://<okta_account_name>.okta.com",
-				"inputTooltip": "Multi-Factor Auth is not available with this option. Use the \"Identity Provider SSO (via external browser)\" option instead",
-				"dependency": {
-					"key": "authType",
-					"value": "okta"
+				"inputPlaceholder": "Access Key ID",
+				"validation": {
+					"regex": "([^\\s])"
 				}
 			},
 			{
-				"inputLabel": "User name",
-				"inputKeyword": "username",
-				"inputType": "text",
-				"dependency": {
-					"key": "authType",
-					"value": "credentials"
-				}
-			},
-			{
-				"inputLabel": "User name",
-				"inputKeyword": "username",
-				"inputType": "text",
-				"inputPlaceholder": "<name@example.com>",
-				"inputTooltip": "Okta username in email format",
-				"dependency": {
-					"key": "authType",
-					"value": "okta"
-				}
-			},
-			{
-				"inputLabel": "User name",
-				"inputKeyword": "username",
-				"inputType": "text",
-				"inputPlaceholder": "<username>",
-				"inputTooltip": "Network or AzureAD username or Okta username in email format",
-				"dependency": {
-					"key": "authType",
-					"value": "externalbrowser"
-				}
-			},
-			{
-				"inputLabel": "Password",
-				"inputKeyword": "password",
+				"inputLabel": "Secret Access Key",
+				"inputKeyword": "secretAccessKey",
 				"inputType": "password",
-				"inputTooltip": "Password",
+				"inputPlaceholder": "Secret Access Key",
 				"isHiddenKey": true,
-				"defaultValue": "",
-				"dependency": {
-					"key": "authType",
-					"value": ["", "okta", "credentials"]
+				"validation": {
+					"regex": "([^\\s])"
 				}
 			},
 			{
-				"inputLabel": "Role name",
-				"inputKeyword": "role",
-				"inputType": "text",
-				"inputTooltip": "Required entry.  Or enter ALL to combine all your user roles",
-				"defaultValue": ""
+				"inputLabel": "Region",
+				"inputKeyword": "region",
+				"inputType": "select",
+				"options": [
+					{
+						"label": "None",
+						"value": "none"
+					},
+					{
+						"label": "US East (N. Virginia) - us-east-1",
+						"value": "us-east-1"
+					},
+					{
+						"label": "US East (Ohio) - us-east-2",
+						"value": "us-east-2"
+					},
+					{
+						"label": "US West (N. California) - us-west-1",
+						"value": "us-west-1"
+					},
+					{
+						"label": "US West (Oregon) - us-west-2",
+						"value": "us-west-2"
+					},
+					{
+						"label": "Canada (Central) - ca-central-1",
+						"value": "ca-central-1"
+					},
+					{
+						"label": "Asia Pacific (Tokyo) - ap-northeast-1",
+						"value": "ap-northeast-1"
+					},
+					{
+						"label": "Asia Pacific (Seoul) - ap-northeast-2",
+						"value": "ap-northeast-2"
+					},
+					{
+						"label": "Asia Pacific (Osaka-Local) - ap-northeast-3",
+						"value": "ap-northeast-3"
+					},
+					{
+						"label": "Asia Pacific (Mumbai) - ap-south-1",
+						"value": "ap-south-1"
+					},
+					{
+						"label": "Asia Pacific (Singapore) - ap-southeast-1",
+						"value": "ap-southeast-1"
+					},
+					{
+						"label": "Asia Pacific (Sydney) - ap-southeast-2",
+						"value": "ap-southeast-2"
+					},
+					{
+						"label": "China (Beijing) - cn-north-1",
+						"value": "cn-north-1"
+					},
+					{
+						"label": "China (Ningxia) - cn-northwest-1",
+						"value": "cn-northwest-1"
+					},
+					{
+						"label": "EU (Frankfurt) - eu-central-1",
+						"value": "eu-central-1"
+					},
+					{
+						"label": "EU (Ireland) - eu-west-1",
+						"value": "eu-west-1"
+					},
+					{
+						"label": "EU (London) - eu-west-2",
+						"value": "eu-west-2"
+					},
+					{
+						"label": "EU (Paris) - eu-west-3",
+						"value": "eu-west-3"
+					},
+					{
+						"label": "South America (São Paulo) - sa-east-1",
+						"value": "sa-east-1"
+					},
+					{
+						"label": "South America (São Paulo) - us-gov-west-1",
+						"value": "us-gov-west-1"
+					}
+				]
 			}
 		]
 	}
