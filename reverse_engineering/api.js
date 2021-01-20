@@ -1,6 +1,7 @@
 'use strict';
 
 const snowflakeHelper = require('./helpers/snowflakeHelper');
+const aws = require('aws-sdk');
 const ssoHelper = require('./helpers/ssoHelper');
 const { setDependencies, dependencies } = require('./helpers/appDependencies');
 let _;

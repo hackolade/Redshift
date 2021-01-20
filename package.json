@@ -26,7 +26,7 @@
                 "jsonSchema": true,
                 "excel": true,
                 "plugin": true
-			},
+            },
             "enableReverseEngineering": true,
             "disableChoices": true,
             "enableJsonType": true,

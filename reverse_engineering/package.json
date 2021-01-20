@@ -4,6 +4,8 @@
   "description": "",
   "author": "Hackolade",
   "dependencies": {
+    "@aws-sdk/client-redshift": "^3.3.0",
+    "@aws-sdk/client-redshift-data": "^3.3.0",
     "axios": "^0.19.2",
     "snowflake-sdk": "^1.5.1",
     "uuid": "^7.0.3"
