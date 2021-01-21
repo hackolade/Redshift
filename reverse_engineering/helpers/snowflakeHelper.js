@@ -1,4 +1,4 @@
-const snowflake = require('snowflake-sdk');
+const snowflake = {};
 const axios = require('axios');
 const uuid = require('uuid');
 

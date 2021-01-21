@@ -10,7 +10,7 @@
     "contributes": {
         "target": {
             "applicationTarget": "Redshift",
-            "title": "Redhift",
+            "title": "Redshift",
             "versions": []
         },
         "features": {
@@ -39,6 +39,6 @@
             "FEScriptCommentsSupported": true
         }
     },
-    "description": "Hackolade plugin for Amazon Redhift",
+    "description": "Hackolade plugin for Amazon Redshift",
     "disabled": false
 }
