@@ -10,6 +10,15 @@
 				"validation": {
 					"regex": "([^\\s])"
 				}
+			},
+			{
+				"inputLabel": "Cluster identifier",
+				"inputKeyword": "clusterIdentifier",
+				"inputType": "text",
+				"inputPlaceholder": "Cluster identifier",
+				"validation": {
+					"regex": "([^\\s])"
+				}
 			}
 		]
 	},

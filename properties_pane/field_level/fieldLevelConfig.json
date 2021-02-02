@@ -310,7 +310,7 @@ making sure that you maintain a proper JSON format.
 			},
 			{
 				"propertyName": "Dist key",
-				"propertyKeyword": "DISTKEY",
+				"propertyKeyword": "distKey",
 				"propertyType": "checkbox",
 				"propertyTooltip": "Keyword that specifies that the column is the distribution key for the table. Only one column in a table can be the distribution key."
 			},
@@ -623,7 +623,7 @@ making sure that you maintain a proper JSON format.
 			},
 			{
 				"propertyName": "Dist key",
-				"propertyKeyword": "DISTKEY",
+				"propertyKeyword": "distKey",
 				"propertyType": "checkbox",
 				"propertyTooltip": "Keyword that specifies that the column is the distribution key for the table. Only one column in a table can be the distribution key."
 			},
@@ -927,7 +927,7 @@ making sure that you maintain a proper JSON format.
 			},
 			{
 				"propertyName": "Dist key",
-				"propertyKeyword": "DISTKEY",
+				"propertyKeyword": "distKey",
 				"propertyType": "checkbox",
 				"propertyTooltip": "Keyword that specifies that the column is the distribution key for the table. Only one column in a table can be the distribution key."
 			},
@@ -1140,7 +1140,7 @@ making sure that you maintain a proper JSON format.
 			},
 			{
 				"propertyName": "Dist key",
-				"propertyKeyword": "DISTKEY",
+				"propertyKeyword": "distKey",
 				"propertyType": "checkbox",
 				"propertyTooltip": "Keyword that specifies that the column is the distribution key for the table. Only one column in a table can be the distribution key."
 			},
@@ -1410,7 +1410,7 @@ making sure that you maintain a proper JSON format.
 			},
 			{
 				"propertyName": "Dist key",
-				"propertyKeyword": "DISTKEY",
+				"propertyKeyword": "distKey",
 				"propertyType": "checkbox",
 				"propertyTooltip": "Keyword that specifies that the column is the distribution key for the table. Only one column in a table can be the distribution key."
 			},
@@ -1698,7 +1698,7 @@ making sure that you maintain a proper JSON format.
 			},
 			{
 				"propertyName": "Dist key",
-				"propertyKeyword": "DISTKEY",
+				"propertyKeyword": "distKey",
 				"propertyType": "checkbox",
 				"propertyTooltip": "Keyword that specifies that the column is the distribution key for the table. Only one column in a table can be the distribution key."
 			},
@@ -1958,7 +1958,7 @@ making sure that you maintain a proper JSON format.
 			},
 			{
 				"propertyName": "Dist key",
-				"propertyKeyword": "DISTKEY",
+				"propertyKeyword": "distKey",
 				"propertyType": "checkbox",
 				"propertyTooltip": "Keyword that specifies that the column is the distribution key for the table. Only one column in a table can be the distribution key."
 			},
@@ -2219,7 +2219,7 @@ making sure that you maintain a proper JSON format.
 			},
 			{
 				"propertyName": "Dist key",
-				"propertyKeyword": "DISTKEY",
+				"propertyKeyword": "distKey",
 				"propertyType": "checkbox",
 				"propertyTooltip": "Keyword that specifies that the column is the distribution key for the table. Only one column in a table can be the distribution key."
 			},
@@ -2426,7 +2426,7 @@ making sure that you maintain a proper JSON format.
 			},
 			{
 				"propertyName": "Dist key",
-				"propertyKeyword": "DISTKEY",
+				"propertyKeyword": "distKey",
 				"propertyType": "checkbox",
 				"propertyTooltip": "Keyword that specifies that the column is the distribution key for the table. Only one column in a table can be the distribution key."
 			},
@@ -2648,7 +2648,7 @@ making sure that you maintain a proper JSON format.
 			},
 			{
 				"propertyName": "Dist key",
-				"propertyKeyword": "DISTKEY",
+				"propertyKeyword": "distKey",
 				"propertyType": "checkbox",
 				"propertyTooltip": "Keyword that specifies that the column is the distribution key for the table. Only one column in a table can be the distribution key."
 			},
@@ -2860,7 +2860,7 @@ making sure that you maintain a proper JSON format.
 			},
 			{
 				"propertyName": "Dist key",
-				"propertyKeyword": "DISTKEY",
+				"propertyKeyword": "distKey",
 				"propertyType": "checkbox",
 				"propertyTooltip": "Keyword that specifies that the column is the distribution key for the table. Only one column in a table can be the distribution key."
 			},
@@ -3072,7 +3072,7 @@ making sure that you maintain a proper JSON format.
 			},
 			{
 				"propertyName": "Dist key",
-				"propertyKeyword": "DISTKEY",
+				"propertyKeyword": "distKey",
 				"propertyType": "checkbox",
 				"propertyTooltip": "Keyword that specifies that the column is the distribution key for the table. Only one column in a table can be the distribution key."
 			},
@@ -3284,7 +3284,7 @@ making sure that you maintain a proper JSON format.
 			},
 			{
 				"propertyName": "Dist key",
-				"propertyKeyword": "DISTKEY",
+				"propertyKeyword": "distKey",
 				"propertyType": "checkbox",
 				"propertyTooltip": "Keyword that specifies that the column is the distribution key for the table. Only one column in a table can be the distribution key."
 			},
@@ -3496,7 +3496,7 @@ making sure that you maintain a proper JSON format.
 			},
 			{
 				"propertyName": "Dist key",
-				"propertyKeyword": "DISTKEY",
+				"propertyKeyword": "distKey",
 				"propertyType": "checkbox",
 				"propertyTooltip": "Keyword that specifies that the column is the distribution key for the table. Only one column in a table can be the distribution key."
 			},

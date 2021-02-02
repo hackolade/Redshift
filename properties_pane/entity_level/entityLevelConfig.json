@@ -146,7 +146,7 @@ making sure that you maintain a proper JSON format.
 			{
 				"propertyName": "Distribution style",
 				"propertyKeyword": "DISTSTYLE",
-				"propertyTooltip": "eyword that defines the data distribution style for the whole table.  AUTO: Amazon Redshift assigns an optimal distribution style based on the table data. EVEN: The data in the table is spread evenly across the nodes in a cluster in a round-robin distribution. KEY: The data is distributed by the values in the DISTKEY column. ALL: A copy of the entire table is distributed to every node. ",
+				"propertyTooltip": "keyword that defines the data distribution style for the whole table.  AUTO: Amazon Redshift assigns an optimal distribution style based on the table data. EVEN: The data in the table is spread evenly across the nodes in a cluster in a round-robin distribution. KEY: The data is distributed by the values in the distKey column. ALL: A copy of the entire table is distributed to every node. ",
 				"propertyType": "select",
 				"options": [
 					"Auto",
@@ -157,12 +157,12 @@ making sure that you maintain a proper JSON format.
 			},
 			{
 				"propertyName": "Dist key",
-				"propertyKeyword": "DISKEY",
+				"propertyKeyword": "distKey",
 				"propertyType": "group",
 				"propertyTooltip": "Keyword that specifies that the column is the distribution key for the table.",
 				"structure": [{
 					"propertyName": "Key",
-					"propertyKeyword": "DISTKEY",
+					"propertyKeyword": "distKey",
 					"propertyType": "compositeKeySetter",
 					"disabledItemStrategy": "default",
 					"abbr": "dk",
@@ -181,7 +181,7 @@ making sure that you maintain a proper JSON format.
 			},
 			{
 				"propertyName": "Sort key",
-				"propertyKeyword": "SORTKEY",
+				"propertyKeyword": "sortKey",
 				"propertyType": "compositeKeySetter",
 				"disabledItemStrategy": "default",
 				"setPrimaryKey": true,

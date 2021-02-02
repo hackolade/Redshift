@@ -181,8 +181,14 @@ making sure that you maintain a proper JSON format.
 				"propertyType": "text",
 				"propertyTooltip": "The name of the Amazon Redshift database.",
 				"dependency": {
-					"key": "fromSource",
-					"value": "Redshift"
+					"type": "and", 
+					"values": [{
+						"key": "external",
+						"value": true
+					}, {
+						"key": "fromSource",
+						"value": "Redshift"
+					}]
 				}
 			},
 			{
@@ -191,8 +197,14 @@ making sure that you maintain a proper JSON format.
 				"propertyType": "text",
 				"propertyTooltip": "The redshift_schema_name indicates the schema in Amazon Redshift. The default redshift_schema_name is public.",
 				"dependency": {
-					"key": "fromSource",
-					"value": "Redshift"
+					"type": "and", 
+					"values": [{
+						"key": "external",
+						"value": true
+					}, {
+						"key": "fromSource",
+						"value": "Redshift"
+					}]
 				}
 			},
 			{
@@ -201,16 +213,38 @@ making sure that you maintain a proper JSON format.
 				"propertyType": "text",
 				"propertyTooltip": "A keyword that indicates the name of the external database in a supported PostgreSQL or MySQL database engine.",
 				"dependency": {
-					"type": "or",
+					"type": "and", 
 					"values": [{
+						"key": "external",
+						"value": true
+					}, {
+						"type": "or",
+						"values": [{
+							"key": "fromSource",
+							"value": "Hive metastore"
+						},{
+							"key": "fromSource",
+							"value": "Postgres"
+						},{
+							"key": "fromSource",
+							"value": "MySQL"
+						}]
+					}]
+				}
+			},
+			{
+				"propertyName": "Data catalog database name",
+				"propertyKeyword": "dataCatalogDatabaseName",
+				"propertyType": "text",
+				"propertyTooltip": "A keyword that indicates the name of the external database in Data catalog.",
+				"dependency": {
+					"type": "and", 
+					"values": [{
+						"key": "external",
+						"value": true
+					}, {
 						"key": "fromSource",
-						"value": "Hive metastore"
-					},{
-						"key": "fromSource",
-						"value": "Postgres"
-					},{
-						"key": "fromSource",
-						"value": "MySQL"
+						"value": "Data catalog"
 					}]
 				}
 			},
@@ -220,11 +254,18 @@ making sure that you maintain a proper JSON format.
 				"propertyType": "text",
 				"propertyTooltip": "The schema_name indicates the schema in a supported PostgreSQL database engine. The default schema_name is public.",
 				"dependency": {
-					"type": "or",
+					"type": "and", 
 					"values": [{
-						"key": "fromSource",
-						"value": "Postgres"
+						"key": "external",
+						"value": true
+					}, {
+						"type": "or",
+						"values": [{
+							"key": "fromSource",
+							"value": "Postgres"
+						}]
 					}]
+					
 				}
 			},
 			{
@@ -233,8 +274,14 @@ making sure that you maintain a proper JSON format.
 				"propertyType": "text",
 				"propertyTooltip": "If the external database is defined in an Athena data catalog or the AWS Glue Data Catalog, the AWS Region in which the database is located.",
 				"dependency": {
-					"key": "fromSource",
-					"value": "Data catalog"
+					"type": "and", 
+					"values": [{
+						"key": "external",
+						"value": true
+					}, {
+						"key": "fromSource",
+						"value": "Data catalog"
+					}]
 				}
 			},
 			{
@@ -243,6 +290,11 @@ making sure that you maintain a proper JSON format.
 				"propertyType": "text",
 				"propertyTooltip": "Hostname URI of a supported Hive metastore, PostgreSQL or MySQL database engine.  A URI doesn't contain a protocol specification",
 				"dependency": {
+					"type": "and", 
+					"values": [{
+						"key": "external",
+						"value": true
+					}, {
 					"type": "or",
 					"values": [{
 						"key": "fromSource",
@@ -254,6 +306,8 @@ making sure that you maintain a proper JSON format.
 						"key": "fromSource",
 						"value": "MySQL"
 					}]
+					}]
+					
 				}
 			},
 			{
@@ -264,6 +318,11 @@ making sure that you maintain a proper JSON format.
 				"valueType": "number",
 				"allowNegative": false,
 				"dependency": {
+					"type": "and", 
+					"values": [{
+						"key": "external",
+						"value": true
+					}, {
 					"type": "or",
 					"values": [{
 						"key": "fromSource",
@@ -275,6 +334,8 @@ making sure that you maintain a proper JSON format.
 						"key": "fromSource",
 						"value": "MySQL"
 					}]
+					}]
+					
 				}
 			},
 			{
@@ -294,6 +355,11 @@ making sure that you maintain a proper JSON format.
 				"propertyType": "text",
 				"propertyTooltip": "The Amazon Resource Name (ARN) of a supported PostgreSQL or MySQL database engine secret created using AWS Secrets Manager.",
 				"dependency": {
+					"type": "and", 
+					"values": [{
+						"key": "external",
+						"value": true
+					}, {
 					"type": "or",
 					"values": [{
 						"key": "fromSource",
@@ -302,6 +368,8 @@ making sure that you maintain a proper JSON format.
 						"key": "fromSource",
 						"value": "MySQL"
 					}]
+					}]
+					
 				}
 			},
 			{
@@ -311,8 +379,15 @@ making sure that you maintain a proper JSON format.
 				"propertyTooltip": "The ARN for an IAM role that your cluster uses for authentication and authorization for the data catalog.",
 				"inputPlaceholder": "arn:aws:iam::<aws-account-id>:role/<catalog-role>",
 				"dependency": {
+					"type": "and", 
+					"values": [{
+						"key": "external",
+						"value": true
+					}, {
 					"key": "fromSource",
 					"value": "Data catalog"
+					}]
+					
 				}
 			},			{
 				"propertyName": "Create external DB if not exists",
