@@ -160,6 +160,7 @@ making sure that you maintain a proper JSON format.
 				"propertyKeyword": "distKey",
 				"propertyType": "group",
 				"propertyTooltip": "Keyword that specifies that the column is the distribution key for the table.",
+				"groupItemLimit":1,
 				"structure": [{
 					"propertyName": "Key",
 					"propertyKeyword": "distKey",
