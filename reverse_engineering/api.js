@@ -38,21 +38,17 @@ const disconnect = async (connectionInfo, logger, cb) => {
 
 const testConnection = async (connectionInfo, logger, cb, app) => {
 	logInfo('Test connection', connectionInfo, logger);
-	const connectionCallback = async (err, { redshiftInstance }) => {
-		if (err) {
-			cb(err)
-			return;
-		}
-
+	await connect(connectionInfo, logger, cb, app);
+	if(this.redshift){
 		try {
-			await redshiftInstance.describeTags().promise();
+			await this.redshift.redshiftDataInstance.listTables({...this.redshift.connectionParams}).promise();
 			cb();
 		} catch (err) {
 			logger.log('error', { message: err.message, stack: err.stack, error: err }, 'Connection failed');
 			cb(err);
-		}
-	};
-	connect(connectionInfo, logger, connectionCallback, app);
+		}	
+	}
+
 };
 
 const getDatabases = (connectionInfo, logger, cb) => {
