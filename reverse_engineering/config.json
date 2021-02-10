@@ -5,7 +5,7 @@
 	},
 	"excludeDocKind": ["id"],
 	"defaultDdlType": "redshift",
-	"connectionList": ["name", "host", "cloudPlatform", "username"],
+	"connectionList": ["name", "clusterIdentifier", "databaseName"],
 	"scenario": [{
 		"dependency": {
 			"key": "authType",
