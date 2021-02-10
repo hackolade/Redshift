@@ -156,7 +156,6 @@ const getDbCollectionsData = async (data, logger, cb, app) => {
 };
 
 const handleError = (logger, error, cb) => {
-	debugger
 	const message = _.isString(error) ? error : _.get(error, 'message', 'Reverse Engineering error')
 	logger.log('error', { error }, 'Reverse Engineering error');
 

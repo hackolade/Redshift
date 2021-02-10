@@ -29,7 +29,8 @@ const execute = async (sqlStatement) => {
 		return records;
 
 	} catch (err) {
-		debugger
+		//TODO handle error
+		throw err;
 	}
 }
 
@@ -135,8 +136,8 @@ const getContainerData = async schemaName => {
 
 		return data;
 	} catch (err) {
-		debugger
-		return {};
+		//TODO handle error
+		throw err;
 	}
 }
 
@@ -189,8 +190,9 @@ const getFunctions = async (schemaName) => {
 		}
 	}))
 	return functionsData
-	}catch(e){
-		debugger
+	}catch(err){
+		//TODO handle error
+		throw err;
 	}
 }
 
@@ -236,8 +238,9 @@ const getProcedures = async (schemaName) => {
 			}
 		}))
 		return proceduresData
-		}catch(e){
-			debugger
+		}catch(err){
+			//TODO handle error
+			throw err;
 		}
 }
 
