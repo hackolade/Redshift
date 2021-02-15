@@ -6,6 +6,7 @@
 	"namePrefix": "Redshift",
 	"hasUpdateScript": true,
 	"resolvedDefinitions": true,
+	"applyScriptToInstance": true,
 	"level": {
 		"container": true,
 		"entity": true,
