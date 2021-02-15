@@ -1,34 +1,17 @@
 'use strict';
 
 const redshiftHelper = require('./helpers/redshiftHelper');
-const aws = require('aws-sdk');
 const { setDependencies, dependencies } = require('./helpers/appDependencies');
 let _;
 
-this.redshift = null;
-
 const connect = async (connectionInfo, logger, cb, app) => {
 	initDependencies(app);
-	const { accessKeyId, secretAccessKey, region } = connectionInfo;
-	aws.config.update({ accessKeyId, secretAccessKey, region, maxRetries: 5 });
-	const redshiftInstance = new aws.Redshift({ apiVersion: '2012-12-01' });
-	const redshiftDataInstance = new aws.RedshiftData({ apiVersion: '2019-12-20' });
-	try {
-		const clusters = await redshiftInstance.describeClusters().promise();
-		const requiredCluster = clusters.Clusters.find(cluster => cluster.ClusterIdentifier === connectionInfo.clusterIdentifier);
-		if (!requiredCluster) {
-			throw new Error(`Cluster with '${connectionInfo.clusterIdentifier}' identifier was not found`)
-		}
-		const connectionParams = {
-			ClusterIdentifier: requiredCluster.ClusterIdentifier,
-			Database: connectionInfo.databaseName.toLowerCase(),
-			DbUser: requiredCluster.MasterUsername
-		}
-		this.redshift = { redshiftInstance, redshiftDataInstance, connectionParams };
-		redshiftHelper.setRedshift(this.redshift);
-	} catch (err) {
-		logger.log('error', { message: err.message, stack: err.stack, error: err }, `Connection failed`);
-		cb(err, {});
+	logger.clear();
+	logger.log('info', connectionInfo);
+	try{
+		await redshiftHelper.connect(connectionInfo,logger);
+	}catch(err){
+		handleError(logger, err, cb);
 	}
 };
 
@@ -37,18 +20,14 @@ const disconnect = async (connectionInfo, logger, cb) => {
 };
 
 const testConnection = async (connectionInfo, logger, cb, app) => {
+	initDependencies(app);
 	logInfo('Test connection', connectionInfo, logger);
-	await connect(connectionInfo, logger, cb, app);
-	if(this.redshift){
-		try {
-			await this.redshift.redshiftDataInstance.listTables({...this.redshift.connectionParams}).promise();
-			cb();
-		} catch (err) {
-			logger.log('error', { message: err.message, stack: err.stack, error: err }, 'Connection failed');
-			cb(err);
-		}	
+	try{
+		await redshiftHelper.testConnection(connectionInfo,logger);
+		cb();
+	}catch(err){
+		handleError(logger, err, cb);
 	}
-
 };
 
 const getDatabases = (connectionInfo, logger, cb) => {
@@ -81,12 +60,13 @@ const getDbCollectionsData = async (data, logger, cb, app) => {
 	try {
 		const collections = data.collectionData.collections;
 		const dataBaseNames = data.collectionData.dataBaseNames;
+
+		const modelData = await redshiftHelper.getModelData()
+
 		const entitiesPromises = await dataBaseNames.reduce(async(packagesPromise, schema) => {
 			const packages = await packagesPromise;
 			const entities = redshiftHelper.splitTableAndViewNames(collections[schema]);
 			const containerData = await redshiftHelper.getContainerData(schema);
-
-
 
 			const tablesPackages = entities.tables.map(async (table) => {
 				logger.progress({ message: `Start getting data from table`, containerName: schema, entityName: table });
@@ -149,7 +129,7 @@ const getDbCollectionsData = async (data, logger, cb, app) => {
 			return [ ...packages, ...tablesPackages, viewPackage ];
 		}, Promise.resolve([]))
 		const packages = await Promise.all(entitiesPromises);
-		cb(null, packages.filter(Boolean));
+		cb(null, packages.filter(Boolean),modelData);
 	} catch (err) {
 		handleError(logger, err, cb);
 	}
@@ -158,7 +138,6 @@ const getDbCollectionsData = async (data, logger, cb, app) => {
 const handleError = (logger, error, cb) => {
 	const message = _.isString(error) ? error : _.get(error, 'message', 'Reverse Engineering error')
 	logger.log('error', { error }, 'Reverse Engineering error');
-
 	cb(message);
 };
 

@@ -137,7 +137,7 @@ making sure that you maintain a proper JSON format.
 			},
 			{
 				"propertyName": "Cluster namespace",
-				"propertyKeyword": "clusternamespace",
+				"propertyKeyword": "clusterNamespace",
 				"shouldValidate": false,
 				"propertyTooltip": "Cluster namespace",
 				"propertyType": "text"

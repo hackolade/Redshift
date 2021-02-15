@@ -414,7 +414,7 @@ making sure that you maintain a proper JSON format.
 		"structure": [{
 			"propertyName": "Functions",
 			"propertyType": "group",
-			"propertyKeyword": "Functions",
+			"propertyKeyword": "UDFs",
 			"propertyTooltip": "Creates a new scalar user-defined function (UDF) using either a SQL SELECT clause or a Python program.",
 			"structure": [
 				{
@@ -431,7 +431,7 @@ making sure that you maintain a proper JSON format.
 				},
 				{
 					"propertyName": "Input arguments",
-					"propertyKeyword": "inputArgs",
+					"propertyKeyword": "storedProcArgument",
 					"propertyTooltip": "For a Python UDF, a list of input argument names and data types. For a SQL UDF, a list of data types, without argument names.  You can specify a maximum of 32 arguments.",
 					"propertyType": "details",
 					"template": "textarea",
@@ -445,7 +445,7 @@ making sure that you maintain a proper JSON format.
 				},
 				{
 					"propertyName": "Volatility",
-					"propertyKeyword": "volatility",
+					"propertyKeyword": "storedProcVolatility",
 					"propertyTooltip": "You will get the best optimization if you label your function with the strictest volatility category that is valid for it.",
 					"propertyType": "select",
 					"defaultValue": "Volatile",
@@ -457,7 +457,7 @@ making sure that you maintain a proper JSON format.
 				},
 				{
 					"propertyName": "Statement",
-					"propertyKeyword": "statement",
+					"propertyKeyword": "storedProcFunction",
 					"propertyTooltip": "A valid executable Python program that returns a value or a SQL SELECT clause.",
 					"propertyType": "details",
 					"template": "textarea",

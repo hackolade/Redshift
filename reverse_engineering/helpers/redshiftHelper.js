@@ -4,10 +4,33 @@ const noConnectionError = { message: 'Connection error' };
 const ddlViewCreationHelper = require('./ddlViewCreationHelper')
 const aws = require('aws-sdk');
 let _;
-
 let containers = {};
 let types = {}
 this.redshift = null;
+
+const connect = async (connectionInfo) =>{
+	//TODO: add Logging
+	const { accessKeyId, secretAccessKey, region } = connectionInfo;
+	aws.config.update({ accessKeyId, secretAccessKey, region, maxRetries: 5 });
+	const redshiftInstance = new aws.Redshift({ apiVersion: '2012-12-01' });
+	const redshiftDataInstance = new aws.RedshiftData({ apiVersion: '2019-12-20' });
+	const clusters = await redshiftInstance.describeClusters().promise();
+	const requiredCluster = clusters.Clusters.find(cluster => cluster.ClusterIdentifier === connectionInfo.clusterIdentifier);
+	if (!requiredCluster) {
+		throw new Error(`Cluster with '${connectionInfo.clusterIdentifier}' identifier was not found`)
+	}
+	const connectionParams = {
+		ClusterIdentifier: requiredCluster.ClusterIdentifier,
+		Database: connectionInfo.databaseName.toLowerCase(),
+		DbUser: requiredCluster.MasterUsername
+	}
+	this.redshift = { redshiftInstance, redshiftDataInstance, connectionParams };
+}
+
+const testConnection = async (connectionInfo,logger) => {
+	await connect(connectionInfo,logger)
+	await this.redshift.redshiftDataInstance.listTables({...this.redshift.connectionParams}).promise();
+}
 
 const execute = async (sqlStatement) => {
 	if (!this.redshift) {
@@ -32,6 +55,18 @@ const execute = async (sqlStatement) => {
 		//TODO handle error
 		throw err;
 	}
+}
+
+const executeApplyToInstanceScript = async (sqlStatement) => {
+	if (!this.redshift) {
+		return Promise.reject(noConnectionError)
+	}
+		const {Id} = await this.redshift.redshiftDataInstance.executeStatement({ ...this.redshift.connectionParams, Sql: sqlStatement }).promise();
+		const queryDescription = await this.redshift.redshiftDataInstance.describeStatement({ Id }).promise();
+		if(queryDescription.Error){
+			throw new Error(queryDescription.Error)
+		}
+		return {};
 }
 
 
@@ -244,22 +279,37 @@ const getProcedures = async (schemaName) => {
 		}
 }
 
-
-const setRedshift = (redshift) => {
-	this.redshift = redshift;
+const  getModelData =  async () =>{
+	const clustersData = await this.redshift.redshiftInstance.describeClusters({ClusterIdentifier:this.redshift.connectionParams.ClusterIdentifier}).promise();
+	const selctedClusterData = _.first(clustersData.Clusters);
+	const clusterNamespace = selctedClusterData.ClusterNamespaceArn.match(/namespace:([\d\w-]+)/)[1];
+	const tags = selctedClusterData.Tags.map(tag => ({key: tag.Key, value: tag.Value}));
+return {
+	author: selctedClusterData.MasterUsername,
+	clusterIdentifier:selctedClusterData.ClusterIdentifier,
+	clusterNamespace,
+	host:selctedClusterData.Endpoint.Address,
+	port:selctedClusterData.Endpoint.Port,
+	databaseName:selctedClusterData.DBName,
+	tags
 }
+}
+
 const setDependencies = ({ lodash }) => _ = lodash;
 
 module.exports = {
 	execute,
-	setRedshift,
+	connect,
+	testConnection,
 	setDependencies,
 	getSchemaNames,
 	splitTableAndViewNames,
+	executeApplyToInstanceScript,
 	getSchemaCollectionNames,
 	getContainerData,
 	getTableDDL,
 	getSchemaQuota,
 	getViewData,
-	getViewDDL
+	getViewDDL,
+	getModelData
 };
