@@ -6,6 +6,7 @@
 	"excludeDocKind": ["id"],
 	"defaultDdlType": "redshift",
 	"connectionList": ["name", "clusterIdentifier", "databaseName"],
+	"widestColumn": "clusterIdentifier",
 	"scenario": [{
 		"dependency": {
 			"key": "authType",
