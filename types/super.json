@@ -18,6 +18,7 @@
 		"childRelationships": [],
 		"foreignCollection": "",
 		"foreignField": [],
+		"enableChildrenMultipleTypes": true,
 		"enabled": true,
 		"variantType": "JSON",
 		"properties": [],

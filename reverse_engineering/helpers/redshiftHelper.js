@@ -4,34 +4,62 @@ const noConnectionError = { message: 'Connection error' };
 const ddlViewCreationHelper = require('./ddlViewCreationHelper')
 const aws = require('aws-sdk');
 let _;
-
 let containers = {};
 let types = {}
-this.redshift = null;
+let redshift = null;
+
+const connect = async (connectionInfo) =>{
+	const { accessKeyId, secretAccessKey, region } = connectionInfo;
+	aws.config.update({ accessKeyId, secretAccessKey, region, maxRetries: 5 });
+	const redshiftInstance = new aws.Redshift({ apiVersion: '2012-12-01' });
+	const redshiftDataInstance = new aws.RedshiftData({ apiVersion: '2019-12-20' });
+	const clusters = await redshiftInstance.describeClusters().promise();
+	const requiredCluster = clusters.Clusters.find(cluster => cluster.ClusterIdentifier === connectionInfo.clusterIdentifier);
+	if (!requiredCluster) {
+		throw new Error(`Cluster with '${connectionInfo.clusterIdentifier}' identifier was not found`)
+	}
+	const connectionParams = {
+		ClusterIdentifier: requiredCluster.ClusterIdentifier,
+		Database: connectionInfo.databaseName.toLowerCase(),
+		DbUser: requiredCluster.MasterUsername
+	}
+	redshift = { redshiftInstance, redshiftDataInstance, connectionParams };
+}
+
+const testConnection = async (connectionInfo,logger) => {
+	await connect(connectionInfo,logger)
+	await redshift.redshiftDataInstance.listTables({...redshift.connectionParams}).promise();
+}
 
 const execute = async (sqlStatement) => {
-	if (!this.redshift) {
+	if (!redshift) {
 		return Promise.reject(noConnectionError)
 	}
-	try {
-		const {Id} = await this.redshift.redshiftDataInstance.executeStatement({ ...this.redshift.connectionParams, Sql: sqlStatement }).promise();
+		const {Id} = await redshift.redshiftDataInstance.executeStatement({ ...redshift.connectionParams, Sql: sqlStatement }).promise();
 		let records = [];
 		let NextToken;
 		let queryDescription;
 		do {
-			queryDescription = await this.redshift.redshiftDataInstance.describeStatement({ Id }).promise();
+			queryDescription = await redshift.redshiftDataInstance.describeStatement({ Id }).promise();
 		} while (queryDescription.Status !== "FINISHED");
 		do {
-			const queryResult = await this.redshift.redshiftDataInstance.getStatementResult({ Id, NextToken }).promise();
+			const queryResult = await redshift.redshiftDataInstance.getStatementResult({ Id, NextToken }).promise();
 			records = records.concat(queryResult.Records)
 			NextToken = queryResult.NextToken;
 		} while (NextToken);
 		return records;
+}
 
-	} catch (err) {
-		//TODO handle error
-		throw err;
+const executeApplyToInstanceScript = async (sqlStatement) => {
+	if (!redshift) {
+		return Promise.reject(noConnectionError)
 	}
+		const {Id} = await redshift.redshiftDataInstance.executeStatement({ ...redshift.connectionParams, Sql: sqlStatement }).promise();
+		const queryDescription = await redshift.redshiftDataInstance.describeStatement({ Id }).promise();
+		if(queryDescription.Error){
+			throw new Error(queryDescription.Error)
+		}
+		return {};
 }
 
 
@@ -49,11 +77,6 @@ const getViewDDL = async (schemaName,viewName) => {
 	
 }
 
-const getViewData = async () => {
-//todo add logic
-}
-
-
 const concatRecords = (records) => {
 	const skipNewLineRecords = ['(', ')', ';']
 	const ddl = records.reduce((ddl, record) => {
@@ -63,7 +86,6 @@ const concatRecords = (records) => {
 		}
 		return ddl + `\n${recordValue}`;
 	}, '');
-	console.log(ddl)
 	return ddl;
 }
 
@@ -73,7 +95,7 @@ const getSchemaNames = async () => {
 	let NextToken;
 
 	do {
-		const listSchemasResult = await this.redshift.redshiftDataInstance.listSchemas({ ...this.redshift.connectionParams, NextToken }).promise()
+		const listSchemasResult = await redshift.redshiftDataInstance.listSchemas({ ...redshift.connectionParams, NextToken }).promise()
 		NextToken = listSchemasResult.NextToken;
 		schemas = schemas.concat(listSchemasResult.Schemas)
 	} while (NextToken)
@@ -84,7 +106,7 @@ const getSchemaNames = async () => {
 }
 
 const getSchemaCollectionNames = async (schemaName) => {
-	const tables = await this.redshift.redshiftDataInstance.listTables({ ...this.redshift.connectionParams, SchemaPattern: schemaName }).promise();
+	const tables = await redshift.redshiftDataInstance.listTables({ ...redshift.connectionParams, SchemaPattern: schemaName }).promise();
 	const tableNames = tables.Tables
 		.filter(({ type }) => type === "TABLE" || type === "VIEW")
 		.map(({ name, type }) => markViewName(name, type))
@@ -116,7 +138,6 @@ const getContainerData = async schemaName => {
 		return containers[schemaName];
 	}
 
-	try {
 		const functions = await getFunctions(schemaName);
 		const procedures = await getProcedures(schemaName);
 		const quota = await getSchemaQuota(schemaName);
@@ -124,7 +145,7 @@ const getContainerData = async schemaName => {
 		const externalOptions = await getExternalOptions(schemaName)
 
 		const data = {
-			authorizationUsername: this.redshift.connectionParams.DbUser,
+			authorizationUsername: redshift.connectionParams.DbUser,
 			unlimitedQuota,
 			quota,
 			Procedures: procedures,
@@ -135,10 +156,6 @@ const getContainerData = async schemaName => {
 		containers[schemaName] = data;
 
 		return data;
-	} catch (err) {
-		//TODO handle error
-		throw err;
-	}
 }
 
 const getSchemaQuota = async (schemaName) => {
@@ -156,8 +173,7 @@ const getExternalOptions = async (schemaName) => {
 }
 
 const getFunctions = async (schemaName) => {
-	try{
-	const userOIDRecord = await execute(`SELECT usesysid FROM pg_user WHERE usename = '${this.redshift.connectionParams.DbUser}';`)
+	const userOIDRecord = await execute(`SELECT usesysid FROM pg_user WHERE usename = '${redshift.connectionParams.DbUser}';`)
 	const userOID = _.get(userOIDRecord,'[0][0].longValue')
 	const schemaOIDRecord = await execute(`SELECT oid FROM pg_namespace WHERE nspname = '${schemaName}';`)
 	const schemaOID = _.get(schemaOIDRecord,'[0][0].longValue')
@@ -190,10 +206,6 @@ const getFunctions = async (schemaName) => {
 		}
 	}))
 	return functionsData
-	}catch(err){
-		//TODO handle error
-		throw err;
-	}
 }
 
 const getVolatility = (volatilitySign) =>{
@@ -208,8 +220,7 @@ const getVolatility = (volatilitySign) =>{
 }
 
 const getProcedures = async (schemaName) => {
-	try{
-		const userOIDRecord = await execute(`SELECT usesysid FROM pg_user WHERE usename = '${this.redshift.connectionParams.DbUser}';`)
+		const userOIDRecord = await execute(`SELECT usesysid FROM pg_user WHERE usename = '${redshift.connectionParams.DbUser}';`)
 		const userOID = _.get(userOIDRecord,'[0][0].longValue')
 		const schemaOIDRecord = await execute(`SELECT oid FROM pg_namespace WHERE nspname = '${schemaName}';`)
 		const schemaOID = _.get(schemaOIDRecord,'[0][0].longValue')
@@ -238,28 +249,38 @@ const getProcedures = async (schemaName) => {
 			}
 		}))
 		return proceduresData
-		}catch(err){
-			//TODO handle error
-			throw err;
-		}
 }
 
-
-const setRedshift = (redshift) => {
-	this.redshift = redshift;
+const  getModelData =  async () =>{
+	const clustersData = await redshift.redshiftInstance.describeClusters({ClusterIdentifier:redshift.connectionParams.ClusterIdentifier}).promise();
+	const selctedClusterData = _.first(clustersData.Clusters);
+	const clusterNamespace = selctedClusterData.ClusterNamespaceArn.match(/namespace:([\d\w-]+)/)[1];
+	const tags = selctedClusterData.Tags.map(tag => ({key: tag.Key, value: tag.Value}));
+return {
+	author: selctedClusterData.MasterUsername,
+	clusterIdentifier:selctedClusterData.ClusterIdentifier,
+	clusterNamespace,
+	host:selctedClusterData.Endpoint.Address,
+	port:selctedClusterData.Endpoint.Port,
+	databaseName:selctedClusterData.DBName,
+	tags
 }
+}
+
 const setDependencies = ({ lodash }) => _ = lodash;
 
 module.exports = {
 	execute,
-	setRedshift,
+	connect,
+	testConnection,
 	setDependencies,
 	getSchemaNames,
 	splitTableAndViewNames,
+	executeApplyToInstanceScript,
 	getSchemaCollectionNames,
 	getContainerData,
 	getTableDDL,
 	getSchemaQuota,
-	getViewData,
-	getViewDDL
+	getViewDDL,
+	getModelData
 };
