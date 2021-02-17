@@ -29,6 +29,7 @@
             },
             "enableReverseEngineering": true,
             "disableChoices": true,
+            "disableMultipleTypes": true,
             "enableJsonType": true,
             "reverseSchemaIntoOneColumn": true,
             "disableDenormalization": true,
