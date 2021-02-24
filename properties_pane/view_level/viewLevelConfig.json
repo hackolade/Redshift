@@ -89,7 +89,6 @@
 					"abbr": "dk",
 					"setPrimaryKey": false,
 					"template": "collectiontree",
-					"isCompositeKey": true,
 					"templateOptions": {
 						"maxFields": 1
 					}
@@ -117,7 +116,6 @@
 				"abbr": "sk",
 				"attributeList": [],
 				"template": "collectiontree",
-				"isCompositeKey": true,
 				"dependency": {
 					"type": "and",
 					"values": [

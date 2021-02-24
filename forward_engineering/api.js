@@ -21,7 +21,8 @@ module.exports = {
 				cb(null, result);
 			})
 			.catch(error => {
-				cb(error);
+				logger.log('error', { error}, 'Apply to instance error');
+				cb({message: error.message },);
 			});
 	},
 };
