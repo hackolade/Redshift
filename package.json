@@ -44,6 +44,7 @@
             "reverseSchemaIntoOneColumn": true,
             "disableDenormalization": true,
             "enableComplexTypesNormalization": true,
+            "enableKeysMultipleAbrr": true,
             "relationships": {
                 "compositeRelationships": true
             },
