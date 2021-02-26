@@ -189,7 +189,6 @@ making sure that you maintain a proper JSON format.
 				"abbr": "sk",
 				"attributeList": [],
 				"template": "collectiontree",
-				"isCompositeKey": true,
 				"dependency": {
 					"type": "not",
 					"values": {
@@ -272,6 +271,7 @@ making sure that you maintain a proper JSON format.
 		},{
 			"propertyName": "Unique key",
 			"propertyType": "group",
+			"groupItemLimit": 1,
 			"propertyKeyword": "uniqueKey",
 			"propertyTooltip": "",
 			"structure": [{
@@ -289,6 +289,7 @@ making sure that you maintain a proper JSON format.
 			"propertyName": "Sort key",
 			"propertyType": "group",
 			"propertyKeyword": "sortKey",
+						"groupItemLimit": 1,
 			"propertyTooltip": "",
 			"structure": [{
 				"propertyName": "Key",
