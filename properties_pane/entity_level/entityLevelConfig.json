@@ -169,6 +169,7 @@ making sure that you maintain a proper JSON format.
 					"abbr": "dk",
 					"setPrimaryKey": false,
 					"template": "collectiontree",
+					"isCompositeKey": true,
 					"templateOptions": {
 						"maxFields": 1
 					}
