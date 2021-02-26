@@ -4,7 +4,7 @@
 	"type": "ddl",
 	"ddlType": "redshift",
 	"namePrefix": "Redshift",
-	"hasUpdateScript": true,
+	"hasUpdateScript": false,
 	"resolvedDefinitions": true,
 	"applyScriptToInstance": true,
 	"level": {

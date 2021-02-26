@@ -287,7 +287,7 @@ making sure that you maintain a proper JSON format.
 		},{
 			"propertyName": "Sort key",
 			"propertyType": "group",
-			"propertyKeyword": "sortKeys",
+			"propertyKeyword": "sortKey",
 						"groupItemLimit": 1,
 			"propertyTooltip": "",
 			"structure": [{
