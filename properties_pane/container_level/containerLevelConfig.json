@@ -127,6 +127,12 @@ making sure that you maintain a proper JSON format.
 				"template": "textarea"
 			},
 			{
+				"propertyName": "If not exists",
+				"propertyKeyword": "ifNotExists",
+				"propertyType": "checkbox",
+				"propertyTooltip": "if the specified table already exists, the command should make no changes and return a message that the table exists, rather than terminating with an error. "
+			},
+			{
 				"propertyName": "Authorization username",
 				"propertyKeyword": "authorizationUsername",
 				"propertyType": "text",
