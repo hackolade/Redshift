@@ -22,7 +22,28 @@ module.exports = {
 			})
 			.catch(error => {
 				logger.log('error', { error}, 'Apply to instance error');
-				cb({message: error.message },);
+				cb({message: error.message });
 			});
 	},
+
+	async testConnection(connectionInfo, logger, cb, app) {
+		this.logInfo('Test connection', connectionInfo, logger);
+        try{
+			await applyToInstanceHelper.testConnection(connectionInfo,logger);
+            cb();
+        }catch(err){
+            this.handleError(logger, err, cb);
+        }
+	},
+
+    handleError (logger, error, cb) {
+		const message = _.isString(error) ? error : _.get(error, 'message', 'Forvard Engineering error')
+		logger.log('error', { error }, 'Forvard Engineering error');
+		cb(message);
+	},
+
+	logInfo(step, connectionInfo, logger){
+		logger.clear();
+		logger.log('info', connectionInfo, 'connectionInfo', connectionInfo.hiddenKeys);
+	}
 };
