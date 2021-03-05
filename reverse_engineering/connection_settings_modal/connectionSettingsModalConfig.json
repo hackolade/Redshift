@@ -39,19 +39,13 @@
 				"inputKeyword": "accessKeyId",
 				"inputType": "text",
 				"inputPlaceholder": "Access Key ID",
-				"validation": {
-					"regex": "([^\\s])"
-				}
 			},
 			{
 				"inputLabel": "Secret Access Key",
 				"inputKeyword": "secretAccessKey",
 				"inputType": "password",
 				"inputPlaceholder": "Secret Access Key",
-				"isHiddenKey": true,
-				"validation": {
-					"regex": "([^\\s])"
-				}
+				"isHiddenKey": true
 			},
 			{
 				"inputLabel": "Region",
