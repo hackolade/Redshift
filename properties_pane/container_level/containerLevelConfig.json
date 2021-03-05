@@ -130,7 +130,7 @@ making sure that you maintain a proper JSON format.
 				"propertyName": "If not exists",
 				"propertyKeyword": "ifNotExists",
 				"propertyType": "checkbox",
-				"propertyTooltip": "if the specified table already exists, the command should make no changes and return a message that the table exists, rather than terminating with an error. "
+				"propertyTooltip": "if the specified schema already exists, the command should make no changes and return a message that the schema exists, rather than terminating with an error. "
 			},
 			{
 				"propertyName": "Authorization username",
