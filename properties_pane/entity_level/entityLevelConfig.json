@@ -289,7 +289,7 @@ making sure that you maintain a proper JSON format.
 			"propertyName": "Sort key",
 			"propertyType": "group",
 			"propertyKeyword": "sortKey",
-						"groupItemLimit": 1,
+			"groupItemLimit": 1,
 			"propertyTooltip": "",
 			"structure": [{
 				"propertyName": "Key",
