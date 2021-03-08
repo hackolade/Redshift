@@ -41,7 +41,7 @@ const execute = async (sqlStatement) => {
 		let queryDescription;
 		do {
 			queryDescription = await redshift.redshiftDataInstance.describeStatement({ Id }).promise();
-		} while (queryDescription.Status !== "FINISHED");
+		} while (queryDescription.Status === "STARTED");
 		do {
 			const queryResult = await redshift.redshiftDataInstance.getStatementResult({ Id, NextToken }).promise();
 			records = records.concat(queryResult.Records)
@@ -54,8 +54,11 @@ const executeApplyToInstanceScript = async (sqlStatement) => {
 	if (!redshift) {
 		return Promise.reject(noConnectionError)
 	}
-		const {Id} = await redshift.redshiftDataInstance.executeStatement({ ...redshift.connectionParams, Sql: sqlStatement }).promise();
-		const queryDescription = await redshift.redshiftDataInstance.describeStatement({ Id }).promise();
+	const {Id} = await redshift.redshiftDataInstance.executeStatement({ ...redshift.connectionParams, Sql: sqlStatement }).promise();
+	let queryDescription;
+	do{
+		 queryDescription = await redshift.redshiftDataInstance.describeStatement({ Id }).promise();
+	} while (queryDescription.Status === "STARTED");
 		if(queryDescription.Error){
 			throw new Error(queryDescription.Error)
 		}
