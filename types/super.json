@@ -20,7 +20,7 @@
 		"foreignField": [],
 		"enableChildrenMultipleTypes": true,
 		"enabled": true,
-		"variantType": "JSON",
+		"superType": "JSON",
 		"properties": [],
 		"subtype": "object",
 		"dependencies": [],
