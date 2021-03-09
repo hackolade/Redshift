@@ -342,6 +342,9 @@ const describeTable = async (schemaName, tableName) => {
 const getDocuments = async (schemaName, tableName, quantity, recordSamplingSettings) => {
 	const limit = getCount(quantity, recordSamplingSettings)
 	const columns = await describeTable(schemaName, tableName);
+	if(!tableHasColumnsOfSuperType(columns)){
+		return [];
+	}
 	const records = await execute(`SELECT * FROM "${schemaName}"."${tableName}" LIMIT ${limit};`);
 	const documents = records.map(document =>
 		document.reduce((rows, row, index) => {
@@ -358,6 +361,11 @@ const getDocuments = async (schemaName, tableName, quantity, recordSamplingSetti
 		}
 	return documents;
 };
+
+const tableHasColumnsOfSuperType = (columns) =>{
+	const columnsOfSuperType = columns.filter(column => column.type === "super");
+	return !_.isEmpty(columnsOfSuperType)
+}
 
 const filterNull = row => {
 	return Object.keys(row).reduce((filteredRow, key) => {
