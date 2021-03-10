@@ -163,7 +163,7 @@ making sure that you maintain a proper JSON format.
 				"groupItemLimit":1,
 				"structure": [{
 					"propertyName": "Key",
-					"propertyKeyword": "distKey",
+					"propertyKeyword": "compositeDistKey",
 					"propertyType": "compositeKeySetter",
 					"disabledItemStrategy": "default",
 					"abbr": "dk",
