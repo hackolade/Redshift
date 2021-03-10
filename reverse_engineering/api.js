@@ -7,7 +7,6 @@ let _;
 const connect = async (connectionInfo, logger, cb, app) => {
 	initDependencies(app);
 	logger.clear();
-	logger.log('info', connectionInfo);
 	try{
 		await redshiftHelper.connect(connectionInfo,logger);
 	}catch(err){
@@ -21,7 +20,6 @@ const disconnect = async (connectionInfo, logger, cb) => {
 
 const testConnection = async (connectionInfo, logger, cb, app) => {
 	initDependencies(app);
-	logInfo('Test connection', connectionInfo, logger);
 	try{
 		await redshiftHelper.testConnection(connectionInfo,logger);
 		cb();
