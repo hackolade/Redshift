@@ -7,11 +7,13 @@
 	"container": {
 		"name": "New schema",
 		"unlimitedQuota": false,
+		"ifNotExists": true,
 		"indexes": []
 	},
 	"collection": {
 		"collectionName": "New table",
 		"autoSortKey": true,
+		"ifNotExists": true,
 		"sortStyle": "Compound",
 		"formatTypeOptions": {
 			"NULL_IF": [{ "NULL_IF_item": "\\N" }]
