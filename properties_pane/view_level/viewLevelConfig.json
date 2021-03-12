@@ -83,11 +83,12 @@
 				"groupItemLimit":1,
 				"structure": [{
 					"propertyName": "Key",
-					"propertyKeyword": "distKey",
+					"propertyKeyword": "compositeDistKey",
 					"propertyType": "compositeKeySetter",
 					"disabledItemStrategy": "default",
 					"abbr": "dk",
 					"setPrimaryKey": false,
+					"isCompositeKey":true,
 					"template": "collectiontree",
 					"templateOptions": {
 						"maxFields": 1
