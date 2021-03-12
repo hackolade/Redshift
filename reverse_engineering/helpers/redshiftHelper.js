@@ -6,9 +6,11 @@ const aws = require('aws-sdk');
 let _;
 let containers = {};
 let types = {}
+let helperLogger;
 let redshift = null;
 
-const connect = async (connectionInfo) => {
+const connect = async (connectionInfo,logger) =>{
+	helperLogger = logger;
 	const { accessKeyId, secretAccessKey, region } = connectionInfo;
 	aws.config.update({ accessKeyId, secretAccessKey, region, maxRetries: 5 });
 	const redshiftInstance = new aws.Redshift({ apiVersion: '2012-12-01' });
@@ -33,8 +35,10 @@ const testConnection = async (connectionInfo, logger) => {
 
 const execute = async (sqlStatement) => {
 	if (!redshift) {
+		helperLogger.log('error', {message:"Redshift instance wasn't created"});
 		return Promise.reject(noConnectionError)
 	}
+    helperLogger.log('info', {message:`Executing query: ${sqlStatement}`});
 		const {Id} = await redshift.redshiftDataInstance.executeStatement({ ...redshift.connectionParams, Sql: sqlStatement }).promise();
 		let records = [];
 		let NextToken;
@@ -182,7 +186,7 @@ const getFunctions = async (schemaName) => {
 	const schemaOID = _.get(schemaOIDRecord, '[0][0].longValue')
 	const functionsDataRecords = await execute(ddlViewCreationHelper.getSchemaFunctionsData(schemaOID, userOID))
 	const functionsData = await Promise.all(functionsDataRecords.map(async record => {
-		const funcName = _.get(record, '[0].stringValue', '');
+		const funcName = _.get(record, '[0].stringValue', '');<<<<<<< fix/not-waiting-for-reply-to-instance-reply
 		const language = _.get(record, '[1].stringValue', '')
 		const statement = _.get(record, '[2].stringValue', '');
 		const typess = _.get(record, '[3].stringValue', '').split(' ');
