@@ -2,6 +2,7 @@ const redshiftHelper = require('../../reverse_engineering/helpers/redshiftHelper
 
 module.exports = { 
     async applyToInstance (connectionInfo, logger){
+        debugger
         const script = connectionInfo.script;
         await redshiftHelper.connect(connectionInfo,logger);
 
