@@ -38,32 +38,35 @@ const execute = async (sqlStatement) => {
 		helperLogger.log('error', {message:"Redshift instance wasn't created"});
 		return Promise.reject(noConnectionError)
 	}
-  helperLogger.log('info', {message:`Executing query: ${sqlStatement}`});
-	const { Id } = await redshift.redshiftDataInstance.executeStatement({ ...redshift.connectionParams, Sql: sqlStatement }).promise();
-	let records = [];
-	let NextToken;
-	let queryDescription;
-	do {
-		queryDescription = await redshift.redshiftDataInstance.describeStatement({ Id }).promise();
-	} while (queryDescription.Status !== "FINISHED");
-	do {
-		const queryResult = await redshift.redshiftDataInstance.getStatementResult({ Id, NextToken }).promise();
-		records = records.concat(queryResult.Records)
-		NextToken = queryResult.NextToken;
-	} while (NextToken);
-	return records;
+    helperLogger.log('info', {message:`Executing query: ${sqlStatement}`});
+		const {Id} = await redshift.redshiftDataInstance.executeStatement({ ...redshift.connectionParams, Sql: sqlStatement }).promise();
+		let records = [];
+		let NextToken;
+		let queryDescription;
+		do {
+			queryDescription = await redshift.redshiftDataInstance.describeStatement({ Id }).promise();
+		} while (queryDescription.Status === "STARTED");
+		do {
+			const queryResult = await redshift.redshiftDataInstance.getStatementResult({ Id, NextToken }).promise();
+			records = records.concat(queryResult.Records)
+			NextToken = queryResult.NextToken;
+		} while (NextToken);
+		return records;
 }
 
 const executeApplyToInstanceScript = async (sqlStatement) => {
 	if (!redshift) {
 		return Promise.reject(noConnectionError)
 	}
-	const { Id } = await redshift.redshiftDataInstance.executeStatement({ ...redshift.connectionParams, Sql: sqlStatement }).promise();
-	const queryDescription = await redshift.redshiftDataInstance.describeStatement({ Id }).promise();
-	if (queryDescription.Error) {
-		throw new Error(queryDescription.Error)
-	}
-	return {};
+	const {Id} = await redshift.redshiftDataInstance.executeStatement({ ...redshift.connectionParams, Sql: sqlStatement }).promise();
+	let queryDescription;
+	do{
+		 queryDescription = await redshift.redshiftDataInstance.describeStatement({ Id }).promise();
+	} while (queryDescription.Status === "STARTED");
+		if(queryDescription.Error){
+			throw new Error(queryDescription.Error)
+		}
+		return {};
 }
 
 
@@ -183,7 +186,7 @@ const getFunctions = async (schemaName) => {
 	const schemaOID = _.get(schemaOIDRecord, '[0][0].longValue')
 	const functionsDataRecords = await execute(ddlViewCreationHelper.getSchemaFunctionsData(schemaOID, userOID))
 	const functionsData = await Promise.all(functionsDataRecords.map(async record => {
-		const funcName = _.get(record, '[0].stringValue', '');
+		const funcName = _.get(record, '[0].stringValue', '');<<<<<<< fix/not-waiting-for-reply-to-instance-reply
 		const language = _.get(record, '[1].stringValue', '')
 		const statement = _.get(record, '[2].stringValue', '');
 		const typess = _.get(record, '[3].stringValue', '').split(' ');

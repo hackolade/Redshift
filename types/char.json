@@ -56,7 +56,7 @@
 		"sample":"",
 		"comments":"",
 		"mode": "char",
-		"length": 10,
+		"length": "",
 		"subtype": "string"
 	},
 	"subtypes": {
