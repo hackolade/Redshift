@@ -10,5 +10,9 @@ module.exports = {
         }, 'Redshift script');	
 
         await redshiftHelper.executeApplyToInstanceScript(script)
+    },
+
+    async testConnection(connectionInfo,logger){
+        await redshiftHelper.testConnection(connectionInfo,logger)
     }
 }
