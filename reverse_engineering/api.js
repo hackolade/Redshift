@@ -8,7 +8,7 @@ const connect = async (connectionInfo, logger, cb, app) => {
 	initDependencies(app);
 	logger.clear();
 	try{
-		await redshiftHelper.connect(connectionInfo,logger);
+		await redshiftHelper.connect(connectionInfo);
 	}catch(err){
 		handleError(logger, err, cb);
 	}
@@ -65,19 +65,25 @@ const getDbCollectionsData = async (data, logger, cb, app) => {
 			const packages = await packagesPromise;
 			const entities = redshiftHelper.splitTableAndViewNames(collections[schema]);
 			const containerData = await redshiftHelper.getContainerData(schema);
-
 			const tablesPackages = entities.tables.map(async (table) => {
+				const fullTableName = `"${schema}"."${table}"`
 				logger.progress({ message: `Start getting data from table`, containerName: schema, entityName: table });
 				const ddl = await redshiftHelper.getTableDDL(schema,table);
+				const quantity = await redshiftHelper.getRowsCount(fullTableName);
+				const documents = await redshiftHelper.getDocuments(schema, table, quantity, data.recordSamplingSettings);
+
 				logger.progress({ message: `Fetching record for JSON schema inference`, containerName: schema, entityName: table });
+				const jsonSchema = await redshiftHelper.getJsonSchema(documents, schema, table);
 				logger.progress({ message: `Schema inference`, containerName: schema, entityName: table });
-				//TODO: add handling for complex type documents
+
+				const handledDocuments = redshiftHelper.handleComplexTypesDocuments(jsonSchema, documents);
+
 				logger.progress({ message: `Data retrieved successfully`, containerName: schema, entityName: table });
 				return {
 					dbName: schema,
 					collectionName: table,
 					entityLevel: {},
-					documents: [],
+					documents: handledDocuments,
 					views: [],
 					ddl: {
 						script: ddl,
