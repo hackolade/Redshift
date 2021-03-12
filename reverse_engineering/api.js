@@ -8,7 +8,7 @@ const connect = async (connectionInfo, logger, cb, app) => {
 	initDependencies(app);
 	logger.clear();
 	try{
-		await redshiftHelper.connect(connectionInfo);
+		await redshiftHelper.connect(connectionInfo,logger);
 	}catch(err){
 		handleError(logger, err, cb);
 	}

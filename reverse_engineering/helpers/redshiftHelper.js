@@ -186,7 +186,7 @@ const getFunctions = async (schemaName) => {
 	const schemaOID = _.get(schemaOIDRecord, '[0][0].longValue')
 	const functionsDataRecords = await execute(ddlViewCreationHelper.getSchemaFunctionsData(schemaOID, userOID))
 	const functionsData = await Promise.all(functionsDataRecords.map(async record => {
-		const funcName = _.get(record, '[0].stringValue', '');<<<<<<< fix/not-waiting-for-reply-to-instance-reply
+		const funcName = _.get(record, '[0].stringValue', '');
 		const language = _.get(record, '[1].stringValue', '')
 		const statement = _.get(record, '[2].stringValue', '');
 		const typess = _.get(record, '[3].stringValue', '').split(' ');
@@ -364,7 +364,7 @@ const getDocuments = async (schemaName, tableName, quantity, recordSamplingSetti
 		.filter(document => !_.isEmpty(document))
 		.map(filterNull);
 		if(_.isEmpty(documents)){
-			throw new Error(`There are no records in ${tableName} table`)
+			throw new Error(`There are no records in "${tableName}" table`)
 		}
 	return documents;
 };
