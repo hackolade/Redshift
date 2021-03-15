@@ -9,7 +9,7 @@ let types = {}
 let helperLogger;
 let redshift = null;
 
-const connect = async (connectionInfo,logger) =>{
+const connect = async (connectionInfo, logger) => {
 	helperLogger = logger;
 	const { accessKeyId, secretAccessKey, region } = connectionInfo;
 	aws.config.update({ accessKeyId, secretAccessKey, region, maxRetries: 5 });
@@ -35,38 +35,42 @@ const testConnection = async (connectionInfo, logger) => {
 
 const execute = async (sqlStatement) => {
 	if (!redshift) {
-		helperLogger.log('error', {message:"Redshift instance wasn't created"});
+		helperLogger.log('error', { message: "Redshift instance wasn't created" });
 		return Promise.reject(noConnectionError)
 	}
-    helperLogger.log('info', {message:`Executing query: ${sqlStatement}`});
-		const {Id} = await redshift.redshiftDataInstance.executeStatement({ ...redshift.connectionParams, Sql: sqlStatement }).promise();
-		let records = [];
-		let NextToken;
-		let queryDescription;
-		do {
-			queryDescription = await redshift.redshiftDataInstance.describeStatement({ Id }).promise();
-		} while (queryDescription.Status === "STARTED");
-		do {
-			const queryResult = await redshift.redshiftDataInstance.getStatementResult({ Id, NextToken }).promise();
-			records = records.concat(queryResult.Records)
-			NextToken = queryResult.NextToken;
-		} while (NextToken);
-		return records;
+	helperLogger.log('info', { message: `Executing query: ${sqlStatement}` });
+	const { Id } = await redshift.redshiftDataInstance.executeStatement({ ...redshift.connectionParams, Sql: sqlStatement }).promise();
+	let records = [];
+	let NextToken;
+	let queryDescription;
+	do {
+		queryDescription = await redshift.redshiftDataInstance.describeStatement({ Id }).promise();
+		if (queryDescription.Error) {
+			throw new Error(queryDescription.Error)
+		}
+	} while (queryDescription.Status !== "FINISHED");
+	do {
+		const queryResult = await redshift.redshiftDataInstance.getStatementResult({ Id, NextToken }).promise();
+		records = records.concat(queryResult.Records)
+		NextToken = queryResult.NextToken;
+	} while (NextToken);
+	return records;
 }
 
 const executeApplyToInstanceScript = async (sqlStatement) => {
 	if (!redshift) {
 		return Promise.reject(noConnectionError)
 	}
-	const {Id} = await redshift.redshiftDataInstance.executeStatement({ ...redshift.connectionParams, Sql: sqlStatement }).promise();
+	const { Id } = await redshift.redshiftDataInstance.executeStatement({ ...redshift.connectionParams, Sql: sqlStatement }).promise();
 	let queryDescription;
-	do{
-		 queryDescription = await redshift.redshiftDataInstance.describeStatement({ Id }).promise();
-	} while (queryDescription.Status === "STARTED");
-		if(queryDescription.Error){
+	do {
+		queryDescription = await redshift.redshiftDataInstance.describeStatement({ Id }).promise();
+		if (queryDescription.Error) {
 			throw new Error(queryDescription.Error)
 		}
-		return {};
+	} while (queryDescription.Status !== "FINISHED");
+
+	return {};
 }
 
 
@@ -349,7 +353,7 @@ const describeTable = async (schemaName, tableName) => {
 const getDocuments = async (schemaName, tableName, quantity, recordSamplingSettings) => {
 	const limit = getCount(quantity, recordSamplingSettings)
 	const columns = await describeTable(schemaName, tableName);
-	if(!tableHasColumnsOfSuperType(columns)){
+	if (!tableHasColumnsOfSuperType(columns)) {
 		return [];
 	}
 	const records = await execute(`SELECT * FROM "${schemaName}"."${tableName}" LIMIT ${limit};`);
@@ -363,13 +367,13 @@ const getDocuments = async (schemaName, tableName, quantity, recordSamplingSetti
 		}, {}))
 		.filter(document => !_.isEmpty(document))
 		.map(filterNull);
-		if(_.isEmpty(documents)){
-			throw new Error(`There are no records in "${tableName}" table`)
-		}
+	if (_.isEmpty(documents)) {
+		throw new Error(`There are no records in "${tableName}" table`)
+	}
 	return documents;
 };
 
-const tableHasColumnsOfSuperType = (columns) =>{
+const tableHasColumnsOfSuperType = (columns) => {
 	const columnsOfSuperType = columns.filter(column => column.type === "super");
 	return !_.isEmpty(columnsOfSuperType)
 }
