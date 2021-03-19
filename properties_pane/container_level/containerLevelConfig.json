@@ -437,7 +437,7 @@ making sure that you maintain a proper JSON format.
 				},
 				{
 					"propertyName": "Input arguments",
-					"propertyKeyword": "storedProcArgument",
+					"propertyKeyword": "functionArguments",
 					"propertyTooltip": "For a Python UDF, a list of input argument names and data types. For a SQL UDF, a list of data types, without argument names.  You can specify a maximum of 32 arguments.",
 					"propertyType": "details",
 					"template": "textarea",
@@ -445,13 +445,13 @@ making sure that you maintain a proper JSON format.
 				},
 				{
 					"propertyName": "Returns data type",
-					"propertyKeyword": "storedProcDataType",
+					"propertyKeyword": "functionReturnType",
 					"propertyTooltip": "Data type",
 					"propertyType": "text"
 				},
 				{
 					"propertyName": "Volatility",
-					"propertyKeyword": "storedProcVolatility",
+					"propertyKeyword": "functionVolatility",
 					"propertyTooltip": "You will get the best optimization if you label your function with the strictest volatility category that is valid for it.",
 					"propertyType": "select",
 					"defaultValue": "Volatile",
@@ -463,7 +463,7 @@ making sure that you maintain a proper JSON format.
 				},
 				{
 					"propertyName": "Statement",
-					"propertyKeyword": "storedProcFunction",
+					"propertyKeyword": "functionBody",
 					"propertyTooltip": "A valid executable Python program that returns a value or a SQL SELECT clause.",
 					"propertyType": "details",
 					"template": "textarea",
@@ -471,7 +471,7 @@ making sure that you maintain a proper JSON format.
 				},
 				{
 					"propertyName": "Language",
-					"propertyKeyword": "storedProcLanguage",
+					"propertyKeyword": "functionLanguage",
 					"propertyTooltip": "language",
 					"propertyType": "select",
 					"defaultValue": "sql",
@@ -482,7 +482,7 @@ making sure that you maintain a proper JSON format.
 				},
 				{
 					"propertyName": "Remarks",
-					"propertyKeyword": "storedProcComments",
+					"propertyKeyword": "functionComments",
 					"propertyTooltip": "comments",
 					"addTimestampButton": false,
 					"propertyType": "details",
