@@ -11,8 +11,8 @@ let redshift = null;
 
 const connect = async (connectionInfo, logger) => {
 	helperLogger = logger;
-	const { accessKeyId, secretAccessKey, region } = connectionInfo;
-	aws.config.update({ accessKeyId, secretAccessKey, region, maxRetries: 5 });
+	const { accessKeyId, secretAccessKey, region, sessionToken } = connectionInfo;
+	aws.config.update({ accessKeyId, secretAccessKey, region, maxRetries: 5, sessionToken });
 	const redshiftInstance = new aws.Redshift({ apiVersion: '2012-12-01' });
 	const redshiftDataInstance = new aws.RedshiftData({ apiVersion: '2019-12-20' });
 	const clusters = await redshiftInstance.describeClusters().promise();

@@ -133,6 +133,13 @@
 						"value": "us-gov-west-1"
 					}
 				]
+			},
+			{
+				"inputLabel": "Session Token",
+				"inputKeyword": "sessionToken",
+				"inputType": "password",
+				"inputPlaceholder": "Optional Session Token",
+				"isHiddenKey": true
 			}
 		]
 	}
