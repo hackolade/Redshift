@@ -306,12 +306,15 @@ making sure that you maintain a proper JSON format.
 							}]
 						}
 					]
-				}
+				},
+				"cleanDependency": true
 			},
 			{
 				"propertyName": "Alternate Key",
 				"propertyKeyword": "alternateKey",
 				"propertyType": "checkbox",
+				"defaultValue": false,
+				"enableForReference": true,
 				"dependency": {
 					"type": "or",
 					"values": [
@@ -651,12 +654,15 @@ making sure that you maintain a proper JSON format.
 							}]
 						}
 					]
-				}
+				},
+				"cleanDependency": true
 			},
 			{
 				"propertyName": "Alternate Key",
 				"propertyKeyword": "alternateKey",
 				"propertyType": "checkbox",
+				"defaultValue": false,
+				"enableForReference": true,
 				"dependency": {
 					"type": "or",
 					"values": [
@@ -987,12 +993,15 @@ making sure that you maintain a proper JSON format.
 							}]
 						}
 					]
-				}
+				},
+				"cleanDependency": true
 			},
 			{
 				"propertyName": "Alternate Key",
 				"propertyKeyword": "alternateKey",
 				"propertyType": "checkbox",
+				"defaultValue": false,
+				"enableForReference": true,
 				"dependency": {
 					"type": "or",
 					"values": [
@@ -1232,12 +1241,15 @@ making sure that you maintain a proper JSON format.
 							}]
 						}
 					]
-				}
+				},
+				"cleanDependency": true
 			},
 			{
 				"propertyName": "Alternate Key",
 				"propertyKeyword": "alternateKey",
 				"propertyType": "checkbox",
+				"defaultValue": false,
+				"enableForReference": true,
 				"dependency": {
 					"type": "or",
 					"values": [
@@ -1534,12 +1546,15 @@ making sure that you maintain a proper JSON format.
 							}]
 						}
 					]
-				}
+				},
+				"cleanDependency": true
 			},
 			{
 				"propertyName": "Alternate Key",
 				"propertyKeyword": "alternateKey",
 				"propertyType": "checkbox",
+				"defaultValue": false,
+				"enableForReference": true,
 				"dependency": {
 					"type": "or",
 					"values": [
@@ -1830,6 +1845,7 @@ making sure that you maintain a proper JSON format.
 				"propertyKeyword": "unique",
 				"enableForReference": true,
 				"propertyType": "checkbox",
+				"cleanDependency": true,
 				"dependency": {
 					"type": "and",
 					"values": [
@@ -1860,6 +1876,8 @@ making sure that you maintain a proper JSON format.
 				"propertyName": "Alternate Key",
 				"propertyKeyword": "alternateKey",
 				"propertyType": "checkbox",
+				"defaultValue": false,
+				"enableForReference": true,
 				"dependency": {
 					"type": "or",
 					"values": [
@@ -2146,12 +2164,15 @@ making sure that you maintain a proper JSON format.
 							}]
 						}
 					]
-				}
+				},
+				"cleanDependency": true
 			},
 			{
 				"propertyName": "Alternate Key",
 				"propertyKeyword": "alternateKey",
 				"propertyType": "checkbox",
+				"defaultValue": false,
+				"enableForReference": true,
 				"dependency": {
 					"type": "or",
 					"values": [
@@ -2439,12 +2460,15 @@ making sure that you maintain a proper JSON format.
 							}]
 						}
 					]
-				}
+				},
+				"cleanDependency": true
 			},
 			{
 				"propertyName": "Alternate Key",
 				"propertyKeyword": "alternateKey",
 				"propertyType": "checkbox",
+				"defaultValue": false,
+				"enableForReference": true,
 				"dependency": {
 					"type": "or",
 					"values": [
@@ -2678,12 +2702,15 @@ making sure that you maintain a proper JSON format.
 							}]
 						}
 					]
-				}
+				},
+				"cleanDependency": true
 			},
 			{
 				"propertyName": "Alternate Key",
 				"propertyKeyword": "alternateKey",
 				"propertyType": "checkbox",
+				"defaultValue": false,
+				"enableForReference": true,
 				"dependency": {
 					"type": "or",
 					"values": [
@@ -2932,12 +2959,15 @@ making sure that you maintain a proper JSON format.
 							}]
 						}
 					]
-				}
+				},
+				"cleanDependency": true
 			},
 			{
 				"propertyName": "Alternate Key",
 				"propertyKeyword": "alternateKey",
 				"propertyType": "checkbox",
+				"defaultValue": false,
+				"enableForReference": true,
 				"dependency": {
 					"type": "or",
 					"values": [
@@ -3176,12 +3206,15 @@ making sure that you maintain a proper JSON format.
 							}]
 						}
 					]
-				}
+				},
+				"cleanDependency": true
 			},
 			{
 				"propertyName": "Alternate Key",
 				"propertyKeyword": "alternateKey",
 				"propertyType": "checkbox",
+				"defaultValue": false,
+				"enableForReference": true,
 				"dependency": {
 					"type": "or",
 					"values": [
@@ -3420,12 +3453,15 @@ making sure that you maintain a proper JSON format.
 							}]
 						}
 					]
-				}
+				},
+				"cleanDependency": true
 			},
 			{
 				"propertyName": "Alternate Key",
 				"propertyKeyword": "alternateKey",
 				"propertyType": "checkbox",
+				"defaultValue": false,
+				"enableForReference": true,
 				"dependency": {
 					"type": "or",
 					"values": [
@@ -3664,12 +3700,15 @@ making sure that you maintain a proper JSON format.
 							}]
 						}
 					]
-				}
+				},
+				"cleanDependency": true
 			},
 			{
 				"propertyName": "Alternate Key",
 				"propertyKeyword": "alternateKey",
 				"propertyType": "checkbox",
+				"defaultValue": false,
+				"enableForReference": true,
 				"dependency": {
 					"type": "or",
 					"values": [
@@ -3908,12 +3947,15 @@ making sure that you maintain a proper JSON format.
 							}]
 						}
 					]
-				}
+				},
+				"cleanDependency": true
 			},
 			{
 				"propertyName": "Alternate Key",
 				"propertyKeyword": "alternateKey",
 				"propertyType": "checkbox",
+				"defaultValue": false,
+				"enableForReference": true,
 				"dependency": {
 					"type": "or",
 					"values": [
