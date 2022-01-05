@@ -4142,6 +4142,23 @@ making sure that you maintain a proper JSON format.
 				"propertyKeyword": "relationshipType",
 				"hidden": true
 			}
+		],
+		"varbyte": [
+			"name",
+			"code",
+			"schemaId",
+			"type",
+			{
+				"propertyName": "Length",
+				"propertyKeyword": "length",
+				"propertyType": "numeric",
+				"valueType": "number",
+				"propertyTooltip": "Setting for Length must be between 1 and 1024000",
+				"minValue": 1,
+				"maxValue": 1024000,
+				"step": 1,
+				"typeDecorator": true
+			}
 		]
 	}
 } 
