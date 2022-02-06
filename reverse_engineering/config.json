@@ -13,5 +13,6 @@
 			"value": "externalbrowser"
 		},
 		"value": "connectByExternalBrowser"
-	}]
+	}],
+	"helpUrl": "https://hackolade.com/help/ConnecttoAmazonRedshift.html"
 }
