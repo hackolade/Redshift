@@ -87,7 +87,8 @@ const getDbCollectionsData = async (data, logger, cb, app) => {
 					views: [],
 					ddl: {
 						script: ddl,
-						type: 'redshift'
+						type: 'redshift',
+						takeAllDdlProperties: true
 					},
 					emptyBucket: false,
 					validation: {

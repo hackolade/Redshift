@@ -112,7 +112,6 @@ making sure that you maintain a proper JSON format.
 			}
 
 */
-
 [
 	{
 		"lowerTab": "Details",
@@ -160,21 +159,24 @@ making sure that you maintain a proper JSON format.
 				"propertyKeyword": "distKey",
 				"propertyType": "group",
 				"propertyTooltip": "Keyword that specifies that the column is the distribution key for the table.",
-				"groupItemLimit":1,
-				"structure": [{
-					"propertyName": "Key",
-					"propertyKeyword": "compositeDistKey",
-					"propertyType": "compositeKeySetter",
-					"disabledItemStrategy": "default",
-					"abbr": "dk",
-					"setPrimaryKey": false,
-					"template": "collectiontree",
-					"isCompositeKey": true,
-					"templateOptions": {
-						"maxFields": 1
+				"groupItemLimit": 1,
+				"structure": [
+					{
+						"propertyName": "Key",
+						"propertyKeyword": "compositeDistKey",
+						"propertyType": "compositeKeySetter",
+						"disabledItemStrategy": "default",
+						"abbr": "dk",
+						"setPrimaryKey": false,
+						"template": "collectiontree",
+						"isCompositeKey": true,
+						"templateOptions": {
+							"maxFields": 1
+						}
 					}
-				}]
-			},			{
+				]
+			},
+			{
 				"propertyName": "Auto sort key",
 				"propertyKeyword": "autoSortKey",
 				"propertyType": "checkbox",
@@ -182,13 +184,23 @@ making sure that you maintain a proper JSON format.
 			},
 			{
 				"propertyName": "Sort key",
+				"propertyType": "group",
 				"propertyKeyword": "sortKey",
-				"propertyType": "compositeKeySetter",
-				"disabledItemStrategy": "default",
-				"setPrimaryKey": true,
-				"abbr": "sk",
-				"attributeList": [],
-				"template": "collectiontree",
+				"groupItemLimit": 1,
+				"propertyTooltip": "",
+				"structure": [
+					{
+						"propertyName": "Key",
+						"propertyKeyword": "compositeSortKey",
+						"propertyType": "compositeKeySetter",
+						"disabledItemStrategy": "default",
+						"setPrimaryKey": false,
+						"abbr": "sk",
+						"attributeList": [],
+						"template": "collectiontree",
+						"isCompositeKey": true
+					}
+				],
 				"dependency": {
 					"type": "not",
 					"values": {
@@ -214,7 +226,7 @@ making sure that you maintain a proper JSON format.
 					}
 				}
 			},
- 			{
+			{
 				"propertyName": "Like parent table",
 				"propertyKeyword": "like",
 				"propertyTooltip": "Specifies an existing table from which the new table automatically copies column names, data types, and NOT NULL constraints.",
@@ -251,64 +263,57 @@ making sure that you maintain a proper JSON format.
 				"valueType": "string"
 			}
 		],
-		"columnsRatio": [3.7, 5]
+		"columnsRatio": [
+			3.7,
+			5
+		]
 	},
 	{
 		"lowerTab": "Compound keys",
-		"structure": [{
-			"propertyName": "Primary key",
-			"propertyType": "group",
-			"groupItemLimit": 1,
-			"propertyKeyword": "primaryKey",
-			"propertyTooltip": "",
-			"structure": [{
-				"propertyName": "Key",
-				"propertyKeyword": "compositePrimaryKey",
-				"propertyType": "primaryKeySetter",
-				"abbr": "pk",
-				"attributeList": []
-			}]
-		},{
-			"propertyName": "Unique key",
-			"propertyType": "group",
-			"groupItemLimit": 1,
-			"propertyKeyword": "uniqueKey",
-			"propertyTooltip": "",
-			"structure": [{
-				"propertyName": "Key",
-				"propertyKeyword": "compositeUniqueKey",
-				"propertyType": "compositeKeySetter",
-				"disabledItemStrategy": "default",
-				"setPrimaryKey": false,
-				"abbr": " ",
-				"attributeList": [],
-				"template": "collectiontree",
-				"isCompositeKey": true
+		"structure": [
+			{
+				"propertyName": "Primary key",
+				"propertyType": "group",
+				"groupItemLimit": 1,
+				"propertyKeyword": "primaryKey",
+				"propertyTooltip": "",
+				"structure": [
+					{
+						"propertyName": "Key",
+						"propertyKeyword": "compositePrimaryKey",
+						"propertyType": "primaryKeySetter",
+						"abbr": "pk",
+						"attributeList": []
+					}
+				]
 			},
 			{
-				"propertyName": "Alternate key",
-				"propertyKeyword": "alternateKey",
+				"propertyName": "Unique key",
+				"propertyType": "group",
+				"groupItemLimit": 1,
+				"propertyKeyword": "uniqueKey",
 				"propertyTooltip": "",
-				"propertyType": "checkbox",
-				"setFieldPropertyBy": "compositeUniqueKey"
-			}]
-		},{
-			"propertyName": "Sort key",
-			"propertyType": "group",
-			"propertyKeyword": "sortKey",
-			"groupItemLimit": 1,
-			"propertyTooltip": "",
-			"structure": [{
-				"propertyName": "Key",
-				"propertyKeyword": "compositeSortKey",
-				"propertyType": "compositeKeySetter",
-				"disabledItemStrategy": "default",
-				"setPrimaryKey": false,
-				"abbr": "sk",
-				"attributeList": [],
-				"template": "collectiontree",
-				"isCompositeKey": true
-			}]
-		}]
+				"structure": [
+					{
+						"propertyName": "Key",
+						"propertyKeyword": "compositeUniqueKey",
+						"propertyType": "compositeKeySetter",
+						"disabledItemStrategy": "default",
+						"setPrimaryKey": false,
+						"abbr": " ",
+						"attributeList": [],
+						"template": "collectiontree",
+						"isCompositeKey": true
+					},
+					{
+						"propertyName": "Alternate key",
+						"propertyKeyword": "alternateKey",
+						"propertyTooltip": "",
+						"propertyType": "checkbox",
+						"setFieldPropertyBy": "compositeUniqueKey"
+					}
+				]
+			}
+		]
 	}
 ]
