@@ -5,7 +5,6 @@
   "author": "Hackolade",
   "dependencies": {
     "aws-sdk": "^2.708.0",
-    "axios": "^0.19.2",
     "uuid": "^7.0.3"
   },
   "installed": true
