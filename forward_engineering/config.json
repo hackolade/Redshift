@@ -2,7 +2,7 @@
 	"extension": "sql",
 	"filterName": "SQL",
 	"type": "ddl",
-	"ddlType": "redshift",
+	"ddlType": "plugin",
 	"namePrefix": "Redshift",
 	"hasUpdateScript": false,
 	"resolvedDefinitions": true,
