@@ -20,9 +20,9 @@ module.exports = {
 		'CREATE MATERIALIZED VIEW "${schemaName}"."${name}"${backup}${tableAttributes}${autoRefresh}\nAS SELECT ${table_columns}\nFROM "${table_name}";\n',
 
 	createFunction:
-		'CREATE${orReplace}FUNCTION "${name}" (${arguments})\n\tRETURNS ${returnDataType}\n${volatility}\nAS $$\n${statement}\n$$ LANGUAGE ${language};\n',
+		'CREATE${orReplace}FUNCTION ${name} (${arguments})\n\tRETURNS ${returnDataType}\n${volatility}\nAS $$\n${statement}\n$$ LANGUAGE ${language};\n',
 	createProcedure:
-		'CREATE${orReplace}PROCEDURE "${name}" (${arguments})\nAS $$\n${statement}\n$$ LANGUAGE plpgsql${securityMode}${configurationParameter};\n',
+		'CREATE${orReplace}PROCEDURE ${name} (${arguments})\nAS $$\n${statement}\n$$ LANGUAGE plpgsql${securityMode}${configurationParameter};\n',
 
 	columnDefinition:
 		'"${name}" ${type}${default}${encoding}${distKey}${sortKey}${notNull}${unique}${primaryKey}${inlineConstraints}${references}',
@@ -31,4 +31,23 @@ module.exports = {
 	compoundUniqueKey: 'UNIQUE (${keys})',
 	compoundPrimaryKey: 'PRIMARY KEY (${keys})',
 	createTableForeignKey: 'FOREIGN KEY (${columns}) REFERENCES ${primary_table} (${primary_columns})',
+
+	dropSchema: 'DROP SCHEMA IF EXISTS ${name};',
+	alterSchema: 'ALTER SCHEMA ${name}${quota};',
+
+	dropFunction: 'DROP FUNCTION ${name} (${arguments});',
+	dropProcedure: 'DROP PROCEDURE ${name} (${arguments});',
+
+	dropTable: 'DROP TABLE IF EXISTS ${name};',
+	alterDistKey: 'ALTER TABLE ${name} ALTER ${distConstraint};',
+	alterSortKey: 'ALTER TABLE ${name} ALTER ${sortKeyConstraint};',
+	alterPrimaryKey: 'ALTER TABLE ${name} ADD ${primaryKeyConstraint};',
+	alterUnique: 'ALTER TABLE ${name} ADD ${uniqueConstraint};',
+
+	renameColumn: 'ALTER TABLE ${tableName} RENAME COLUMN "${oldColumnName}" TO "${newColumnName}";',
+	alterColumnType: 'ALTER TABLE ${tableName} ALTER COLUMN "${columnName}" TYPE ${type};',
+	addColumn: 'ALTER TABLE ${tableName} ADD COLUMN ${columnStatement};',
+	dropColum: 'ALTER TABLE ${tableName} DROP COLUMN "${columnName}";',
+
+	dropView: 'DROP VIEW IF EXISTS ${name};',
 };

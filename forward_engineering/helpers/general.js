@@ -1,6 +1,6 @@
 module.exports = app => {
 	const _ = app.require('lodash');
-	const { checkAllKeysActivated } = app.require('@hackolade/ddl-fe-utils').general;
+	const { checkAllKeysActivated, clean, tab } = app.require('@hackolade/ddl-fe-utils').general;
 	const commentIfDeactivated = require('./commentDeactivatedHelper')(app);
 
 	const escape = value => String(value).replace(/\'/g, "''").replace(/\\\\/g, '\\').replace(/\\/g, '\\\\');
@@ -134,6 +134,49 @@ module.exports = app => {
 		);
 	};
 
+	const hydrateUdf = schemaName => func =>
+		clean({
+			name: func.name ? getCompositeName(func.name, schemaName) : undefined,
+			orReplace: func.orReplace,
+			arguments: func.functionArguments || func.storedProcArgument || undefined,
+			returnDataType: func.functionReturnType || func.storedProcDataType || undefined,
+			volatility:
+				func.functionVolatility || func.storedProcVolatility
+					? (func.functionVolatility || func.storedProcVolatility).toUpperCase()
+					: undefined,
+			statement:
+				func.functionBody || func.storedProcFunction
+					? tab(_.trim(func.functionBody || func.storedProcFunction))
+					: undefined,
+			language: func.functionLanguage || func.storedProcLanguage,
+		});
+
+	const hydrateProcedure = schemaName => procedure =>
+		clean({
+			name: procedure.name ? getCompositeName(procedure.name, schemaName) : undefined,
+			orReplace: procedure.orReplace,
+			arguments: procedure.inputArgs || undefined,
+			statement: procedure.body ? tab(_.trim(procedure.body)) : undefined,
+			securityMode: procedure.securityMode ? `\nSECURITY ${procedure.securityMode}` : undefined,
+			configurationParameter: procedure.configurationParameter
+				? `\nSET configuration_parameter TO ${procedure.configurationParameter}`
+				: undefined,
+		});
+
+	const filterUdf = func => func.name && func.arguments && func.language && func.returnDataType && func.statement;
+
+	const filterProcedure = procedure => procedure.name && procedure.arguments && procedure.statement;
+
+	const setOrReplace = item => ({ ...item, orReplace: item.orReplace ? ' OR REPLACE ' : ' ' });
+
+	const getCompositeName = (name, parentName) => {
+		if (name && parentName) {
+			return `"${parentName}"."${name}"`;
+		} else if (!parentName) {
+			return `"${name}"`;
+		}
+	};
+
 	return {
 		toString,
 		toNumber,
@@ -145,5 +188,11 @@ module.exports = app => {
 		checkIfForeignKeyActivated,
 		foreignActiveKeysToString,
 		viewColumnsToString,
+		hydrateUdf,
+		hydrateProcedure,
+		filterUdf,
+		filterProcedure,
+		setOrReplace,
+		getCompositeName,
 	};
 };

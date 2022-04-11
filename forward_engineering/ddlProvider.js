@@ -4,17 +4,170 @@ const types = require('./configs/types');
 
 module.exports = (baseProvider, options, app) => {
 	const _ = app.require('lodash');
-	const { tab, hasType, clean } = app.require('@hackolade/ddl-fe-utils').general;
+	const { hasType } = app.require('@hackolade/ddl-fe-utils').general;
 	const assignTemplates = app.require('@hackolade/ddl-fe-utils').assignTemplates;
-	const { foreignKeysToString, checkIfForeignKeyActivated, foreignActiveKeysToString } =
-		require('./helpers/general')(app);
+	const {
+		foreignKeysToString,
+		checkIfForeignKeyActivated,
+		foreignActiveKeysToString,
+		viewColumnsToString,
+		hydrateUdf,
+		hydrateProcedure,
+		filterUdf,
+		filterProcedure,
+		setOrReplace,
+		getCompositeName,
+	} = require('./helpers/general')(app);
 	const { decorateType, getDefault, getQuota, getUri, getARN, getSourceSchemaNameForExternalSchema } =
 		require('./helpers/columnDefinitionHelper')(app);
-	const createStatements = require('./helpers/createStatements')(app);
 	const { generateConstraint } = require('./helpers/constraintHelper')(app);
 	const commentIfDeactivated = require('./helpers/commentDeactivatedHelper')(app);
+	const { getTableAttributes, getTableConstraints, getTableLikeConstraint } = require('./helpers/tableHelper')(app);
 
-	return createStatements({
+	return {
+		createDatabase({
+			name,
+			authorization,
+			quota,
+			sourceDBName,
+			ifNotExist,
+			sourceSchemaName,
+			source,
+			external,
+			iamRole,
+			secretARN,
+			catalogRole,
+			uri,
+			region,
+			createExternalDatabase,
+			functions,
+			procedures,
+		}) {
+			let database;
+			if (external) {
+				database = assignTemplates(templates.createExternalSchema, {
+					name,
+					ifNotExist,
+					source,
+					sourceDBName,
+					sourceSchemaName,
+					region,
+					uri,
+					iamRole,
+					secretARN,
+					catalogRole,
+					createExternalDatabase,
+				});
+			} else {
+				database = assignTemplates(templates.createSchema, {
+					name,
+					ifNotExist,
+					authorization,
+					quota,
+				});
+			}
+			const userFunctions = functions.map(func => assignTemplates(templates.createFunction, setOrReplace(func)));
+			const userProcedures = procedures.map(procedure =>
+				assignTemplates(templates.createProcedure, setOrReplace(procedure)),
+			);
+			return [database, ...userFunctions, ...userProcedures].join('\n');
+		},
+
+		createTable(tableData, isActivated) {
+			const temporary = tableData.temporary ? 'TEMPORARY ' : '';
+			const asSelect = tableData.selectStatement;
+			const schemaName = tableData.schemaName === '' ? 'public' : tableData.schemaName;
+			if (asSelect) {
+				return assignTemplates(templates.createTableAs, {
+					name: tableData.name,
+					temporary: temporary,
+					schemaName,
+					backup: tableData.backup,
+					tableAttributes: getTableAttributes(
+						tableData.distStyle,
+						tableData.distKey,
+						tableData.compoundSortKey,
+					),
+					query: asSelect,
+				});
+			}
+			const columnDefinitions = tableData.columns
+				.map(column => commentIfDeactivated(column.statement, column))
+				.join(',\n\t');
+			return assignTemplates(templates.createTable, {
+				name: tableData.name,
+				schemaName,
+				temporary: temporary,
+				likeStatement: getTableLikeConstraint(
+					tableData.likeTableName,
+					tableData.includeDefaults,
+					!_.isEmpty(columnDefinitions),
+				),
+				ifNotExist: tableData.ifNotExist,
+				columnDefinitions: columnDefinitions !== '' ? '\n\t' + columnDefinitions : '',
+				tableConstraints: getTableConstraints(
+					tableData.backup,
+					tableData.compoundUniqueKey,
+					tableData.compoundPrimaryKey,
+					tableData.foreignKeyConstraints,
+				),
+				tableAttributes: getTableAttributes(tableData.distStyle, tableData.distKey, tableData.compoundSortKey),
+			});
+		},
+
+		createView(viewData, dbData, isActivated) {
+			if (_.isEmpty(viewData.keys)) {
+				return '';
+			}
+			const schemaName = viewData.schemaName === '' ? 'public' : viewData.schemaName;
+			const { columnList, tableColumns, tables } = viewData.keys.reduce(
+				(result, key) => {
+					result.columnList.push({ name: `"${key.alias || key.name}"`, isActivated: key.isActivated });
+					result.tableColumns.push({
+						name: `"${key.entityName}"."${key.name}"`,
+						isActivated: key.isActivated,
+					});
+
+					if (key.entityName && !result.tables.includes(key.entityName)) {
+						result.tables.push(key.entityName);
+					}
+
+					return result;
+				},
+				{
+					columnList: [],
+					tableColumns: [],
+					tables: [],
+				},
+			);
+
+			if (_.isEmpty(tables)) {
+				return '';
+			}
+			if (viewData.materialized) {
+				return assignTemplates(templates.createMaterializedView, {
+					backup: viewData.backup ? '\nBACKUP YES' : '',
+					name: viewData.name,
+					schemaName,
+					autoRefresh: viewData.autoRefresh ? '\nAUTO REFRESH YES' : '',
+					tableAttributes: getTableAttributes(viewData.distStyle, viewData.distKey, {}),
+					table_columns: !_.isEmpty(tableColumns)
+						? '\n\t' + viewColumnsToString(tableColumns, isActivated)
+						: '',
+					table_name: tables.join('" INNER JOIN "'),
+				});
+			}
+			return assignTemplates(templates.createView, {
+				orReplace: viewData.orReplace ? ' OR REPLACE' : '',
+				name: viewData.name,
+				schemaName,
+				column_list: viewColumnsToString(columnList, isActivated),
+				withNoSchema: viewData.withNoSchema ? ' WITH NO SCHEMA BINDING' : '',
+				table_columns: !_.isEmpty(tableColumns) ? '\n\t' + viewColumnsToString(tableColumns, isActivated) : '',
+				table_name: tables.join('" INNER JOIN "'),
+			});
+		},
+
 		createForeignKeyConstraint(fkData, dbData) {
 			const currentSchema = dbData.name ? dbData.name : 'public';
 			const isRelationActivated = checkIfForeignKeyActivated(fkData);
@@ -85,51 +238,9 @@ module.exports = (baseProvider, options, app) => {
 				createExternalDatabase: containerData.createExternalDatabaseIfNotExists
 					? ' CREATE EXTERNAL DATABASE IF NOT EXISTS'
 					: '',
-				functions: Array.isArray(udfs)
-					? udfs
-							.map(func =>
-								clean({
-									name: func.name || undefined,
-									orReplace: func.orReplace ? ' OR REPLACE ' : undefined,
-									arguments: func.functionArguments || func.storedProcArgument || undefined,
-									returnDataType: func.functionReturnType || func.storedProcDataType || undefined,
-									volatility:
-										func.functionVolatility || func.storedProcVolatility
-											? (func.functionVolatility || func.storedProcVolatility).toUpperCase()
-											: undefined,
-									statement:
-										func.functionBody || func.storedProcFunction
-											? tab(_.trim(func.functionBody || func.storedProcFunction))
-											: undefined,
-									language: func.functionLanguage || func.storedProcLanguage,
-								}),
-							)
-							.filter(
-								func =>
-									func.name &&
-									func.arguments &&
-									func.language &&
-									func.returnDataType &&
-									func.statement,
-							)
-					: [],
+				functions: Array.isArray(udfs) ? udfs.map(hydrateUdf(containerData.name)).filter(filterUdf) : [],
 				procedures: Array.isArray(procedures)
-					? procedures
-							.map(procedure =>
-								clean({
-									name: procedure.name || undefined,
-									orReplace: procedure.orReplace ? ' OR REPLACE ' : undefined,
-									arguments: procedure.inputArgs || undefined,
-									statement: procedure.body ? tab(_.trim(procedure.body)) : undefined,
-									securityMode: procedure.securityMode
-										? `\nSECURITY ${procedure.securityMode}`
-										: undefined,
-									configurationParameter: procedure.configurationParameter
-										? `\nSET configuration_parameter TO ${procedure.configurationParameter}`
-										: undefined,
-								}),
-							)
-							.filter(procedure => procedure.name && procedure.arguments && procedure.statement)
+					? procedures.map(hydrateProcedure(containerData.name)).filter(filterProcedure)
 					: [],
 			};
 		},
@@ -250,5 +361,115 @@ module.exports = (baseProvider, options, app) => {
 		commentIfDeactivated(statement, data, isPartOfLine) {
 			return commentIfDeactivated(statement, data, isPartOfLine);
 		},
-	});
+
+		// * statements for alter script from delta model
+		dropSchema(schemaName) {
+			return assignTemplates(templates.dropSchema, { name: schemaName });
+		},
+
+		alterSchema({ name, quota }) {
+			return assignTemplates(templates.alterSchema, { name, quota });
+		},
+
+		createUdf(func) {
+			return assignTemplates(templates.createFunction, setOrReplace(func));
+		},
+
+		createProcedure(procedure) {
+			return assignTemplates(templates.createProcedure, setOrReplace(procedure));
+		},
+
+		dropUdf(func) {
+			return assignTemplates(templates.dropFunction, func);
+		},
+
+		dropProcedure(procedure) {
+			return assignTemplates(templates.dropProcedure, procedure);
+		},
+
+		dropTable(name) {
+			return assignTemplates(templates.dropTable, { name });
+		},
+
+		alterTableOptions(
+			jsonSchema,
+			dbData,
+			{ isPrimaryKeyModified, isUniqueKeyModified, isDistKeyModified, isSortKeyModified },
+		) {
+			const name = getCompositeName(jsonSchema.code || jsonSchema.name, dbData.name);
+			let scripts = [];
+
+			if (isDistKeyModified) {
+				const distStyle = jsonSchema.DISTSTYLE ? `DISTSTYLE ${jsonSchema.DISTSTYLE.toUpperCase()}` : '';
+				const distKey =
+					_.toUpper(jsonSchema.DISTSTYLE) === 'KEY'
+						? `DISTKEY ${jsonSchema.distKey?.[0]?.compositeDistKey?.[0]?.name || ''}`
+						: '';
+				const distConstraint = `${distStyle} ${distKey}`;
+
+				scripts.push(assignTemplates(templates.alterDistKey, { name, distConstraint }));
+			}
+
+			if (isSortKeyModified) {
+				const sortStyle = _.toUpper(jsonSchema.sortStyle || '');
+				const sortKey = _.get(jsonSchema, 'sortKey[0].compositeSortKey', []);
+				const sortKeyConstraint = generateConstraint(
+					sortKey,
+					templates.compoundSortKey,
+					jsonSchema.isActivated,
+					{ sortStyle },
+				).statement;
+
+				scripts.push(assignTemplates(templates.alterSortKey, { name, sortKeyConstraint }));
+			}
+
+			if (isPrimaryKeyModified && !_.isEmpty(jsonSchema.primaryKey)) {
+				const primaryKey = _.get(jsonSchema, 'primaryKey[0].compositePrimaryKey', []);
+				const primaryKeyConstraint = generateConstraint(
+					primaryKey,
+					templates.compoundPrimaryKey,
+					jsonSchema.isActivated,
+				).statement;
+
+				scripts.push(assignTemplates(templates.alterPrimaryKey, { name, primaryKeyConstraint }));
+			}
+
+			if (isUniqueKeyModified && !_.isEmpty(jsonSchema.uniqueKey)) {
+				const uniqueKey = _.get(jsonSchema, 'uniqueKey[0].compositeUniqueKey', []);
+				const uniqueConstraint = generateConstraint(
+					uniqueKey,
+					templates.compoundUniqueKey,
+					jsonSchema.isActivated,
+				).statement;
+
+				scripts.push(assignTemplates(templates.alterUnique, { name, uniqueConstraint }));
+			}
+
+			return scripts.filter(Boolean).join('\n\n');
+		},
+
+		renameColumn(tableName, oldColumnName, newColumnName) {
+			return assignTemplates(templates.renameColumn, { tableName, oldColumnName, newColumnName });
+		},
+
+		alterColumnType(tableName, column) {
+			return assignTemplates(templates.alterColumnType, {
+				tableName,
+				columnName: column.name,
+				type: decorateType(column.type, column),
+			});
+		},
+
+		addColumn(tableName, columnStatement) {
+			return assignTemplates(templates.addColumn, { tableName, columnStatement });
+		},
+
+		dropColumn(tableName, columnName) {
+			return assignTemplates(templates.dropColum, { tableName, columnName });
+		},
+
+		dropView(fullName) {
+			return assignTemplates(templates.dropView, { name: fullName });
+		},
+	};
 };
