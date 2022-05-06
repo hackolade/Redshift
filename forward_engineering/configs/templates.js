@@ -9,15 +9,18 @@ module.exports = {
 		'${ifNotExist} "${schemaName}"."${name}"(' +
 		'${columnDefinitions}' +
 		'${tableConstraints}${likeStatement})' +
-		'${tableAttributes};\n',
-	createTableAs: 'CREATE ${temporary}TABLE "${schemaName}"."${name}" ${backup}${tableAttribute} AS ${query};\n',
+		'${tableAttributes};\n' +
+		'${comment}${columnDescriptions}',
+	createTableAs:
+		'CREATE ${temporary}TABLE "${schemaName}"."${name}" ${backup}${tableAttribute} AS ${query};\n${comment}${columnDescriptions}',
 
 	createView:
 		'CREATE${orReplace} VIEW "${schemaName}"."${name}"(\n' +
 		'\t${column_list}\n' +
-		')\nAS SELECT ${table_columns}\nFROM "${table_name}"${withNoSchema};\n',
+		')\nAS SELECT ${table_columns}\nFROM "${table_name}"${withNoSchema};\n' +
+		'${comment}',
 	createMaterializedView:
-		'CREATE MATERIALIZED VIEW "${schemaName}"."${name}"${backup}${tableAttributes}${autoRefresh}\nAS SELECT ${table_columns}\nFROM "${table_name}";\n',
+		'CREATE MATERIALIZED VIEW "${schemaName}"."${name}"${backup}${tableAttributes}${autoRefresh}\nAS SELECT ${table_columns}\nFROM "${table_name}";\n${comment}',
 
 	createFunction:
 		'CREATE${orReplace}FUNCTION ${name} (${arguments})\n\tRETURNS ${returnDataType}\n${volatility}\nAS $$\n${statement}\n$$ LANGUAGE ${language};\n',
@@ -50,4 +53,6 @@ module.exports = {
 	dropColum: 'ALTER TABLE ${tableName} DROP COLUMN "${columnName}";',
 
 	dropView: 'DROP VIEW IF EXISTS ${name};',
+
+	comment: '\nCOMMENT ON ${object} ${objectName} IS ${comment};\n',
 };

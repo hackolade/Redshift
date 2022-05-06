@@ -1,5 +1,9 @@
 module.exports = app => {
+	const templates = require('../configs/templates');
+	const assignTemplates = app.require('@hackolade/ddl-fe-utils').assignTemplates;
+	const commentIfDeactivated = require('./commentDeactivatedHelper')(app);
 	const _ = app.require('lodash');
+	const { toString } = require('./general')(app);
 
 	const decorateType = (type, columnDefinition) => {
 		type = _.toUpper(type);
@@ -84,6 +88,22 @@ module.exports = app => {
 		return '';
 	};
 
+	const getColumnComments = (tableName, columnDefinitions) => {
+		return _.chain(columnDefinitions)
+			.filter('comment')
+			.map(columnData => {
+				const comment = assignTemplates(templates.comment, {
+					object: 'COLUMN',
+					objectName: `${tableName}."${columnData.name}"`,
+					comment: toString(columnData.comment),
+				});
+
+				return commentIfDeactivated(comment, columnData);
+			})
+			.join('')
+			.value();
+	};
+
 	return {
 		getQuota,
 		getSourceSchemaNameForExternalSchema,
@@ -91,5 +111,6 @@ module.exports = app => {
 		getARN,
 		decorateType,
 		getDefault,
+		getColumnComments
 	};
 };

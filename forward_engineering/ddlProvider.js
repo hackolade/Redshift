@@ -17,9 +17,17 @@ module.exports = (baseProvider, options, app) => {
 		filterProcedure,
 		setOrReplace,
 		getCompositeName,
+		toString,
 	} = require('./helpers/general')(app);
-	const { decorateType, getDefault, getQuota, getUri, getARN, getSourceSchemaNameForExternalSchema } =
-		require('./helpers/columnDefinitionHelper')(app);
+	const {
+		decorateType,
+		getDefault,
+		getQuota,
+		getUri,
+		getARN,
+		getSourceSchemaNameForExternalSchema,
+		getColumnComments,
+	} = require('./helpers/columnDefinitionHelper')(app);
 	const { generateConstraint } = require('./helpers/constraintHelper')(app);
 	const commentIfDeactivated = require('./helpers/commentDeactivatedHelper')(app);
 	const { getTableAttributes, getTableConstraints, getTableLikeConstraint } = require('./helpers/tableHelper')(app);
@@ -42,8 +50,14 @@ module.exports = (baseProvider, options, app) => {
 			createExternalDatabase,
 			functions,
 			procedures,
+			comment,
 		}) {
 			let database;
+			const schemaComment = assignTemplates(templates.comment, {
+				object: 'SCHEMA',
+				objectName: getCompositeName(name),
+				comment: toString(comment),
+			});
 			if (external) {
 				database = assignTemplates(templates.createExternalSchema, {
 					name,
@@ -70,13 +84,23 @@ module.exports = (baseProvider, options, app) => {
 			const userProcedures = procedures.map(procedure =>
 				assignTemplates(templates.createProcedure, setOrReplace(procedure)),
 			);
-			return [database, ...userFunctions, ...userProcedures].join('\n');
+			return [database, _.trimStart(schemaComment), ...userFunctions, ...userProcedures].join('\n');
 		},
 
 		createTable(tableData, isActivated) {
 			const temporary = tableData.temporary ? 'TEMPORARY ' : '';
 			const asSelect = tableData.selectStatement;
 			const schemaName = tableData.schemaName === '' ? 'public' : tableData.schemaName;
+			const comment = assignTemplates(templates.comment, {
+				object: 'TABLE',
+				objectName: getCompositeName(tableData.name, schemaName),
+				comment: toString(tableData.comment),
+			});
+			const columnDescriptions = getColumnComments(
+				getCompositeName(tableData.name, schemaName),
+				tableData.columnDefinitions,
+			);
+
 			if (asSelect) {
 				return assignTemplates(templates.createTableAs, {
 					name: tableData.name,
@@ -89,6 +113,8 @@ module.exports = (baseProvider, options, app) => {
 						tableData.compoundSortKey,
 					),
 					query: asSelect,
+					comment: tableData.comment ? comment : '',
+					columnDescriptions,
 				});
 			}
 			const columnDefinitions = tableData.columns
@@ -112,6 +138,8 @@ module.exports = (baseProvider, options, app) => {
 					tableData.foreignKeyConstraints,
 				),
 				tableAttributes: getTableAttributes(tableData.distStyle, tableData.distKey, tableData.compoundSortKey),
+				comment: tableData.comment ? comment : '',
+				columnDescriptions,
 			});
 		},
 
@@ -144,6 +172,13 @@ module.exports = (baseProvider, options, app) => {
 			if (_.isEmpty(tables)) {
 				return '';
 			}
+
+			const comment = assignTemplates(templates.comment, {
+				object: 'VIEW',
+				objectName: getCompositeName(viewData.name, schemaName),
+				comment: toString(viewData.comment),
+			});
+
 			if (viewData.materialized) {
 				return assignTemplates(templates.createMaterializedView, {
 					backup: viewData.backup ? '\nBACKUP YES' : '',
@@ -155,6 +190,7 @@ module.exports = (baseProvider, options, app) => {
 						? '\n\t' + viewColumnsToString(tableColumns, isActivated)
 						: '',
 					table_name: tables.join('" INNER JOIN "'),
+					comment: viewData.comment ? comment : '',
 				});
 			}
 			return assignTemplates(templates.createView, {
@@ -165,6 +201,7 @@ module.exports = (baseProvider, options, app) => {
 				withNoSchema: viewData.withNoSchema ? ' WITH NO SCHEMA BINDING' : '',
 				table_columns: !_.isEmpty(tableColumns) ? '\n\t' + viewColumnsToString(tableColumns, isActivated) : '',
 				table_name: tables.join('" INNER JOIN "'),
+				comment: viewData.comment ? comment : '',
 			});
 		},
 
@@ -242,6 +279,7 @@ module.exports = (baseProvider, options, app) => {
 				procedures: Array.isArray(procedures)
 					? procedures.map(hydrateProcedure(containerData.name)).filter(filterProcedure)
 					: [],
+				comment: containerData.description,
 			};
 		},
 
@@ -265,6 +303,7 @@ module.exports = (baseProvider, options, app) => {
 			const distKey = _.get(firstTab, 'distKey[0].compositeDistKey[0].name', '');
 			return {
 				...tableData,
+				comment: firstTab.description,
 				schemaName: tableData.dbData.name,
 				selectStatement: firstTab.selectStatement,
 				includeDefaults: firstTab.includeDefualts,
@@ -324,7 +363,7 @@ module.exports = (baseProvider, options, app) => {
 				distStyle: firstTab.DISTSTYLE ? `DISTSTYLE ${firstTab.DISTSTYLE.toUpperCase()}` : '',
 				distKey: distKey !== '' ? `DISTKEY ("${distKey}")` : '',
 				orReplace: firstTab.orReplace,
-				columnDefinitions: firstTab.description,
+				comment: firstTab.description,
 				withNoSchema: firstTab.withNoSchemaBindings,
 				table_name: tables.join('" INNER JOIN "'),
 			};
@@ -349,6 +388,7 @@ module.exports = (baseProvider, options, app) => {
 		hydrateColumn({ columnDefinition, jsonSchema, dbData }) {
 			return {
 				...columnDefinition,
+				comment: jsonSchema.refDescription || jsonSchema.description,
 				unique: jsonSchema.unique && !jsonSchema.compositeUniqueKey,
 				distKey: jsonSchema.distKey && !jsonSchema.compositeDistKey,
 				sortKey: jsonSchema.sortKey && !jsonSchema.compositeSortKey,
