@@ -4,8 +4,7 @@
   "description": "",
   "author": "Hackolade",
   "dependencies": {
-    "aws-sdk": "^2.708.0",
-    "uuid": "^7.0.3"
+    "aws-sdk": "^2.708.0"
   },
   "installed": true
 }
