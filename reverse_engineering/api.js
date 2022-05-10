@@ -102,17 +102,20 @@ const getDbCollectionsData = async (data, logger, cb, app) => {
 
 			const views = await Promise.all(entities.views.map(async view => {
 				logger.progress({ message: `Start getting data from view`, containerName: schema, entityName: view });
-				const ddl = await redshiftHelper.getViewDDL(schema,view);
+				const ddl = await redshiftHelper.getViewDDL(schema, view);
+				const description = await redshiftHelper.getViewDescription(view);
 
 				logger.progress({ message: `Data retrieved successfully`, containerName: schema, entityName: view });
 
 				return {
 					name: view,
-					data: {},
+					data: {
+						description,
+					},
 					ddl: {
 						script: ddl,
-						type: 'redshift'
-					}
+						type: 'redshift',
+					},
 				};
 			}));
 

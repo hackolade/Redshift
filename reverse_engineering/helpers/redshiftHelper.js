@@ -82,11 +82,17 @@ const getTableDDL = async (schemaName, tableName) => {
 }
 
 const getViewDDL = async (schemaName, viewName) => {
-	const getViewDDLQuery = ddlViewCreationHelper.getViewsDDLQuery(schemaName, viewName)
+	const getViewDDLQuery = ddlViewCreationHelper.getViewsDDLQuery(schemaName, viewName);
 	let records = await execute(getViewDDLQuery);
-	return _.get(records, '[0][0].stringValue')
+	return _.get(records, '[0][0].stringValue');
+};
 
-}
+const getViewDescription = async viewName => {
+	const res = await execute(
+		`SELECT obj_description(oid) AS description FROM pg_class WHERE relkind = 'v' AND relname = '${viewName}'`,
+	);
+	return _.get(res, '[0][0].stringValue');
+};
 
 const concatRecords = (records) => {
 	const skipNewLineRecords = ['(', ')', ';']
@@ -149,6 +155,7 @@ const getContainerData = async schemaName => {
 		return containers[schemaName];
 	}
 
+	const description = await getSchemaDescription(schemaName);
 	const functions = await getFunctions(schemaName);
 	const procedures = await getProcedures(schemaName);
 	const quota = await getSchemaQuota(schemaName);
@@ -156,6 +163,7 @@ const getContainerData = async schemaName => {
 	const externalOptions = await getExternalOptions(schemaName)
 
 	const data = {
+		description,
 		authorizationUsername: redshift.connectionParams.DbUser,
 		unlimitedQuota,
 		quota,
@@ -173,6 +181,14 @@ const getSchemaQuota = async (schemaName) => {
 	const quota = await execute(`SELECT quota FROM svv_schema_quota_state WHERE schema_name =  '${schemaName}';`)
 	return _.get(quota, '[0][0].longValue')
 }
+
+const getSchemaDescription = async schemaName => {
+	const res = await execute(
+		`SELECT obj_description(oid, 'pg_namespace') AS description FROM pg_namespace WHERE nspname = '${schemaName}';`,
+	);
+
+	return _.get(res, '[0][0].stringValue');
+};
 
 const getExternalOptions = async (schemaName) => {
 	const external = await execute(`SELECT schema_type, source_database, schema_option FROM svv_all_schemas WHERE schema_name =  '${schemaName}';`)
@@ -475,5 +491,6 @@ module.exports = {
 	getRowsCount,
 	getDocuments,
 	getJsonSchema,
-	getModelData
+	getModelData,
+	getViewDescription
 };
