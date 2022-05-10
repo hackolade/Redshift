@@ -54,7 +54,7 @@ module.exports = {
 		logger.log('info', connectionInfo, 'connectionInfo', connectionInfo.hiddenKeys);
 
 		applyToInstanceHelper
-			.applyToInstance(connectionInfo, logger)
+			.applyToInstance(connectionInfo, logger, app)
 			.then(result => {
 				cb(null, result);
 			})
@@ -67,7 +67,7 @@ module.exports = {
 	async testConnection(connectionInfo, logger, cb, app) {
 		this.logInfo('Test connection', connectionInfo, logger);
 		try {
-			await applyToInstanceHelper.testConnection(connectionInfo, logger);
+			await applyToInstanceHelper.testConnection(connectionInfo, logger, app);
 			cb();
 		} catch (err) {
 			this.handleError(logger, err, cb);

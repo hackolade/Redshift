@@ -2,12 +2,12 @@
 
 const noConnectionError = { message: 'Connection error' };
 const ddlViewCreationHelper = require('./ddlViewCreationHelper')
-const aws = require('aws-sdk');
 let _;
 let containers = {};
 let types = {}
 let helperLogger;
 let redshift = null;
+let aws = null;
 
 const connect = async (connectionInfo, logger) => {
 	helperLogger = logger;
@@ -469,9 +469,9 @@ const handleComplexTypesDocuments = (jsonSchema, documents) => {
 
 
 
-const setDependencies = ({ lodash, fs }) => {
-	_ = lodash
-	fs = fs
+const setDependencies = (dependencies) => {
+	_ = dependencies.lodash;
+	aws = dependencies.aws;
 };
 
 module.exports = {
