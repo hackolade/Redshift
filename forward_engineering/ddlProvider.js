@@ -157,7 +157,7 @@ module.exports = (baseProvider, options, app) => {
 					});
 
 					if (key.entityName && !result.tables.includes(key.entityName)) {
-						result.tables.push(key.entityName);
+						result.tables.push(getCompositeName(key.entityName, key.dbName));
 					}
 
 					return result;
@@ -189,7 +189,7 @@ module.exports = (baseProvider, options, app) => {
 					table_columns: !_.isEmpty(tableColumns)
 						? '\n\t' + viewColumnsToString(tableColumns, isActivated)
 						: '',
-					table_name: tables.join('" INNER JOIN "'),
+					table_name: tables.join(', '),
 					comment: viewData.comment ? comment : '',
 				});
 			}
@@ -200,7 +200,7 @@ module.exports = (baseProvider, options, app) => {
 				column_list: viewColumnsToString(columnList, isActivated),
 				withNoSchema: viewData.withNoSchema ? ' WITH NO SCHEMA BINDING' : '',
 				table_columns: !_.isEmpty(tableColumns) ? '\n\t' + viewColumnsToString(tableColumns, isActivated) : '',
-				table_name: tables.join('" INNER JOIN "'),
+				table_name: tables.join(', '),
 				comment: viewData.comment ? comment : '',
 			});
 		},

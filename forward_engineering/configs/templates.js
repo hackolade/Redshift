@@ -17,10 +17,10 @@ module.exports = {
 	createView:
 		'CREATE${orReplace} VIEW "${schemaName}"."${name}"(\n' +
 		'\t${column_list}\n' +
-		')\nAS SELECT ${table_columns}\nFROM "${table_name}"${withNoSchema};\n' +
+		')\nAS SELECT ${table_columns}\nFROM ${table_name}${withNoSchema};\n' +
 		'${comment}',
 	createMaterializedView:
-		'CREATE MATERIALIZED VIEW "${schemaName}"."${name}"${backup}${tableAttributes}${autoRefresh}\nAS SELECT ${table_columns}\nFROM "${table_name}";\n${comment}',
+		'CREATE MATERIALIZED VIEW "${schemaName}"."${name}"${backup}${tableAttributes}${autoRefresh}\nAS SELECT ${table_columns}\nFROM ${table_name};\n${comment}',
 
 	createFunction:
 		'CREATE${orReplace}FUNCTION ${name} (${arguments})\n\tRETURNS ${returnDataType}\n${volatility}\nAS $$\n${statement}\n$$ LANGUAGE ${language};\n',
