@@ -84,7 +84,9 @@ module.exports = (baseProvider, options, app) => {
 			const userProcedures = procedures.map(procedure =>
 				assignTemplates(templates.createProcedure, setOrReplace(procedure)),
 			);
-			return [database, _.trimStart(schemaComment), ...userFunctions, ...userProcedures].join('\n');
+			return [database, comment ? _.trimStart(schemaComment) : '', ...userFunctions, ...userProcedures]
+				.filter(Boolean)
+				.join('\n');
 		},
 
 		createTable(tableData, isActivated) {
@@ -156,8 +158,9 @@ module.exports = (baseProvider, options, app) => {
 						isActivated: key.isActivated,
 					});
 
-					if (key.entityName && !result.tables.includes(key.entityName)) {
-						result.tables.push(getCompositeName(key.entityName, key.dbName));
+					const fullTableName = getCompositeName(key.entityName, key.dbName);
+					if (key.entityName && !result.tables.includes(fullTableName)) {
+						result.tables.push(fullTableName);
 					}
 
 					return result;
