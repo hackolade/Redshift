@@ -115,18 +115,37 @@ const getSchemaNames = async () => {
 		const listSchemasResult = await redshift.redshiftDataInstance.listSchemas({ ...redshift.connectionParams, NextToken }).promise()
 		NextToken = listSchemasResult.NextToken;
 		schemas = schemas.concat(listSchemasResult.Schemas)
-	} while (NextToken)
+	} while (NextToken);
 
 	return schemas
 		.filter(schema => !systemSchemaNames.includes(schema))
 		.filter(schema => (!schema.match(/^pg_toast.*$/)) && (!schema.match(/^pg_temp_.*$/)));
 }
 
-const getSchemaCollectionNames = async (schemaName) => {
-	const tables = await redshift.redshiftDataInstance.listTables({ ...redshift.connectionParams, SchemaPattern: schemaName }).promise();
-	const tableNames = tables.Tables
+const getAllTables = async (params, logger) => {
+	const tablesResponse = await redshift.redshiftDataInstance.listTables(params).promise();
+
+	if (!tablesResponse.NextToken) {
+		logger.info('all tables retrieved');
+
+		return tablesResponse.Tables;
+	}
+
+	logger.info('getting next chunk of tables');
+
+	return tablesResponse.Tables.concat(
+		await getAllTables({...params, NextToken: tablesResponse.NextToken }, logger),
+	);
+};
+
+const getSchemaCollectionNames = async (schemaName, logger) => {
+	const tables = await getAllTables({ ...redshift.connectionParams, SchemaPattern: schemaName }, logger);
+	const tableNames = tables
 		.filter(({ type }) => type === "TABLE" || type === "VIEW")
-		.map(({ name, type }) => markViewName(name, type))
+		.map(({ name, type }) => markViewName(name, type));
+
+	logger.info(`Found ${tableNames.length} tables and views in schema "${schemaName}"`);
+
 	return {
 		dbName: schemaName,
 		dbCollections: tableNames,
@@ -191,13 +210,14 @@ const getSchemaDescription = async schemaName => {
 };
 
 const getExternalOptions = async (schemaName) => {
-	const external = await execute(`SELECT schema_type, source_database, schema_option FROM svv_all_schemas WHERE schema_name =  '${schemaName}';`)
-	const schemaType = _.get(external, '[0][0].stringValue')
-	const isExternal = schemaType === 'external'
+	const external = await execute(`SELECT schema_type, source_database, schema_option FROM svv_all_schemas WHERE schema_name =  '${schemaName}';`);
+	const schemaType = _.get(external, '[0][0].stringValue');
+	const isExternal = schemaType === 'external';
+
 	return {
-		external: isExternal
-	}
-}
+		external: isExternal,
+	};
+};
 
 const getFunctions = async (schemaName) => {
 	const userOIDRecord = await execute(`SELECT usesysid FROM pg_user WHERE usename = '${redshift.connectionParams.DbUser}';`)
@@ -464,10 +484,6 @@ const handleComplexTypesDocuments = (jsonSchema, documents) => {
 		return documents;
 	}
 }
-
-
-
-
 
 const setDependencies = (dependencies) => {
 	_ = dependencies.lodash;
