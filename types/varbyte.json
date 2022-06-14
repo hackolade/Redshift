@@ -1,0 +1,12 @@
+{
+	"name": "varbyte",
+	"erdAbbreviation": "<varbyte>",
+	"dtdAbbreviation": "{varbyte}",
+	"parentType": "binary",
+	"hiddenOnEntity": "view",
+	"useSample": true,
+	"default": true,
+	"defaultValues": {
+    "length": 64000
+	}
+}

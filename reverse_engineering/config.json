@@ -7,11 +7,5 @@
 	"defaultDdlType": "redshift",
 	"connectionList": ["name", "clusterIdentifier", "databaseName"],
 	"widestColumn": "clusterIdentifier",
-	"scenario": [{
-		"dependency": {
-			"key": "authType",
-			"value": "externalbrowser"
-		},
-		"value": "connectByExternalBrowser"
-	}]
+	"helpUrl": "https://hackolade.com/help/ConnecttoAmazonRedshift.html"
 }

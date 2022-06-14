@@ -2,12 +2,12 @@
 
 const noConnectionError = { message: 'Connection error' };
 const ddlViewCreationHelper = require('./ddlViewCreationHelper')
-const aws = require('aws-sdk');
 let _;
 let containers = {};
 let types = {}
 let helperLogger;
 let redshift = null;
+let aws = null;
 
 const connect = async (connectionInfo, logger) => {
 	helperLogger = logger;
@@ -82,11 +82,17 @@ const getTableDDL = async (schemaName, tableName) => {
 }
 
 const getViewDDL = async (schemaName, viewName) => {
-	const getViewDDLQuery = ddlViewCreationHelper.getViewsDDLQuery(schemaName, viewName)
+	const getViewDDLQuery = ddlViewCreationHelper.getViewsDDLQuery(schemaName, viewName);
 	let records = await execute(getViewDDLQuery);
-	return _.get(records, '[0][0].stringValue')
+	return _.get(records, '[0][0].stringValue');
+};
 
-}
+const getViewDescription = async viewName => {
+	const res = await execute(
+		`SELECT obj_description(oid) AS description FROM pg_class WHERE relkind = 'v' AND relname = '${viewName}'`,
+	);
+	return _.get(res, '[0][0].stringValue');
+};
 
 const concatRecords = (records) => {
 	const skipNewLineRecords = ['(', ')', ';']
@@ -109,18 +115,37 @@ const getSchemaNames = async () => {
 		const listSchemasResult = await redshift.redshiftDataInstance.listSchemas({ ...redshift.connectionParams, NextToken }).promise()
 		NextToken = listSchemasResult.NextToken;
 		schemas = schemas.concat(listSchemasResult.Schemas)
-	} while (NextToken)
+	} while (NextToken);
 
 	return schemas
 		.filter(schema => !systemSchemaNames.includes(schema))
 		.filter(schema => (!schema.match(/^pg_toast.*$/)) && (!schema.match(/^pg_temp_.*$/)));
 }
 
-const getSchemaCollectionNames = async (schemaName) => {
-	const tables = await redshift.redshiftDataInstance.listTables({ ...redshift.connectionParams, SchemaPattern: schemaName }).promise();
-	const tableNames = tables.Tables
+const getAllTables = async (params, logger) => {
+	const tablesResponse = await redshift.redshiftDataInstance.listTables(params).promise();
+
+	if (!tablesResponse.NextToken) {
+		logger.info('all tables retrieved');
+
+		return tablesResponse.Tables;
+	}
+
+	logger.info('getting next chunk of tables');
+
+	return tablesResponse.Tables.concat(
+		await getAllTables({...params, NextToken: tablesResponse.NextToken }, logger),
+	);
+};
+
+const getSchemaCollectionNames = async (schemaName, logger) => {
+	const tables = await getAllTables({ ...redshift.connectionParams, SchemaPattern: schemaName }, logger);
+	const tableNames = tables
 		.filter(({ type }) => type === "TABLE" || type === "VIEW")
-		.map(({ name, type }) => markViewName(name, type))
+		.map(({ name, type }) => markViewName(name, type));
+
+	logger.info(`Found ${tableNames.length} tables and views in schema "${schemaName}"`);
+
 	return {
 		dbName: schemaName,
 		dbCollections: tableNames,
@@ -149,6 +174,7 @@ const getContainerData = async schemaName => {
 		return containers[schemaName];
 	}
 
+	const description = await getSchemaDescription(schemaName);
 	const functions = await getFunctions(schemaName);
 	const procedures = await getProcedures(schemaName);
 	const quota = await getSchemaQuota(schemaName);
@@ -156,6 +182,7 @@ const getContainerData = async schemaName => {
 	const externalOptions = await getExternalOptions(schemaName)
 
 	const data = {
+		description,
 		authorizationUsername: redshift.connectionParams.DbUser,
 		unlimitedQuota,
 		quota,
@@ -174,14 +201,23 @@ const getSchemaQuota = async (schemaName) => {
 	return _.get(quota, '[0][0].longValue')
 }
 
+const getSchemaDescription = async schemaName => {
+	const res = await execute(
+		`SELECT obj_description(oid, 'pg_namespace') AS description FROM pg_namespace WHERE nspname = '${schemaName}';`,
+	);
+
+	return _.get(res, '[0][0].stringValue');
+};
+
 const getExternalOptions = async (schemaName) => {
-	const external = await execute(`SELECT schema_type, source_database, schema_option FROM svv_all_schemas WHERE schema_name =  '${schemaName}';`)
-	const schemaType = _.get(external, '[0][0].stringValue')
-	const isExternal = schemaType === 'external'
+	const external = await execute(`SELECT schema_type, source_database, schema_option FROM svv_all_schemas WHERE schema_name =  '${schemaName}';`);
+	const schemaType = _.get(external, '[0][0].stringValue');
+	const isExternal = schemaType === 'external';
+
 	return {
-		external: isExternal
-	}
-}
+		external: isExternal,
+	};
+};
 
 const getFunctions = async (schemaName) => {
 	const userOIDRecord = await execute(`SELECT usesysid FROM pg_user WHERE usename = '${redshift.connectionParams.DbUser}';`)
@@ -449,13 +485,9 @@ const handleComplexTypesDocuments = (jsonSchema, documents) => {
 	}
 }
 
-
-
-
-
-const setDependencies = ({ lodash, fs }) => {
-	_ = lodash
-	fs = fs
+const setDependencies = (dependencies) => {
+	_ = dependencies.lodash;
+	aws = dependencies.aws;
 };
 
 module.exports = {
@@ -475,5 +507,6 @@ module.exports = {
 	getRowsCount,
 	getDocuments,
 	getJsonSchema,
-	getModelData
+	getModelData,
+	getViewDescription
 };

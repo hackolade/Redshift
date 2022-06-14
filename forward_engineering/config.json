@@ -2,7 +2,8 @@
 	"extension": "sql",
 	"filterName": "SQL",
 	"type": "ddl",
-	"ddlType": "redshift",
+	"mode": "pgsql",
+	"ddlType": "plugin",
 	"namePrefix": "Redshift",
 	"hasUpdateScript": false,
 	"resolvedDefinitions": true,
@@ -11,5 +12,18 @@
 		"container": true,
 		"entity": true,
 		"view": true
-	}
+	},
+	"compMode": {
+		"entity": true,
+		"container": true
+	},
+	"additionalOptions": [
+		{
+			"id": "applyDropStatements",
+			"value": false,
+			"forUpdate": true,
+			"name": "Apply Drop Statements",
+			"isDropInStatements": true
+		}
+	]
 }
