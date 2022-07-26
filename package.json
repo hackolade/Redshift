@@ -48,7 +48,8 @@
             "relationships": {
                 "compositeRelationships": true
             },
-            "FEScriptCommentsSupported": true
+            "FEScriptCommentsSupported": true,
+            "discoverRelationships": true
         }
     },
     "description": "Hackolade plugin for Amazon Redshift",
