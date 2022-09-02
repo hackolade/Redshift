@@ -383,20 +383,33 @@ const getSchemaFunctionsData = (schemaOID, userOID) =>
 `SELECT proname, (SELECT lanname FROM pg_language WHERE oid = prolang) AS lang,
 prosrc AS body,proargtypes AS inputArgs,
 (SELECT typName FROM pg_type WHERE oid = prorettype) AS returnType, 
-provolatile AS volatility FROM pg_proc 
+provolatile AS volatility,
+proargnames as inputArgsNames
+FROM pg_proc
 WHERE proowner = ${userOID} AND pronamespace = ${schemaOID} AND prorettype != 0`
 
 const getSchemaProceduresData = (schemaOID, userOID) =>
 `SELECT proname, (SELECT lanname FROM pg_language WHERE oid = prolang) AS lang,
-prosrc AS body,proargtypes AS inputArgs,
+prosrc AS body,proargtypes AS inputArgs, proargnames as inputArgsNames,
 (SELECT typName FROM pg_type WHERE oid = prorettype) AS returnType, 
 provolatile AS volatility FROM pg_proc 
 WHERE proowner = ${userOID} AND pronamespace = ${schemaOID} AND prorettype = 0`
+
+const getSchemaUserOwner = () => 
+`select s.nspname as schema_name,
+u.usename as owner
+from pg_catalog.pg_namespace s
+join pg_catalog.pg_user u on u.usesysid = s.nspowner
+where nspname not in ('information_schema', 'pg_catalog', 'public')
+and nspname not like 'pg_toast%'
+and nspname not like 'pg_temp_%'
+order by schema_name;`;
 
 module.exports = {
     getTablesDDLQuery,
     getViewsDDLQuery,
     getSchemaFunctionsData,
-    getSchemaProceduresData
+    getSchemaProceduresData,
+    getSchemaUserOwner,
 };
 

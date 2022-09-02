@@ -11,46 +11,95 @@ let aws = null;
 
 const connect = async (connectionInfo, logger) => {
 	helperLogger = logger;
-	const { accessKeyId, secretAccessKey, region, sessionToken } = connectionInfo;
-	aws.config.update({ accessKeyId, secretAccessKey, region, maxRetries: 5, sessionToken });
-	const redshiftInstance = new aws.Redshift({ apiVersion: '2012-12-01' });
-	const redshiftDataInstance = new aws.RedshiftData({ apiVersion: '2019-12-20' });
-	const clusters = await redshiftInstance.describeClusters().promise();
-	const requiredCluster = clusters.Clusters.find(cluster => cluster.ClusterIdentifier === connectionInfo.clusterIdentifier);
+	const { accessKeyId, secretAccessKey, region, sessionToken, clusterIdentifier, databaseName, workgroupName, instanceType = 'Cluster' } = connectionInfo;
+	const params = {
+		credentials: {
+			accessKeyId,
+			secretAccessKey,
+			sessionToken,
+		},
+		maxAttempts: 5,
+		region,
+	}
+	const redshiftDataInstance = new aws.redshiftData.RedshiftData({ apiVersion: '2019-12-20', ...params });
+	if (instanceType === 'Cluster') {
+		redshift = await connectCluster(params, clusterIdentifier, databaseName);
+	} else if (instanceType === 'ServerLess') {
+		redshift = await connectServerLess(params, workgroupName, databaseName);
+	}
+	redshift = { ...redshift, redshiftDataInstance, instanceType };
+}
+
+const connectCluster = async (params, clusterIdentifier, databaseName) => {
+	const redshiftInstance = new aws.redshift.Redshift({ apiVersion: '2012-12-01', ...params });
+	const clusters = await redshiftInstance.describeClusters({ ClusterIdentifier: clusterIdentifier });
+	const requiredCluster = clusters.Clusters.find(cluster => cluster.ClusterIdentifier === clusterIdentifier);
 	if (!requiredCluster) {
-		throw new Error(`Cluster with '${connectionInfo.clusterIdentifier}' identifier was not found`)
+		throw new Error(`Cluster with '${clusterIdentifier}' identifier was not found`)
 	}
 	const connectionParams = {
 		ClusterIdentifier: requiredCluster.ClusterIdentifier,
-		Database: connectionInfo.databaseName.toLowerCase(),
-		DbUser: requiredCluster.MasterUsername
+		Database: databaseName.toLowerCase(),
+		DbUser: requiredCluster.MasterUsername,
 	}
-	redshift = { redshiftInstance, redshiftDataInstance, connectionParams };
+	return {
+		redshiftInstance,
+		connectionParams,
+	}
+}
+
+const connectServerLess = async (params, workgroupName, databaseName) => {
+	const redshiftInstance = new aws.redshiftLess.RedshiftServerless({ apiVersion: '2021-04-21', ...params });
+	const workGroups = await listWorkGroups(redshiftInstance);
+	const requiredWorkGroup = workGroups.find(workgroup => workgroup.workgroupName === workgroupName);
+	if (!requiredWorkGroup) {
+		throw new Error(`Workgoup with '${workgroupName}' name was not found`)
+	}
+	const connectionParams = {
+		WorkgroupName: workgroupName,
+		Database: databaseName.toLowerCase(),
+	}
+	return {
+		redshiftInstance,
+		connectionParams,
+	}
+}
+
+const listWorkGroups = async (redshiftInstance) => {
+	let workGroups = [];
+	let NextToken;
+	do {
+		const result = await redshiftInstance.listWorkgroups({ maxResults: 10, NextToken});
+		workGroups = [...workGroups, ...result?.workgroups || []];
+		NextToken = result.NextToken;
+	} while (NextToken)
+
+	return workGroups
 }
 
 const testConnection = async (connectionInfo, logger) => {
 	await connect(connectionInfo, logger)
-	await redshift.redshiftDataInstance.listTables({ ...redshift.connectionParams }).promise();
+	await redshift.redshiftDataInstance.listTables({ ...redshift.connectionParams });
 }
 
 const execute = async (sqlStatement) => {
-	if (!redshift) {
+	if (!redshift && !redshift.redshiftDataInstance) {
 		helperLogger.log('error', { message: "Redshift instance wasn't created" });
 		return Promise.reject(noConnectionError)
 	}
 	helperLogger.log('info', { message: `Executing query: ${sqlStatement}` });
-	const { Id } = await redshift.redshiftDataInstance.executeStatement({ ...redshift.connectionParams, Sql: sqlStatement }).promise();
+	const { Id } = await redshift.redshiftDataInstance.executeStatement({ ...redshift.connectionParams, Sql: sqlStatement });
 	let records = [];
 	let NextToken;
 	let queryDescription;
 	do {
-		queryDescription = await redshift.redshiftDataInstance.describeStatement({ Id }).promise();
+		queryDescription = await redshift.redshiftDataInstance.describeStatement({ Id });
 		if (queryDescription.Error) {
 			throw new Error(queryDescription.Error)
 		}
 	} while (queryDescription.Status !== "FINISHED");
 	do {
-		const queryResult = await redshift.redshiftDataInstance.getStatementResult({ Id, NextToken }).promise();
+		const queryResult = await redshift.redshiftDataInstance.getStatementResult({ Id, NextToken });
 		records = records.concat(queryResult.Records)
 		NextToken = queryResult.NextToken;
 	} while (NextToken);
@@ -58,13 +107,14 @@ const execute = async (sqlStatement) => {
 }
 
 const executeApplyToInstanceScript = async (sqlStatement) => {
-	if (!redshift) {
+	if (!redshift && !redshift.redshiftDataInstance) {
 		return Promise.reject(noConnectionError)
 	}
-	const { Id } = await redshift.redshiftDataInstance.executeStatement({ ...redshift.connectionParams, Sql: sqlStatement }).promise();
+	const result = await redshift.redshiftDataInstance.executeStatement({ ...redshift.connectionParams, Sql: sqlStatement });
+	const { Id } = result
 	let queryDescription;
 	do {
-		queryDescription = await redshift.redshiftDataInstance.describeStatement({ Id }).promise();
+		queryDescription = await redshift.redshiftDataInstance.describeStatement({ Id });
 		if (queryDescription.Error) {
 			throw new Error(queryDescription.Error)
 		}
@@ -72,7 +122,6 @@ const executeApplyToInstanceScript = async (sqlStatement) => {
 
 	return {};
 }
-
 
 const getTableDDL = async (schemaName, tableName) => {
 	const getTableDDLQuery = ddlViewCreationHelper.getTablesDDLQuery(schemaName, tableName)
@@ -112,7 +161,7 @@ const getSchemaNames = async () => {
 	let NextToken;
 
 	do {
-		const listSchemasResult = await redshift.redshiftDataInstance.listSchemas({ ...redshift.connectionParams, NextToken }).promise()
+		const listSchemasResult = await redshift.redshiftDataInstance.listSchemas({ ...redshift.connectionParams, NextToken });
 		NextToken = listSchemasResult.NextToken;
 		schemas = schemas.concat(listSchemasResult.Schemas)
 	} while (NextToken);
@@ -123,7 +172,7 @@ const getSchemaNames = async () => {
 }
 
 const getAllTables = async (params, logger) => {
-	const tablesResponse = await redshift.redshiftDataInstance.listTables(params).promise();
+	const tablesResponse = await redshift.redshiftDataInstance.listTables(params);
 
 	if (!tablesResponse.NextToken) {
 		logger.info('all tables retrieved');
@@ -174,26 +223,41 @@ const getContainerData = async schemaName => {
 		return containers[schemaName];
 	}
 
+	let dbUser = redshift.connectionParams.DbUser;
+	let unlimitedQuota;
+	let quota;
+	if (redshift.instanceType !== 'Cluster') {
+		dbUser = await getSchemaUserOwner(schemaName);
+	} else if (redshift.instanceType === 'Cluster') {
+		quota = await getSchemaQuota(schemaName);
+		unlimitedQuota = quota ? false : true;
+	}
+
 	const description = await getSchemaDescription(schemaName);
-	const functions = await getFunctions(schemaName);
-	const procedures = await getProcedures(schemaName);
-	const quota = await getSchemaQuota(schemaName);
-	const unlimitedQuota = quota ? false : true;
+	const functions = await getFunctions(schemaName, dbUser);
+	const procedures = await getProcedures(schemaName, dbUser);
 	const externalOptions = await getExternalOptions(schemaName)
 
 	const data = {
 		description,
-		authorizationUsername: redshift.connectionParams.DbUser,
+		authorizationUsername: dbUser,
 		unlimitedQuota,
 		quota,
 		Procedures: procedures,
-		Functions: functions,
+		UDFs: functions,
 		...externalOptions
 	};
 
 	containers[schemaName] = data;
 
 	return data;
+}
+
+const getSchemaUserOwner = async schemaName => {
+	const userOwners = await execute(ddlViewCreationHelper.getSchemaUserOwner());
+	const userOwner = (userOwners || []).find(userOwner => _.get(userOwner, '[0].stringValue') === schemaName);
+
+	return _.get(userOwner, '[1].stringValue');
 }
 
 const getSchemaQuota = async (schemaName) => {
@@ -219,8 +283,8 @@ const getExternalOptions = async (schemaName) => {
 	};
 };
 
-const getFunctions = async (schemaName) => {
-	const userOIDRecord = await execute(`SELECT usesysid FROM pg_user WHERE usename = '${redshift.connectionParams.DbUser}';`)
+const getFunctions = async (schemaName, dbUser) => {
+	const userOIDRecord = await execute(`SELECT usesysid FROM pg_user WHERE usename = '${dbUser}';`)
 	const userOID = _.get(userOIDRecord, '[0][0].longValue')
 	const schemaOIDRecord = await execute(`SELECT oid FROM pg_namespace WHERE nspname = '${schemaName}';`)
 	const schemaOID = _.get(schemaOIDRecord, '[0][0].longValue')
@@ -230,26 +294,27 @@ const getFunctions = async (schemaName) => {
 		const language = _.get(record, '[1].stringValue', '')
 		const statement = _.get(record, '[2].stringValue', '');
 		const typess = _.get(record, '[3].stringValue', '').split(' ');
-		const convertedInputArgTypes = await Promise.all(typess.map(async typeOID => {
+		const inputArgsNames = getArgsNames(_.get(record, '[6].stringValue', ''));
+		const convertedInputArgTypes = await Promise.all(typess.map(async (typeOID, index) => {
 			if (types[typeOID]) {
-				return types[typeOID];;
+				return getArg(types[typeOID], inputArgsNames[index]);
 			}
 			const typeNameRecord = await execute(`SELECT typname from pg_type WHERE oid = '${typeOID}';`)
 			const typeName = _.get(typeNameRecord, '[0][0].stringValue', '')
 			types[typeOID] = typeName
 
-			return typeName;
+			return getArg(typeName, inputArgsNames[index]);
 		}));
-		const inputArgTypes = convertedInputArgTypes.join(' ');
+		const inputArgTypes = convertedInputArgTypes.join(', ');
 		const returnType = _.get(record, '[4].stringValue', '');
 		const volatility = getVolatility(_.get(record, '[5].stringValue', ''));
 		return {
 			name: funcName,
-			inputArgs: inputArgTypes,
-			storedProcDataType: returnType,
-			volatility,
-			statement,
-			language
+			functionArguments: inputArgTypes,
+			functionReturnType: returnType,
+			functionVolatility: volatility,
+			functionBody: statement,
+			functionLanguage: language
 		}
 	}))
 	return functionsData
@@ -266,8 +331,8 @@ const getVolatility = (volatilitySign) => {
 	}
 }
 
-const getProcedures = async (schemaName) => {
-	const userOIDRecord = await execute(`SELECT usesysid FROM pg_user WHERE usename = '${redshift.connectionParams.DbUser}';`)
+const getProcedures = async (schemaName, dbUser) => {
+	const userOIDRecord = await execute(`SELECT usesysid FROM pg_user WHERE usename = '${dbUser}';`)
 	const userOID = _.get(userOIDRecord, '[0][0].longValue')
 	const schemaOIDRecord = await execute(`SELECT oid FROM pg_namespace WHERE nspname = '${schemaName}';`)
 	const schemaOID = _.get(schemaOIDRecord, '[0][0].longValue')
@@ -277,29 +342,55 @@ const getProcedures = async (schemaName) => {
 		const language = _.get(record, '[1].stringValue', '')
 		const body = _.get(record, '[2].stringValue', '');
 		const typess = _.get(record, '[3].stringValue', '').split(' ');
-		const convertedInputArgTypes = await Promise.all(typess.map(async typeOID => {
+		const inputArgsNames = getArgsNames(_.get(record, '[4].stringValue', ''));
+		const convertedInputArgTypes = await Promise.all(typess.map(async (typeOID, index) => {
 			if (types[typeOID]) {
-				return types[typeOID];;
+				return getArg(types[typeOID], inputArgsNames[index]);
 			}
-			const typeNameRecord = await execute(`SELECT typname from pg_type WHERE oid = '${typeOID}';`)
-			const typeName = _.get(typeNameRecord, '[0][0].stringValue', '')
-			types[typeOID] = typeName
+			const typeNameRecord = await execute(`SELECT typname from pg_type WHERE oid = '${typeOID}';`);
+			const typeName = _.get(typeNameRecord, '[0][0].stringValue', '');
+			types[typeOID] = typeName;
 
-			return typeName;
+			return getArg(typeName, inputArgsNames[index]);
 		}));
-		const inputArgTypes = convertedInputArgTypes.join(' ');
+		const inputArgTypes = convertedInputArgTypes.join(', ');
 		return {
 			name: funcName,
 			inputArgs: inputArgTypes,
 			body,
-			language
+			storedProcLanguage: language
 		}
 	}))
 	return proceduresData
 }
 
+const getArg = (type, argName) => {
+	if (!Boolean(argName)) {
+		return type;
+	}
+
+	return `${argName} ${type}`;
+}
+
+const getArgsNames = argsName => {
+	const resMatch = argsName.match(/^\{([\s\S]+)\}$/);
+	if (!Boolean(resMatch)) {
+		return [];
+	}
+
+	return resMatch[1].split(',').map(res => res.replaceAll('"', ''));
+}
+
 const getModelData = async () => {
-	const clustersData = await redshift.redshiftInstance.describeClusters({ ClusterIdentifier: redshift.connectionParams.ClusterIdentifier }).promise();
+	if (redshift.instanceType === 'Cluster') {
+		return await getClusterModelData();
+	}
+
+	return await getServerLessModelData();
+}
+
+const getClusterModelData = async () => {
+	const clustersData = await redshift.redshiftInstance.describeClusters({ ClusterIdentifier: redshift.connectionParams.ClusterIdentifier });
 	const selctedClusterData = _.first(clustersData.Clusters);
 	const clusterNamespace = selctedClusterData.ClusterNamespaceArn.match(/namespace:([\d\w-]+)/)[1];
 	const tags = selctedClusterData.Tags.map(tag => ({ key: tag.Key, value: tag.Value }));
@@ -310,8 +401,21 @@ const getModelData = async () => {
 		host: selctedClusterData.Endpoint.Address,
 		port: selctedClusterData.Endpoint.Port,
 		databaseName: selctedClusterData.DBName,
+		instanceType: redshift.instanceType,
 		tags
 	}
+}
+
+const getServerLessModelData = async () => {
+	const { workgroup } = await redshift.redshiftInstance.getWorkgroup({ workgroupName: redshift.connectionParams.WorkgroupName });
+
+	return {
+		host: workgroup.endpoint.address,
+		port: workgroup.endpoint.port,
+		databaseName: redshift.connectionParams.Database,
+		workgroupName: workgroup.workgroupName,
+		instanceType: redshift.instanceType,
+	};
 }
 
 const getRowsCount = async tableName => {
@@ -379,7 +483,7 @@ const getSuperPropertyType = property => {
 
 const describeTable = async (schemaName, tableName) => {
 	try {
-		const records = await redshift.redshiftDataInstance.describeTable({ ...redshift.connectionParams, Table: tableName, Schema: schemaName }).promise();
+		const records = await redshift.redshiftDataInstance.describeTable({ ...redshift.connectionParams, Table: tableName, Schema: schemaName });
 		return _.get(records, 'ColumnList').map(column => ({ name: column.name, type: column.typeName }))
 	} catch (err) {
 		return [];

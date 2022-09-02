@@ -146,7 +146,7 @@ module.exports = app => {
 					: undefined,
 			statement:
 				func.functionBody || func.storedProcFunction
-					? tab(_.trim(func.functionBody || func.storedProcFunction))
+					? tab(_.trim(func.functionBody || func.storedProcFunction), '  ')
 					: undefined,
 			language: func.functionLanguage || func.storedProcLanguage,
 		});

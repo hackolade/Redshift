@@ -5,7 +5,7 @@
 	},
 	"excludeDocKind": ["id"],
 	"defaultDdlType": "redshift",
-	"connectionList": ["name", "clusterIdentifier", "databaseName"],
+	"connectionList": ["name", "clusterIdentifier", "workgroupName", "databaseName"],
 	"widestColumn": "clusterIdentifier",
 	"helpUrl": "https://hackolade.com/help/ConnecttoAmazonRedshift.html"
 }
