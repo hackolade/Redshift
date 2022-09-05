@@ -23,14 +23,14 @@ const connect = async (connectionInfo, logger) => {
 	}
 	const redshiftDataInstance = new aws.redshiftData.RedshiftData({ apiVersion: '2019-12-20', ...params });
 	if (instanceType === 'Cluster') {
-		redshift = await connectCluster(params, clusterIdentifier, databaseName);
+		redshift = await setCluster(params, clusterIdentifier, databaseName);
 	} else if (instanceType === 'ServerLess') {
-		redshift = await connectServerLess(params, workgroupName, databaseName);
+		redshift = await setServerLess(params, workgroupName, databaseName);
 	}
 	redshift = { ...redshift, redshiftDataInstance, instanceType };
 }
 
-const connectCluster = async (params, clusterIdentifier, databaseName) => {
+const setCluster = async (params, clusterIdentifier, databaseName) => {
 	const redshiftInstance = new aws.redshift.Redshift({ apiVersion: '2012-12-01', ...params });
 	const clusters = await redshiftInstance.describeClusters({ ClusterIdentifier: clusterIdentifier });
 	const requiredCluster = clusters.Clusters.find(cluster => cluster.ClusterIdentifier === clusterIdentifier);
@@ -48,7 +48,7 @@ const connectCluster = async (params, clusterIdentifier, databaseName) => {
 	}
 }
 
-const connectServerLess = async (params, workgroupName, databaseName) => {
+const setServerLess = async (params, workgroupName, databaseName) => {
 	const redshiftInstance = new aws.redshiftLess.RedshiftServerless({ apiVersion: '2021-04-21', ...params });
 	const workGroups = await listWorkGroups(redshiftInstance);
 	const requiredWorkGroup = workGroups.find(workgroup => workgroup.workgroupName === workgroupName);
