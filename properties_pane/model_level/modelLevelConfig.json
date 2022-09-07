@@ -129,18 +129,67 @@ making sure that you maintain a proper JSON format.
 				"disabledOption": true
 			},
 			{
+				"propertyName": "Instance type",
+				"propertyKeyword": "instanceType",
+				"shouldValidate": false,
+				"propertyTooltip": "Select from list of options",
+				"propertyType": "select",
+				"defaultValue": "Cluster",
+				"options": [
+					"Cluster",
+					"ServerLess"
+				]
+			},
+			{
 				"propertyName": "Cluster identifier",
 				"propertyKeyword": "clusterIdentifier",
 				"shouldValidate": false,
 				"propertyTooltip": "Cluster identifier",
-				"propertyType": "text"
+				"propertyType": "text",
+				"dependency": [{
+					"type": "or",
+					"values": [
+						{
+							"key": "instanceType",
+							"exist": false
+						},
+						{
+							"key": "instanceType",
+							"value": "Cluster"
+						}
+					]
+				}]
 			},
 			{
 				"propertyName": "Cluster namespace",
 				"propertyKeyword": "clusterNamespace",
 				"shouldValidate": false,
 				"propertyTooltip": "Cluster namespace",
-				"propertyType": "text"
+				"propertyType": "text",
+				"dependency": [{
+					"type": "or",
+					"values": [
+						{
+							"key": "instanceType",
+							"exist": false
+						},
+						{
+							"key": "instanceType",
+							"value": "Cluster"
+						}
+					]
+				}]
+			},
+			{
+				"propertyName": "Workgroup",
+				"propertyKeyword": "workgroupName",
+				"shouldValidate": false,
+				"propertyTooltip": "Workgroup Name",
+				"propertyType": "text",
+				"dependency": {
+					"key": "instanceType",
+					"value": "ServerLess"
+				}
 			},
 			{
 				"propertyName": "Host",
@@ -184,7 +233,20 @@ making sure that you maintain a proper JSON format.
 						"propertyTooltip": "Enter tag value",
 						"propertyType": "text"
 					}
-				]
+				],
+				"dependency": [{
+					"type": "or",
+					"values": [
+						{
+							"key": "instanceType",
+							"exist": false
+						},
+						{
+							"key": "instanceType",
+							"value": "Cluster"
+						}
+					]
+				}]
 			},
 			{
 				"propertyName": "Comments",

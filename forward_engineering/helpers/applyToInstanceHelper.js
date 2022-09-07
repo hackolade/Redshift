@@ -1,9 +1,22 @@
 const redshiftHelper = require('../../reverse_engineering/helpers/redshiftHelper');
+const { redshift, redshiftData, redshiftLess } = require('../../reverse_engineering/helpers/appDependencies');
+
+const setDependencies = app => {
+	redshiftHelper.setDependencies({
+		lodash: app.require('lodash'), 
+		aws: {
+			redshift,
+			redshiftData,
+			redshiftLess,
+		}
+	});
+};
 
 module.exports = {
 	async applyToInstance(connectionInfo, logger, app) {
 		const script = connectionInfo.script;
-		redshiftHelper.setDependencies({ lodash: app.require('lodash'), aws: app.require('aws-sdk') });
+		setDependencies(app);
+
 		await redshiftHelper.connect(connectionInfo, logger);
 
 		logger.log(
@@ -18,7 +31,7 @@ module.exports = {
 	},
 
 	async testConnection(connectionInfo, logger, app) {
-        redshiftHelper.setDependencies({ lodash: app.require('lodash'), aws: app.require('aws-sdk') });
+		setDependencies(app);
 
 		await redshiftHelper.testConnection(connectionInfo, logger);
 	},

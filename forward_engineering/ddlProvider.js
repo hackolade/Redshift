@@ -252,7 +252,7 @@ module.exports = (baseProvider, options, app) => {
 			return {
 				name: containerData.name,
 				authorization: containerData.authorizationUsername
-					? ` AUTHORIZATION ${containerData.authorizationUsername}`
+					? ` AUTHORIZATION "${containerData.authorizationUsername}"`
 					: '',
 				quota: getQuota(containerData.quota, containerData.unlimitedQuota),
 				ifNotExist: containerData.ifNotExists ? ' IF NOT EXISTS' : '',

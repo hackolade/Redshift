@@ -12,12 +12,45 @@
 				}
 			},
 			{
+				"inputLabel": "Instance type",
+				"inputKeyword": "instanceType",
+				"inputType": "select",
+				"defaultValue": "Cluster",
+				"options": [
+					{
+						"label": "Cluster",
+						"value": "Cluster"
+					},
+					{
+						"label": "ServerLess",
+						"value": "ServerLess"
+					}
+				]
+			},
+			{
 				"inputLabel": "Cluster identifier",
 				"inputKeyword": "clusterIdentifier",
 				"inputType": "text",
 				"inputPlaceholder": "Cluster identifier",
 				"validation": {
 					"regex": "([^\\s])"
+				},
+				"dependency": {
+					"key": "instanceType",
+					"value": ["Cluster"]
+				}
+			},
+			{
+				"inputLabel": "Workgroup",
+				"inputKeyword": "workgroupName",
+				"inputType": "text",
+				"inputPlaceholder": "Workgroup",
+				"validation": {
+					"regex": "([^\\s])"
+				},
+				"dependency": {
+					"key": "instanceType",
+					"value": ["ServerLess"]
 				}
 			},
 			{
@@ -38,7 +71,7 @@
 				"inputLabel": "Access Key ID",
 				"inputKeyword": "accessKeyId",
 				"inputType": "text",
-				"inputPlaceholder": "Access Key ID",
+				"inputPlaceholder": "Access Key ID"
 			},
 			{
 				"inputLabel": "Secret Access Key",
