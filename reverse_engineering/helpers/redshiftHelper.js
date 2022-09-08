@@ -87,7 +87,7 @@ const execute = async (sqlStatement) => {
 		helperLogger.log('error', { message: "Redshift instance wasn't created" });
 		return Promise.reject(noConnectionError)
 	}
-	helperLogger.log('info', { message: `Executing query: ${sqlStatement}` });
+	helperLogger.log('info', { message: `Executing query: ${sqlStatement}` }, 'execute');
 	const { Id } = await redshift.redshiftDataInstance.executeStatement({ ...redshift.connectionParams, Sql: sqlStatement });
 	let records = [];
 	let NextToken;

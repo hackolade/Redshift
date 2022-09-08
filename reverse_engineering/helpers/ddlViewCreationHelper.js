@@ -400,7 +400,7 @@ const getSchemaUserOwner = () =>
 u.usename as owner
 from pg_catalog.pg_namespace s
 join pg_catalog.pg_user u on u.usesysid = s.nspowner
-where nspname not in ('information_schema', 'pg_catalog', 'public')
+where nspname not in ('information_schema', 'pg_catalog')
 and nspname not like 'pg_toast%'
 and nspname not like 'pg_temp_%'
 order by schema_name;`;
