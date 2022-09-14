@@ -103,7 +103,7 @@ const getDbCollectionsData = async (data, loggerInstance, cb, app) => {
 					},
 					emptyBucket: false,
 					validation: {
-						jsonSchema:{properties:{}}
+						jsonSchema
 					},
 					bucketInfo: {
 						...containerData

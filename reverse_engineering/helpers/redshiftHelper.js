@@ -9,18 +9,30 @@ let helperLogger;
 let redshift = null;
 let aws = null;
 
-const connect = async (connectionInfo, logger) => {
-	helperLogger = logger;
-	const { accessKeyId, secretAccessKey, region, sessionToken, clusterIdentifier, databaseName, workgroupName, instanceType = 'Cluster' } = connectionInfo;
+const getParamsForConnect = (connectionInfo) => {
+	const { accessKeyId, secretAccessKey, region, sessionToken } = connectionInfo;
 	const params = {
+		region,
+		maxAttempts: 5,
+	};
+	if (!accessKeyId || !secretAccessKey) {
+		return params;
+	}
+
+	return {
+		...params,
 		credentials: {
 			accessKeyId,
 			secretAccessKey,
 			sessionToken,
 		},
-		maxAttempts: 5,
-		region,
 	}
+}
+
+const connect = async (connectionInfo, logger) => {
+	helperLogger = logger;
+	const { clusterIdentifier, databaseName, workgroupName, instanceType = 'Cluster' } = connectionInfo;
+	const params = getParamsForConnect(connectionInfo);
 	const redshiftDataInstance = new aws.redshiftData.RedshiftData({ apiVersion: '2019-12-20', ...params });
 	if (instanceType === 'Cluster') {
 		redshift = await setCluster(params, clusterIdentifier, databaseName);
@@ -490,6 +502,18 @@ const describeTable = async (schemaName, tableName) => {
 	}
 }
 
+const handleJsonString = value => {
+	if (typeof value !== 'string') {
+		return value;
+	}
+
+	try {
+		return JSON.parse(value);
+	} catch(err) {
+		return value;
+	}
+}
+
 const getDocuments = async (schemaName, tableName, quantity, recordSamplingSettings) => {
 	const limit = getCount(quantity, recordSamplingSettings)
 	const columns = await describeTable(schemaName, tableName);
@@ -500,16 +524,14 @@ const getDocuments = async (schemaName, tableName, quantity, recordSamplingSetti
 	const documents = records.map(document =>
 		document.reduce((rows, row, index) => {
 			if (row && columns[index].type === 'super') {
-				const value = JSON.parse(_.first(Object.values(row)));
+				let value = JSON.parse(_.first(Object.values(row)));
+				value = handleJsonString(value);
 				return { ...rows, [`${columns[index].name}`]: value }
 			}
 			return rows;
 		}, {}))
 		.filter(document => !_.isEmpty(document))
 		.map(filterNull);
-	if (_.isEmpty(documents)) {
-		throw new Error(`There are no records in "${tableName}" table`)
-	}
 	return documents;
 };
 
@@ -539,6 +561,7 @@ const getJsonSchema = async (documents, schemaName, tableName) => {
 			properties: getJsonSchemaFromRows(documents, rows)
 		};
 	} catch (err) {
+		helperLogger.log('error', { message: `get json schema error` }, 'get json error');
 		return { properties: {} };
 	}
 };
