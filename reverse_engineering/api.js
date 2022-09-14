@@ -81,8 +81,8 @@ const getDbCollectionsData = async (data, loggerInstance, cb, app) => {
 
 				logger.info(`Fetching record for JSON schema inference: "${schema}"."${table}"`);
 				logger.progress({ message: `Fetching record for JSON schema inference`, containerName: schema, entityName: table });
-				const jsonSchema = await redshiftHelper.getJsonSchema(documents, schema, table);
-
+				const jsonSchema = await redshiftHelper.getJsonSchema({ documents, schemaName: schema, tableName: table, logger });
+				
 				logger.info(`Schema inference: "${schema}"."${table}"`);
 				logger.progress({ message: `Schema inference`, containerName: schema, entityName: table });
 				const handledDocuments = redshiftHelper.handleComplexTypesDocuments(jsonSchema, documents);
@@ -103,7 +103,7 @@ const getDbCollectionsData = async (data, loggerInstance, cb, app) => {
 					},
 					emptyBucket: false,
 					validation: {
-						jsonSchema:{properties:{}}
+						jsonSchema
 					},
 					bucketInfo: {
 						...containerData
