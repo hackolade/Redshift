@@ -553,7 +553,7 @@ const filterNull = row => {
 	}, {});
 };
 
-const getJsonSchema = async (documents, schemaName, tableName) => {
+const getJsonSchema = async ({ documents, schemaName, tableName, logger}) => {
 	try {
 		let rows = await describeTable(schemaName, tableName)
 		rows = rows.filter(row => row.type === 'super')
@@ -561,7 +561,7 @@ const getJsonSchema = async (documents, schemaName, tableName) => {
 			properties: getJsonSchemaFromRows(documents, rows)
 		};
 	} catch (err) {
-		helperLogger.log('error', { message: `get json schema error` }, 'get json error');
+		logger.error(err);
 		return { properties: {} };
 	}
 };
