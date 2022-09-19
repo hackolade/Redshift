@@ -12,7 +12,7 @@ let aws = null;
 const getParamsForConnect = (connectionInfo) => {
 	const { accessKeyId, secretAccessKey, region, sessionToken } = connectionInfo;
 	const params = {
-		region,
+		...(region === 'none' ? {} : { region }),
 		maxAttempts: 5,
 	};
 	if (!accessKeyId || !secretAccessKey) {
