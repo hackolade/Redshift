@@ -25,11 +25,11 @@ module.exports = app => {
 			constraints.push(backup);
 		}
 
-		if (compoundUniqueKey.statement) {
+		if (compoundUniqueKey.statement && compoundUniqueKey.isActivated) {
 			constraints.push(compoundUniqueKey.statement);
 		}
 
-		if (compoundPrimaryKey.statement) {
+		if (compoundPrimaryKey.statement && compoundPrimaryKey.isActivated) {
 			constraints.push(compoundPrimaryKey.statement);
 		}
 

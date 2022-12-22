@@ -27,6 +27,7 @@ module.exports = (baseProvider, options, app) => {
 		getARN,
 		getSourceSchemaNameForExternalSchema,
 		getColumnComments,
+		getColumnsDefinitions,
 	} = require('./helpers/columnDefinitionHelper')(app);
 	const { generateConstraint } = require('./helpers/constraintHelper')(app);
 	const commentIfDeactivated = require('./helpers/commentDeactivatedHelper')(app);
@@ -119,9 +120,7 @@ module.exports = (baseProvider, options, app) => {
 					columnDescriptions,
 				});
 			}
-			const columnDefinitions = tableData.columns
-				.map(column => commentIfDeactivated(column.statement, column))
-				.join(',\n\t');
+			const columnDefinitions = getColumnsDefinitions(tableData.columns, isActivated);
 			return assignTemplates(templates.createTable, {
 				name: tableData.name,
 				schemaName,
@@ -303,7 +302,7 @@ module.exports = (baseProvider, options, app) => {
 				name: key.name,
 				isActivated: key.isActivated,
 			}));
-			const distKey = _.get(firstTab, 'distKey[0].compositeDistKey[0].name', '');
+			const distKey = _.get(firstTab, 'distKey[0].compositeDistKey[0]', {});
 			return {
 				...tableData,
 				comment: firstTab.description,
@@ -315,7 +314,7 @@ module.exports = (baseProvider, options, app) => {
 				ifNotExist: jsonSchema.ifNotExists ? ' IF NOT EXISTS' : '',
 				backup: jsonSchema.BACKUP ? 'BACKUP YES' : '',
 				distStyle: jsonSchema.DISTSTYLE ? `DISTSTYLE ${jsonSchema.DISTSTYLE.toUpperCase()}` : '',
-				distKey: distKey !== '' ? `DISTKEY ("${distKey}")` : '',
+				distKey: !_.isEmpty(distKey) && distKey.isActivated && distKey.name ? `DISTKEY ("${distKey.name}")` : '',
 				compoundPrimaryKey: _.isEmpty(compoundPrimaryKey)
 					? ''
 					: generateConstraint(compoundPrimaryKey, templates.compoundPrimaryKey, jsonSchema.isActivated),
