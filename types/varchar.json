@@ -6,6 +6,41 @@
 	"hiddenOnEntity": "view",
 	"useSample": true,
 	"default": true,
+	"jsonType": {
+		"order": 2,
+		"jsonRoot": true,
+		"source": {
+			"type": "and",
+			"values": [
+				{
+					"type": "or",
+					"values": [
+						{
+							"key": "hasMaxLength",
+							"value": true
+						},
+						{
+							"key": "length",
+							"minimum": 65535
+						}
+					]
+				},
+				{
+					"type": "or",
+					"values": [
+						{
+							"key": "mode",
+							"value": "nvarchar"
+						},
+						{
+							"key": "mode",
+							"value": "varchar"
+						}
+					]
+				}
+			]
+		}
+	},
 	"defaultValues": {
 		"minLength": "",
 		"maxLength": "",
@@ -20,5 +55,18 @@
 		"enum": [],
 		"mode": "varchar",
 		"sample": ""
+	},
+	"subtypes": {
+		"object": {
+			"parentType": "jsonObject",
+			"childValueType": ["jsonString", "jsonNumber", "jsonObject", "jsonArray", "jsonBoolean", "jsonNull"]
+		},
+		"array": {
+			"parentType": "jsonArray",
+			"childValueType": ["jsonString", "jsonNumber", "jsonObject", "jsonArray", "jsonBoolean", "jsonNull"]
+		},
+		"string": {
+			"parentType": "string"
+		}
 	}
 }
