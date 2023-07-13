@@ -439,12 +439,14 @@ const getRowsCount = async tableName => {
 	}
 };
 
-const getCount = (count, recordSamplingSettings) => {
-	const per = recordSamplingSettings.relative.value;
-	const size = (recordSamplingSettings.active === 'absolute')
-		? recordSamplingSettings.absolute.value
-		: Math.round(count / 100 * per);
-	return size;
+const getSampleDocSize = (count, recordSamplingSettings) => {
+	if (recordSamplingSettings.active === 'absolute') {
+		return Number(recordSamplingSettings.absolute.value);
+	}
+
+	const limit = Math.ceil((count * recordSamplingSettings.relative.value) / 100);
+
+	return Math.min(limit, recordSamplingSettings.maxValue);
 };
 
 const handleSuper = (documents, name) => {
@@ -515,7 +517,7 @@ const handleJsonString = value => {
 }
 
 const getDocuments = async (schemaName, tableName, quantity, recordSamplingSettings) => {
-	const limit = getCount(quantity, recordSamplingSettings)
+	const limit = getSampleDocSize(quantity, recordSamplingSettings)
 	const columns = await describeTable(schemaName, tableName);
 	if (!tableHasColumnsOfSuperType(columns)) {
 		return [];
