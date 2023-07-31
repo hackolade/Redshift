@@ -34,6 +34,12 @@
 				"mode": "int2"
 			},
 			"capacity": 2
+		},
+		{
+			"schema": {
+				"mode": "int2"
+			},
+			"mode": "smallint"
 		}
 	]
 }
