@@ -37,6 +37,12 @@
 		},
 		{
 			"schema": {
+				"mode": "int"
+			},
+			"mode": "integer"
+		},
+		{
+			"schema": {
 				"mode": "int4"
 			},
 			"capacity": 1
