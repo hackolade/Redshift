@@ -7,6 +7,12 @@
 	"useSample": true,
 	"default": true,
 	"defaultValues": {
-    "length": 64000
-	}
+		"length": 64000
+	},
+	"descriptor": [
+		{
+			"schema": {},
+			"mode": "binary"
+		}
+	]
 }
