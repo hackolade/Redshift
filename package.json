@@ -27,17 +27,26 @@
                 "excel": true,
                 "plugin": true
             },
+            "forwardEngineering": {
+                "jsonSchema": {
+                    "keepParentType": {
+                        "integer": "integer"
+                    }
+                }
+            },
             "enableReverseEngineering": true,
             "disableChoices": true,
             "disableMultipleTypes": {
-                "dependencies": [{
-                    "dependency": {
-                        "level": "parent",
-                        "key": "childType",
-                        "value": "super"
-                    },
-                    "value": false
-                }],
+                "dependencies": [
+                    {
+                        "dependency": {
+                            "level": "parent",
+                            "key": "childType",
+                            "value": "super"
+                        },
+                        "value": false
+                    }
+                ],
                 "defaultValue": true
             },
             "enableJsonType": true,
