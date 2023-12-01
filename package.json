@@ -1,7 +1,7 @@
 {
     "name": "Redshift",
-    "version": "0.1.23",
-    "versionDate": "2023-09-15",
+    "version": "0.1.24",
+    "versionDate": "2023-12-01",
     "author": "hackolade",
     "engines": {
         "hackolade": "6.1.2",
