@@ -8,9 +8,9 @@ const connect = async (connectionInfo, logger, cb, app) => {
 	initDependencies(app);
 	logger.clear();
 	logger.log('info', connectionInfo, 'connectionInfo', connectionInfo.hiddenKeys);
-	try{
-		await redshiftHelper.connect(connectionInfo,logger);
-	} catch (err){
+	try {
+		await redshiftHelper.connect(connectionInfo, logger);
+	} catch (err) {
 		handleError(logger, err, cb);
 	}
 };
@@ -21,12 +21,12 @@ const disconnect = async (connectionInfo, logger, cb) => {
 
 const testConnection = async (connectionInfo, logger, cb, app) => {
 	initDependencies(app);
-	try{
+	try {
 		logger.clear();
 		logger.log('info', connectionInfo, 'connectionInfo', connectionInfo.hiddenKeys);
 		await redshiftHelper.testConnection(connectionInfo, logger);
 		cb();
-	}catch(err){
+	} catch (err) {
 		handleError(logger, err, cb);
 	}
 };
@@ -37,8 +37,10 @@ const getDbCollectionsNames = async (connectionInfo, loggerInstance, cb, app) =>
 	try {
 		const redshiftSchemaNames = await redshiftHelper.getSchemaNames();
 		logger.info(`Schema names: ${JSON.stringify(redshiftSchemaNames)}`);
-		const dbCollectionNamePromises = redshiftSchemaNames.map((schemaName) => redshiftHelper.getSchemaCollectionNames(schemaName, logger));
-		const dbCollectionNames = await Promise.all(dbCollectionNamePromises)
+		const dbCollectionNamePromises = redshiftSchemaNames.map(schemaName =>
+			redshiftHelper.getSchemaCollectionNames(schemaName, logger),
+		);
+		const dbCollectionNames = await Promise.all(dbCollectionNamePromises);
 		cb(null, dbCollectionNames);
 	} catch (err) {
 		logger.error(err);
@@ -56,7 +58,7 @@ const getDbCollectionsData = async (data, loggerInstance, cb, app) => {
 		logger.info(`Selected entities: ${JSON.stringify(collections, null, 4)}`);
 
 		logger.info('Getting cluster information');
-		const modelData = await redshiftHelper.getModelData()
+		const modelData = await redshiftHelper.getModelData();
 
 		const packages = await dataBaseNames.reduce(async (packagesPromise, schema) => {
 			const packages = await packagesPromise;
@@ -65,24 +67,38 @@ const getDbCollectionsData = async (data, loggerInstance, cb, app) => {
 			logger.info(`Getting schema information: ${schema}`);
 			const containerData = await redshiftHelper.getContainerData(schema);
 
-			const tablesPackages = await mapItems(async, entities.tables, 100, async (table) => {
+			const tablesPackages = await mapItems(async, entities.tables, 100, async table => {
 				const fullTableName = `"${schema}"."${table}"`;
 
 				logger.info(`Start getting data from table: "${schema}"."${table}"`);
 				logger.progress({ message: `Start getting data from table`, containerName: schema, entityName: table });
-				
+
 				logger.info(`Getting DDL: "${schema}"."${table}"`);
-				const ddl = await redshiftHelper.getTableDDL(schema,table);
-				
+				const ddl = await redshiftHelper.getTableDDL(schema, table);
+
 				logger.info(`Getting documents: "${schema}"."${table}"`);
 				const quantity = await redshiftHelper.getRowsCount(fullTableName);
 				logger.info(`Found ${quantity} documents: "${schema}"."${table}"`);
-				const documents = await redshiftHelper.getDocuments(schema, table, quantity, data.recordSamplingSettings);
+				const documents = await redshiftHelper.getDocuments(
+					schema,
+					table,
+					quantity,
+					data.recordSamplingSettings,
+				);
 
 				logger.info(`Fetching record for JSON schema inference: "${schema}"."${table}"`);
-				logger.progress({ message: `Fetching record for JSON schema inference`, containerName: schema, entityName: table });
-				const jsonSchema = await redshiftHelper.getJsonSchema({ documents, schemaName: schema, tableName: table, logger });
-				
+				logger.progress({
+					message: `Fetching record for JSON schema inference`,
+					containerName: schema,
+					entityName: table,
+				});
+				const jsonSchema = await redshiftHelper.getJsonSchema({
+					documents,
+					schemaName: schema,
+					tableName: table,
+					logger,
+				});
+
 				logger.info(`Schema inference: "${schema}"."${table}"`);
 				logger.progress({ message: `Schema inference`, containerName: schema, entityName: table });
 				const handledDocuments = redshiftHelper.handleComplexTypesDocuments(jsonSchema, documents);
@@ -99,14 +115,14 @@ const getDbCollectionsData = async (data, loggerInstance, cb, app) => {
 					ddl: {
 						script: ddl,
 						type: 'redshift',
-						takeAllDdlProperties: true
+						takeAllDdlProperties: true,
 					},
 					emptyBucket: false,
 					validation: {
-						jsonSchema
+						jsonSchema,
 					},
 					bucketInfo: {
-						...containerData
+						...containerData,
 					},
 				};
 			});
@@ -114,10 +130,10 @@ const getDbCollectionsData = async (data, loggerInstance, cb, app) => {
 			const views = await mapItems(async, entities.views, 100, async view => {
 				logger.info(`Start getting data from view: "${schema}"."${view}"`);
 				logger.progress({ message: `Start getting data from view`, containerName: schema, entityName: view });
-			
+
 				logger.info(`Get view DDL: "${schema}"."${view}"`);
 				const ddl = await redshiftHelper.getViewDDL(schema, view);
-			
+
 				logger.info(`Get view description: "${schema}"."${view}"`);
 				const description = await redshiftHelper.getViewDescription(view);
 
@@ -137,7 +153,7 @@ const getDbCollectionsData = async (data, loggerInstance, cb, app) => {
 			});
 
 			if (_.isEmpty(views)) {
-				return [ ...packages, ...tablesPackages ];
+				return [...packages, ...tablesPackages];
 			}
 
 			const viewPackage = {
@@ -146,12 +162,12 @@ const getDbCollectionsData = async (data, loggerInstance, cb, app) => {
 				views,
 				emptyBucket: false,
 				bucketInfo: {
-					...containerData
+					...containerData,
 				},
 			};
 
-			return [ ...packages, ...tablesPackages, viewPackage ];
-		}, Promise.resolve([]))
+			return [...packages, ...tablesPackages, viewPackage];
+		}, Promise.resolve([]));
 
 		cb(null, packages.filter(Boolean), modelData);
 	} catch (err) {
@@ -162,7 +178,7 @@ const getDbCollectionsData = async (data, loggerInstance, cb, app) => {
 };
 
 const handleError = (logger, error, cb) => {
-	const message = _.isString(error) ? error : _.get(error, 'message', 'Reverse Engineering error')
+	const message = _.isString(error) ? error : _.get(error, 'message', 'Reverse Engineering error');
 	logger.log('error', { error }, 'Reverse Engineering error');
 	cb(message);
 };
@@ -194,27 +210,33 @@ const createLogger = (title, logger) => {
 	};
 };
 
-const mapItems = (async, items, limit, iteratee) => new Promise((resolve, reject) => {
-	async.mapLimit(items, limit, (item, callback) => {
-		const promise = iteratee(item);
+const mapItems = (async, items, limit, iteratee) =>
+	new Promise((resolve, reject) => {
+		async.mapLimit(
+			items,
+			limit,
+			(item, callback) => {
+				const promise = iteratee(item);
 
-		promise.then(
-			(result) => callback(null, result),
-			(error) => callback(error),
+				promise.then(
+					result => callback(null, result),
+					error => callback(error),
+				);
+			},
+			(error, result) => {
+				if (error) {
+					return reject(error);
+				} else {
+					return resolve(result);
+				}
+			},
 		);
-	}, (error, result) => {
-		if (error) {
-			return reject(error);
-		} else {
-			return resolve(result);
-		}
 	});
-});
 
 module.exports = {
 	connect,
 	disconnect,
 	testConnection,
 	getDbCollectionsNames,
-	getDbCollectionsData
-}
+	getDbCollectionsData,
+};

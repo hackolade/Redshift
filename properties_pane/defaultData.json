@@ -26,25 +26,31 @@
 		"punctuationSensitivity": "",
 		"firstLetterPreference": "",
 		"caseConversion": "",
-		"spaceTrimming": ""	,
+		"spaceTrimming": "",
 		"defaultOption": {
 			"value": "Default",
-			"valueDependencies": [{
-				"value": "Default",
-				"dependency": {
-					"key": "default",
-					"exist": true
+			"valueDependencies": [
+				{
+					"value": "Default",
+					"dependency": {
+						"key": "default",
+						"exist": true
+					}
+				},
+				{
+					"value": "Identity",
+					"dependency": [
+						{
+							"key": "seed",
+							"exist": true
+						},
+						{
+							"key": "step",
+							"exist": true
+						}
+					]
 				}
-			},{
-				"value": "Identity",
-				"dependency": [{
-					"key": "seed",
-					"exist": true
-				},{
-					"key": "step",
-					"exist": true
-				}]
-			}]	
+			]
 		},
 		"identity": {
 			"seed": 0,
@@ -54,13 +60,15 @@
 		"tPrecision": 9,
 		"superType": "JSON",
 		"subtype": {
-			"valueDependencies": [{
-				"value": "json",
-				"dependency": {
-					"key": "childType",
-					"value": "object"
+			"valueDependencies": [
+				{
+					"value": "json",
+					"dependency": {
+						"key": "childType",
+						"value": "object"
+					}
 				}
-			}]
+			]
 		}
 	},
 	"patternField": {

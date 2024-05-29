@@ -1,5 +1,5 @@
-const getTablesDDLQuery = (schemaName,tableName) => 
-`SELECT
+const getTablesDDLQuery = (schemaName, tableName) =>
+	`SELECT
 table_id,
 REGEXP_REPLACE (schemaname, '^zzzzzzzz', '') AS schemaname,
 REGEXP_REPLACE (tablename, '^zzzzzzzz', '') AS tablename,
@@ -370,33 +370,33 @@ FROM
 )
 WHERE
 tablename = '${tableName}'
-AND schemaname = '${schemaName}';`
+AND schemaname = '${schemaName}';`;
 
-const getViewsDDLQuery = (schemaName,viewName) =>
-`SELECT 'create view '|| nc.nspname::information_schema.sql_identifier ||'.'|| c.relname::information_schema.sql_identifier ||' as '||
+const getViewsDDLQuery = (schemaName, viewName) =>
+	`SELECT 'create view '|| nc.nspname::information_schema.sql_identifier ||'.'|| c.relname::information_schema.sql_identifier ||' as '||
 pg_get_viewdef(c.oid)::information_schema.character_data AS view_definition
 FROM pg_namespace nc, pg_class c, pg_user u
 WHERE c.relnamespace = nc.oid AND u.usesysid = c.relowner AND c.relkind = 'v'::"char" 
 AND nc.nspname = '${schemaName}' AND c.relname::information_schema.sql_identifier = '${viewName}';`;
 
 const getSchemaFunctionsData = (schemaOID, userOID) =>
-`SELECT proname, (SELECT lanname FROM pg_language WHERE oid = prolang) AS lang,
+	`SELECT proname, (SELECT lanname FROM pg_language WHERE oid = prolang) AS lang,
 prosrc AS body,proargtypes AS inputArgs,
 (SELECT typName FROM pg_type WHERE oid = prorettype) AS returnType, 
 provolatile AS volatility,
 proargnames as inputArgsNames
 FROM pg_proc
-WHERE proowner = ${userOID} AND pronamespace = ${schemaOID} AND prorettype != 0`
+WHERE proowner = ${userOID} AND pronamespace = ${schemaOID} AND prorettype != 0`;
 
 const getSchemaProceduresData = (schemaOID, userOID) =>
-`SELECT proname, (SELECT lanname FROM pg_language WHERE oid = prolang) AS lang,
+	`SELECT proname, (SELECT lanname FROM pg_language WHERE oid = prolang) AS lang,
 prosrc AS body,proargtypes AS inputArgs, proargnames as inputArgsNames,
 (SELECT typName FROM pg_type WHERE oid = prorettype) AS returnType, 
 provolatile AS volatility FROM pg_proc 
-WHERE proowner = ${userOID} AND pronamespace = ${schemaOID} AND prorettype = 0`
+WHERE proowner = ${userOID} AND pronamespace = ${schemaOID} AND prorettype = 0`;
 
-const getSchemaUserOwner = () => 
-`select s.nspname as schema_name,
+const getSchemaUserOwner = () =>
+	`select s.nspname as schema_name,
 u.usename as owner
 from pg_catalog.pg_namespace s
 join pg_catalog.pg_user u on u.usesysid = s.nspowner
@@ -406,10 +406,9 @@ and nspname not like 'pg_temp_%'
 order by schema_name;`;
 
 module.exports = {
-    getTablesDDLQuery,
-    getViewsDDLQuery,
-    getSchemaFunctionsData,
-    getSchemaProceduresData,
-    getSchemaUserOwner,
+	getTablesDDLQuery,
+	getViewsDDLQuery,
+	getSchemaFunctionsData,
+	getSchemaProceduresData,
+	getSchemaUserOwner,
 };
-
