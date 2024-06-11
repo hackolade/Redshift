@@ -1,0 +1,32 @@
+{
+	"name": "object",
+	"parentType": "document",
+	"structureType": true,
+	"defaultValues": {
+		"subtype": "object",
+		"properties": []
+	},
+	"subtypes": {
+		"object": {
+			"childValueType": [
+				"varchar",
+				"char",
+				"smallint",
+				"integer",
+				"bigint",
+				"decimal",
+				"real",
+				"double precision",
+				"boolean",
+				"geometry",
+				"date",
+				"timestamp",
+				"timestamptz",
+				"time",
+				"timetz",
+				"super",
+				"varbyte"
+			]
+		}
+	}
+}
