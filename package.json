@@ -65,7 +65,8 @@
 	"dependencies": {
 		"@aws-sdk/client-redshift": "3.154.0",
 		"@aws-sdk/client-redshift-data": "3.154.0",
-		"@aws-sdk/client-redshift-serverless": "3.154.0"
+		"@aws-sdk/client-redshift-serverless": "3.154.0",
+		"lodash": "4.17.21"
 	},
 	"lint-staged": {
 		"*.{js,json}": "prettier --write"
@@ -80,8 +81,8 @@
 	},
 	"devDependencies": {
 		"@hackolade/hck-esbuild-plugins-pack": "0.0.1",
-		"@typescript-eslint/parser": "7.11.0",
 		"@typescript-eslint/eslint-plugin": "7.11.0",
+		"@typescript-eslint/parser": "7.11.0",
 		"esbuild": "0.20.2",
 		"esbuild-plugin-clean": "1.0.1",
 		"eslint": "8.57.0",
