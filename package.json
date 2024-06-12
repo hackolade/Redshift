@@ -1,93 +1,97 @@
 {
-    "name": "Redshift",
-    "version": "0.2.0",
-    "versionDate": "2023-12-15",
-    "author": "hackolade",
-    "engines": {
-        "hackolade": "6.1.2",
-        "hackoladePlugin": "1.2.0"
-    },
-    "contributes": {
-        "target": {
-            "applicationTarget": "Redshift",
-            "title": "Redshift",
-            "versions": []
-        },
-        "features": {
-            "views": {
-                "enabled": true,
-                "viewLevel": "model",
-                "disablePipelines": true
-            },
-            "nestedCollections": false,
-            "disablePatternField": true,
-            "enableForwardEngineering": {
-                "jsonDocument": true,
-                "jsonSchema": true,
-                "excel": true,
-                "plugin": true
-            },
-            "forwardEngineering": {
-                "jsonSchema": {
-                    "keepParentType": {
-                        "integer": "integer"
-                    }
-                }
-            },
-            "enableReverseEngineering": true,
-            "disableChoices": true,
-            "disableMultipleTypes": {
-                "dependencies": [
-                    {
-                        "dependency": {
-                            "level": "parent",
-                            "key": "childType",
-                            "value": "super"
-                        },
-                        "value": false
-                    }
-                ],
-                "defaultValue": true
-            },
-            "enableJsonType": true,
-            "reverseSchemaIntoOneColumn": true,
-            "disableDenormalization": true,
-            "enableComplexTypesNormalization": true,
-            "enableKeysMultipleAbrr": true,
-            "relationships": {
-                "compositeRelationships": true
-            },
-            "FEScriptCommentsSupported": true,
-            "discoverRelationships": true
-        }
-    },
-    "description": "Hackolade plugin for Amazon Redshift",
-    "disabled": false,
-    "dependencies": {
-        "@aws-sdk/client-redshift": "3.154.0",
-        "@aws-sdk/client-redshift-data": "3.154.0",
-        "@aws-sdk/client-redshift-serverless": "3.154.0"
-    },
-    "lint-staged": {
-        "*.{js,json}": "prettier --write"
-    },
-    "simple-git-hooks": {
-        "pre-commit": "npx lint-staged",
-        "pre-push": "npx eslint ."
-    },
-    "scripts": {
-        "lint": "eslint . --max-warnings=0",
-        "package": "node esbuild.package.js"
-    },
-    "devDependencies": {
-        "@hackolade/hck-esbuild-plugins-pack": "0.0.1",
-        "esbuild": "0.21.4",
-        "esbuild-plugin-clean": "1.0.1",
-        "eslint": "9.3.0",
-        "eslint-config-prettier": "9.1.0",
-        "eslint-plugin-prettier": "5.1.3",
-        "lint-staged": "14.0.1",
-        "prettier": "3.2.5",
-        "simple-git-hooks": "2.11.1"
-    }
+	"name": "Redshift",
+	"version": "0.2.1",
+	"author": "hackolade",
+	"engines": {
+		"hackolade": "6.1.2",
+		"hackoladePlugin": "1.2.0"
+	},
+	"contributes": {
+		"target": {
+			"applicationTarget": "Redshift",
+			"title": "Redshift",
+			"versions": []
+		},
+		"features": {
+			"views": {
+				"enabled": true,
+				"viewLevel": "model",
+				"disablePipelines": true
+			},
+			"nestedCollections": false,
+			"disablePatternField": true,
+			"enableForwardEngineering": {
+				"jsonDocument": true,
+				"jsonSchema": true,
+				"excel": true,
+				"plugin": true
+			},
+			"forwardEngineering": {
+				"jsonSchema": {
+					"keepParentType": {
+						"integer": "integer"
+					}
+				}
+			},
+			"enableReverseEngineering": true,
+			"disableChoices": true,
+			"disableMultipleTypes": {
+				"dependencies": [
+					{
+						"dependency": {
+							"level": "parent",
+							"key": "childType",
+							"value": "super"
+						},
+						"value": false
+					}
+				],
+				"defaultValue": true
+			},
+			"enableJsonType": true,
+			"reverseSchemaIntoOneColumn": true,
+			"disableDenormalization": true,
+			"enableComplexTypesNormalization": true,
+			"enableKeysMultipleAbrr": true,
+			"relationships": {
+				"compositeRelationships": true
+			},
+			"FEScriptCommentsSupported": true,
+			"discoverRelationships": true
+		}
+	},
+	"description": "Hackolade plugin for Amazon Redshift",
+	"disabled": false,
+	"dependencies": {
+		"@aws-sdk/client-redshift": "3.154.0",
+		"@aws-sdk/client-redshift-data": "3.154.0",
+		"@aws-sdk/client-redshift-serverless": "3.154.0"
+	},
+	"lint-staged": {
+		"*.{js,json}": "prettier --write"
+	},
+	"simple-git-hooks": {
+		"pre-commit": "npx lint-staged",
+		"pre-push": "npx eslint ."
+	},
+	"scripts": {
+		"lint": "eslint . --max-warnings=0",
+		"package": "node esbuild.package.js"
+	},
+	"devDependencies": {
+		"@hackolade/hck-esbuild-plugins-pack": "0.0.1",
+		"@typescript-eslint/parser": "7.11.0",
+		"@typescript-eslint/eslint-plugin": "7.11.0",
+		"esbuild": "0.20.2",
+		"esbuild-plugin-clean": "1.0.1",
+		"eslint": "8.57.0",
+		"eslint-config-prettier": "9.1.0",
+		"eslint-formatter-teamcity": "^1.0.0",
+		"eslint-plugin-import": "^2.26.0",
+		"eslint-plugin-prettier": "5.1.3",
+		"eslint-plugin-unused-imports": "3.2.0",
+		"lint-staged": "14.0.1",
+		"prettier": "3.2.5",
+		"simple-git-hooks": "2.11.1"
+	}
 }
