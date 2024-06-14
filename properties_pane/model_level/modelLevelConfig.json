@@ -123,9 +123,7 @@ making sure that you maintain a proper JSON format.
 				"shouldValidate": false,
 				"propertyTooltip": "DB vendor",
 				"propertyType": "select",
-				"options": [
-					"Redshift"
-				],
+				"options": ["Redshift"],
 				"disabledOption": true
 			},
 			{
@@ -133,11 +131,7 @@ making sure that you maintain a proper JSON format.
 				"propertyKeyword": "modelingMethodology",
 				"propertyTooltip": "Select from list of options",
 				"propertyType": "select",
-				"options": [
-					"Relational",
-					"Dimensional",
-					"Vault"
-				]
+				"options": ["Relational", "Dimensional", "Vault"]
 			},
 			{
 				"propertyName": "Instance type",
@@ -146,10 +140,7 @@ making sure that you maintain a proper JSON format.
 				"propertyTooltip": "Select from list of options",
 				"propertyType": "select",
 				"defaultValue": "Cluster",
-				"options": [
-					"Cluster",
-					"ServerLess"
-				]
+				"options": ["Cluster", "ServerLess"]
 			},
 			{
 				"propertyName": "Cluster identifier",
@@ -157,19 +148,21 @@ making sure that you maintain a proper JSON format.
 				"shouldValidate": false,
 				"propertyTooltip": "Cluster identifier",
 				"propertyType": "text",
-				"dependency": [{
-					"type": "or",
-					"values": [
-						{
-							"key": "instanceType",
-							"exist": false
-						},
-						{
-							"key": "instanceType",
-							"value": "Cluster"
-						}
-					]
-				}]
+				"dependency": [
+					{
+						"type": "or",
+						"values": [
+							{
+								"key": "instanceType",
+								"exist": false
+							},
+							{
+								"key": "instanceType",
+								"value": "Cluster"
+							}
+						]
+					}
+				]
 			},
 			{
 				"propertyName": "Cluster namespace",
@@ -177,19 +170,21 @@ making sure that you maintain a proper JSON format.
 				"shouldValidate": false,
 				"propertyTooltip": "Cluster namespace",
 				"propertyType": "text",
-				"dependency": [{
-					"type": "or",
-					"values": [
-						{
-							"key": "instanceType",
-							"exist": false
-						},
-						{
-							"key": "instanceType",
-							"value": "Cluster"
-						}
-					]
-				}]
+				"dependency": [
+					{
+						"type": "or",
+						"values": [
+							{
+								"key": "instanceType",
+								"exist": false
+							},
+							{
+								"key": "instanceType",
+								"value": "Cluster"
+							}
+						]
+					}
+				]
 			},
 			{
 				"propertyName": "Workgroup",
@@ -245,19 +240,21 @@ making sure that you maintain a proper JSON format.
 						"propertyType": "text"
 					}
 				],
-				"dependency": [{
-					"type": "or",
-					"values": [
-						{
-							"key": "instanceType",
-							"exist": false
-						},
-						{
-							"key": "instanceType",
-							"value": "Cluster"
-						}
-					]
-				}]
+				"dependency": [
+					{
+						"type": "or",
+						"values": [
+							{
+								"key": "instanceType",
+								"exist": false
+							},
+							{
+								"key": "instanceType",
+								"value": "Cluster"
+							}
+						]
+					}
+				]
 			},
 			{
 				"propertyName": "Comments",

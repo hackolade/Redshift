@@ -107,13 +107,17 @@ module.exports = app => {
 	const createColumnsStatements = columns => columns.map(column => column.statement).join(',\n\t');
 
 	const getColumnsDefinitions = (columns, isParentActivated) => {
-		const [activatedColumns, deactivatedColumns] = _.partition(columns, column => !isParentActivated || column?.isActivated);
+		const [activatedColumns, deactivatedColumns] = _.partition(
+			columns,
+			column => !isParentActivated || column?.isActivated,
+		);
 		const activatedStatements = createColumnsStatements(activatedColumns);
 		const deactivatedStatements = createColumnsStatements(deactivatedColumns);
 		const isDeactivatedStatements = deactivatedStatements.length;
-		const commentedDeactivatedStatements = isDeactivatedStatements ? 
-			'\n\t' + commentIfDeactivated(deactivatedStatements, { isActivated: false }, true) : '';
-		
+		const commentedDeactivatedStatements = isDeactivatedStatements
+			? '\n\t' + commentIfDeactivated(deactivatedStatements, { isActivated: false }, true)
+			: '';
+
 		return `${activatedStatements}${commentedDeactivatedStatements}`;
 	};
 

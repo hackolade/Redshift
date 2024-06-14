@@ -3,12 +3,12 @@ const { redshift, redshiftData, redshiftLess } = require('../../reverse_engineer
 
 const setDependencies = app => {
 	redshiftHelper.setDependencies({
-		lodash: app.require('lodash'), 
+		lodash: app.require('lodash'),
 		aws: {
 			redshift,
 			redshiftData,
 			redshiftLess,
-		}
+		},
 	});
 };
 

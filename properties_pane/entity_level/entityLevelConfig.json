@@ -129,12 +129,7 @@ making sure that you maintain a proper JSON format.
 				"propertyKeyword": "tableRole",
 				"propertyTooltip": "Select from list of options",
 				"propertyType": "select",
-				"options": [
-					"Dimension",
-					"Fact",
-					"Outrigger",
-					"Staging"
-				],
+				"options": ["Dimension", "Fact", "Outrigger", "Staging"],
 				"dependency": {
 					"level": "model",
 					"key": "modelingMethodology",
@@ -146,14 +141,7 @@ making sure that you maintain a proper JSON format.
 				"propertyKeyword": "vaultComponent",
 				"propertyTooltip": "Select from list of options",
 				"propertyType": "select",
-				"options": [
-					"Hub",
-					"Link",
-					"Satellite",
-					"Bridge",
-					"Point in Time",
-					"Reference"
-				],
+				"options": ["Hub", "Link", "Satellite", "Bridge", "Point in Time", "Reference"],
 				"dependency": {
 					"level": "model",
 					"key": "modelingMethodology",
@@ -183,12 +171,7 @@ making sure that you maintain a proper JSON format.
 				"propertyKeyword": "DISTSTYLE",
 				"propertyTooltip": "keyword that defines the data distribution style for the whole table.  AUTO: Amazon Redshift assigns an optimal distribution style based on the table data. EVEN: The data in the table is spread evenly across the nodes in a cluster in a round-robin distribution. KEY: The data is distributed by the values in the distKey column. ALL: A copy of the entire table is distributed to every node. ",
 				"propertyType": "select",
-				"options": [
-					"Auto",
-					"Even",
-					"Key",
-					"All"
-				]
+				"options": ["Auto", "Even", "Key", "All"]
 			},
 			{
 				"propertyName": "Dist key",
@@ -250,10 +233,7 @@ making sure that you maintain a proper JSON format.
 				"propertyKeyword": "sortStyle",
 				"propertyTooltip": "from list of options",
 				"propertyType": "select",
-				"options": [
-					"Compound",
-					"Interleaved"
-				],
+				"options": ["Compound", "Interleaved"],
 				"dependency": {
 					"type": "not",
 					"values": {
@@ -299,10 +279,7 @@ making sure that you maintain a proper JSON format.
 				"valueType": "string"
 			}
 		],
-		"columnsRatio": [
-			3.7,
-			5
-		]
+		"columnsRatio": [3.7, 5]
 	},
 	{
 		"lowerTab": "Compound keys",
@@ -334,7 +311,7 @@ making sure that you maintain a proper JSON format.
 									}
 								]
 							}
-						}, 
+						},
 						{
 							"tooltip": "Remove or update the existing composite primary key definition prior to unlock the possibility to create a new composite primary key definition for this table",
 							"dependency": {

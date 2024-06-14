@@ -168,14 +168,7 @@ making sure that you maintain a proper JSON format.
 				"propertyKeyword": "fromSource",
 				"propertyTooltip": "from list of options",
 				"propertyType": "select",
-				"options": [
-					"",
-					"Redshift",
-					"Data catalog",
-					"Hive metastore",
-					"Postgres",
-					"MySQL"
-				],
+				"options": ["", "Redshift", "Data catalog", "Hive metastore", "Postgres", "MySQL"],
 				"dependency": {
 					"key": "external",
 					"value": true
@@ -187,14 +180,17 @@ making sure that you maintain a proper JSON format.
 				"propertyType": "text",
 				"propertyTooltip": "The name of the Amazon Redshift database.",
 				"dependency": {
-					"type": "and", 
-					"values": [{
-						"key": "external",
-						"value": true
-					}, {
-						"key": "fromSource",
-						"value": "Redshift"
-					}]
+					"type": "and",
+					"values": [
+						{
+							"key": "external",
+							"value": true
+						},
+						{
+							"key": "fromSource",
+							"value": "Redshift"
+						}
+					]
 				}
 			},
 			{
@@ -203,14 +199,17 @@ making sure that you maintain a proper JSON format.
 				"propertyType": "text",
 				"propertyTooltip": "The redshift_schema_name indicates the schema in Amazon Redshift. The default redshift_schema_name is public.",
 				"dependency": {
-					"type": "and", 
-					"values": [{
-						"key": "external",
-						"value": true
-					}, {
-						"key": "fromSource",
-						"value": "Redshift"
-					}]
+					"type": "and",
+					"values": [
+						{
+							"key": "external",
+							"value": true
+						},
+						{
+							"key": "fromSource",
+							"value": "Redshift"
+						}
+					]
 				}
 			},
 			{
@@ -219,23 +218,30 @@ making sure that you maintain a proper JSON format.
 				"propertyType": "text",
 				"propertyTooltip": "A keyword that indicates the name of the external database in a supported PostgreSQL or MySQL database engine.",
 				"dependency": {
-					"type": "and", 
-					"values": [{
-						"key": "external",
-						"value": true
-					}, {
-						"type": "or",
-						"values": [{
-							"key": "fromSource",
-							"value": "Hive metastore"
-						},{
-							"key": "fromSource",
-							"value": "Postgres"
-						},{
-							"key": "fromSource",
-							"value": "MySQL"
-						}]
-					}]
+					"type": "and",
+					"values": [
+						{
+							"key": "external",
+							"value": true
+						},
+						{
+							"type": "or",
+							"values": [
+								{
+									"key": "fromSource",
+									"value": "Hive metastore"
+								},
+								{
+									"key": "fromSource",
+									"value": "Postgres"
+								},
+								{
+									"key": "fromSource",
+									"value": "MySQL"
+								}
+							]
+						}
+					]
 				}
 			},
 			{
@@ -244,14 +250,17 @@ making sure that you maintain a proper JSON format.
 				"propertyType": "text",
 				"propertyTooltip": "A keyword that indicates the name of the external database in Data catalog.",
 				"dependency": {
-					"type": "and", 
-					"values": [{
-						"key": "external",
-						"value": true
-					}, {
-						"key": "fromSource",
-						"value": "Data catalog"
-					}]
+					"type": "and",
+					"values": [
+						{
+							"key": "external",
+							"value": true
+						},
+						{
+							"key": "fromSource",
+							"value": "Data catalog"
+						}
+					]
 				}
 			},
 			{
@@ -260,18 +269,22 @@ making sure that you maintain a proper JSON format.
 				"propertyType": "text",
 				"propertyTooltip": "The schema_name indicates the schema in a supported PostgreSQL database engine. The default schema_name is public.",
 				"dependency": {
-					"type": "and", 
-					"values": [{
-						"key": "external",
-						"value": true
-					}, {
-						"type": "or",
-						"values": [{
-							"key": "fromSource",
-							"value": "Postgres"
-						}]
-					}]
-					
+					"type": "and",
+					"values": [
+						{
+							"key": "external",
+							"value": true
+						},
+						{
+							"type": "or",
+							"values": [
+								{
+									"key": "fromSource",
+									"value": "Postgres"
+								}
+							]
+						}
+					]
 				}
 			},
 			{
@@ -280,14 +293,17 @@ making sure that you maintain a proper JSON format.
 				"propertyType": "text",
 				"propertyTooltip": "If the external database is defined in an Athena data catalog or the AWS Glue Data Catalog, the AWS Region in which the database is located.",
 				"dependency": {
-					"type": "and", 
-					"values": [{
-						"key": "external",
-						"value": true
-					}, {
-						"key": "fromSource",
-						"value": "Data catalog"
-					}]
+					"type": "and",
+					"values": [
+						{
+							"key": "external",
+							"value": true
+						},
+						{
+							"key": "fromSource",
+							"value": "Data catalog"
+						}
+					]
 				}
 			},
 			{
@@ -296,24 +312,30 @@ making sure that you maintain a proper JSON format.
 				"propertyType": "text",
 				"propertyTooltip": "Hostname URI of a supported Hive metastore, PostgreSQL or MySQL database engine.  A URI doesn't contain a protocol specification",
 				"dependency": {
-					"type": "and", 
-					"values": [{
-						"key": "external",
-						"value": true
-					}, {
-					"type": "or",
-					"values": [{
-						"key": "fromSource",
-						"value": "Hive metastore"
-					},{
-						"key": "fromSource",
-						"value": "Postgres"
-					},{
-						"key": "fromSource",
-						"value": "MySQL"
-					}]
-					}]
-					
+					"type": "and",
+					"values": [
+						{
+							"key": "external",
+							"value": true
+						},
+						{
+							"type": "or",
+							"values": [
+								{
+									"key": "fromSource",
+									"value": "Hive metastore"
+								},
+								{
+									"key": "fromSource",
+									"value": "Postgres"
+								},
+								{
+									"key": "fromSource",
+									"value": "MySQL"
+								}
+							]
+						}
+					]
 				}
 			},
 			{
@@ -324,24 +346,30 @@ making sure that you maintain a proper JSON format.
 				"valueType": "number",
 				"allowNegative": false,
 				"dependency": {
-					"type": "and", 
-					"values": [{
-						"key": "external",
-						"value": true
-					}, {
-					"type": "or",
-					"values": [{
-						"key": "fromSource",
-						"value": "Hive metastore"
-					},{
-						"key": "fromSource",
-						"value": "Postgres"
-					},{
-						"key": "fromSource",
-						"value": "MySQL"
-					}]
-					}]
-					
+					"type": "and",
+					"values": [
+						{
+							"key": "external",
+							"value": true
+						},
+						{
+							"type": "or",
+							"values": [
+								{
+									"key": "fromSource",
+									"value": "Hive metastore"
+								},
+								{
+									"key": "fromSource",
+									"value": "Postgres"
+								},
+								{
+									"key": "fromSource",
+									"value": "MySQL"
+								}
+							]
+						}
+					]
 				}
 			},
 			{
@@ -361,21 +389,26 @@ making sure that you maintain a proper JSON format.
 				"propertyType": "text",
 				"propertyTooltip": "The Amazon Resource Name (ARN) of a supported PostgreSQL or MySQL database engine secret created using AWS Secrets Manager.",
 				"dependency": {
-					"type": "and", 
-					"values": [{
-						"key": "external",
-						"value": true
-					}, {
-					"type": "or",
-					"values": [{
-						"key": "fromSource",
-						"value": "Postgres"
-					},{
-						"key": "fromSource",
-						"value": "MySQL"
-					}]
-					}]
-					
+					"type": "and",
+					"values": [
+						{
+							"key": "external",
+							"value": true
+						},
+						{
+							"type": "or",
+							"values": [
+								{
+									"key": "fromSource",
+									"value": "Postgres"
+								},
+								{
+									"key": "fromSource",
+									"value": "MySQL"
+								}
+							]
+						}
+					]
 				}
 			},
 			{
@@ -385,17 +418,20 @@ making sure that you maintain a proper JSON format.
 				"propertyTooltip": "The ARN for an IAM role that your cluster uses for authentication and authorization for the data catalog.",
 				"inputPlaceholder": "arn:aws:iam::<aws-account-id>:role/<catalog-role>",
 				"dependency": {
-					"type": "and", 
-					"values": [{
-						"key": "external",
-						"value": true
-					}, {
-					"key": "fromSource",
-					"value": "Data catalog"
-					}]
-					
+					"type": "and",
+					"values": [
+						{
+							"key": "external",
+							"value": true
+						},
+						{
+							"key": "fromSource",
+							"value": "Data catalog"
+						}
+					]
 				}
-			},			{
+			},
+			{
 				"propertyName": "Create external DB if not exists",
 				"propertyKeyword": "createExternalDatabaseIfNotExists",
 				"propertyType": "checkbox",
@@ -417,155 +453,146 @@ making sure that you maintain a proper JSON format.
 	},
 	{
 		"lowerTab": "Functions",
-		"structure": [{
-			"propertyName": "Functions",
-			"propertyType": "group",
-			"propertyKeyword": "UDFs",
-			"propertyTooltip": "Creates a new scalar user-defined function (UDF) using either a SQL SELECT clause or a Python program.",
-			"structure": [
-				{
-					"propertyName": "Name",
-					"propertyKeyword": "name",
-					"propertyTooltip": "The name of the function.",
-					"propertyType": "text"
-				},
-				{
-					"propertyName": "Or replace",
-					"propertyKeyword": "orReplace",
-					"propertyType": "checkbox",
-					"propertyTooltip": "Specifies that if a function with the same name and input argument data types, or signature, as this one already exists, the existing function is replaced. You can only replace a function with a new function that defines an identical set of data types."
-				},
-				{
-					"propertyName": "Input arguments",
-					"propertyKeyword": "functionArguments",
-					"propertyTooltip": "For a Python UDF, a list of input argument names and data types. For a SQL UDF, a list of data types, without argument names.  You can specify a maximum of 32 arguments.",
-					"propertyType": "details",
-					"template": "textarea",
-					"markdown": false
-				},
-				{
-					"propertyName": "Returns data type",
-					"propertyKeyword": "functionReturnType",
-					"propertyTooltip": "Data type",
-					"propertyType": "text"
-				},
-				{
-					"propertyName": "Volatility",
-					"propertyKeyword": "functionVolatility",
-					"propertyTooltip": "You will get the best optimization if you label your function with the strictest volatility category that is valid for it.",
-					"propertyType": "select",
-					"defaultValue": "Volatile",
-					"options": [
-						"Volatile",
-						"Stable",
-						"Immutable"
-					]
-				},
-				{
-					"propertyName": "Statement",
-					"propertyKeyword": "functionBody",
-					"propertyTooltip": "A valid executable Python program that returns a value or a SQL SELECT clause.",
-					"propertyType": "details",
-					"template": "textarea",
-					"markdown": false
-				},
-				{
-					"propertyName": "Language",
-					"propertyKeyword": "functionLanguage",
-					"propertyTooltip": "language",
-					"propertyType": "select",
-					"defaultValue": "sql",
-					"options": [
-						"sql",
-						"plpythonu"
-					]
-				},
-				{
-					"propertyName": "Remarks",
-					"propertyKeyword": "functionComments",
-					"propertyTooltip": "comments",
-					"addTimestampButton": false,
-					"propertyType": "details",
-					"template": "textarea"
-				}
-			]
-		}]
+		"structure": [
+			{
+				"propertyName": "Functions",
+				"propertyType": "group",
+				"propertyKeyword": "UDFs",
+				"propertyTooltip": "Creates a new scalar user-defined function (UDF) using either a SQL SELECT clause or a Python program.",
+				"structure": [
+					{
+						"propertyName": "Name",
+						"propertyKeyword": "name",
+						"propertyTooltip": "The name of the function.",
+						"propertyType": "text"
+					},
+					{
+						"propertyName": "Or replace",
+						"propertyKeyword": "orReplace",
+						"propertyType": "checkbox",
+						"propertyTooltip": "Specifies that if a function with the same name and input argument data types, or signature, as this one already exists, the existing function is replaced. You can only replace a function with a new function that defines an identical set of data types."
+					},
+					{
+						"propertyName": "Input arguments",
+						"propertyKeyword": "functionArguments",
+						"propertyTooltip": "For a Python UDF, a list of input argument names and data types. For a SQL UDF, a list of data types, without argument names.  You can specify a maximum of 32 arguments.",
+						"propertyType": "details",
+						"template": "textarea",
+						"markdown": false
+					},
+					{
+						"propertyName": "Returns data type",
+						"propertyKeyword": "functionReturnType",
+						"propertyTooltip": "Data type",
+						"propertyType": "text"
+					},
+					{
+						"propertyName": "Volatility",
+						"propertyKeyword": "functionVolatility",
+						"propertyTooltip": "You will get the best optimization if you label your function with the strictest volatility category that is valid for it.",
+						"propertyType": "select",
+						"defaultValue": "Volatile",
+						"options": ["Volatile", "Stable", "Immutable"]
+					},
+					{
+						"propertyName": "Statement",
+						"propertyKeyword": "functionBody",
+						"propertyTooltip": "A valid executable Python program that returns a value or a SQL SELECT clause.",
+						"propertyType": "details",
+						"template": "textarea",
+						"markdown": false
+					},
+					{
+						"propertyName": "Language",
+						"propertyKeyword": "functionLanguage",
+						"propertyTooltip": "language",
+						"propertyType": "select",
+						"defaultValue": "sql",
+						"options": ["sql", "plpythonu"]
+					},
+					{
+						"propertyName": "Remarks",
+						"propertyKeyword": "functionComments",
+						"propertyTooltip": "comments",
+						"addTimestampButton": false,
+						"propertyType": "details",
+						"template": "textarea"
+					}
+				]
+			}
+		]
 	},
 	{
 		"lowerTab": "Procedures",
-		"structure": [{
-			"propertyName": "Procedures",
-			"propertyType": "group",
-			"propertyKeyword": "Procedures",
-			"propertyTooltip": "Creates a new stored procedure or replaces an existing procedure for the current database.",
-			"structure": [
-				{
-					"propertyName": "Name",
-					"propertyKeyword": "name",
-					"propertyTooltip": "The name of the procedure.",
-					"propertyType": "text"
-				},
-				{
-					"propertyName": "Or replace",
-					"propertyKeyword": "orReplace",
-					"propertyType": "checkbox",
-					"propertyTooltip": "Specifies that if a function with the same name and input argument data types, or signature, as this one already exists, the existing function is replaced. You can only replace a function with a new function that defines an identical set of data types."
-				},
-				{
-					"propertyName": "Input arguments",
-					"propertyKeyword": "inputArgs",
-					"propertyTooltip": "A list of argument names, argument modes, and data types. Only the data type is required. Name and mode are optional and their position can be switched.  The argument mode can be IN, OUT, or INOUT. The default is IN.",
-					"propertyType": "details",
-					"template": "textarea",
-					"markdown": false
-				},
-				{
-					"propertyName": "Procedure body",
-					"propertyKeyword": "body",
-					"propertyTooltip": "A set of valid PL/pgSQL statements.",
-					"propertyType": "details",
-					"template": "textarea",
-					"markdown": false
-				},
-				{
-					"propertyName": "Language",
-					"propertyKeyword": "storedProcLanguage",
-					"propertyTooltip": "language",
-					"propertyType": "select",
-					"defaultValue": "plpgsql",
-					"options": [
-						"plpgsql"
-					]
-				},
-				{
-					"propertyName": "Security mode",
-					"propertyKeyword": "securityMode",
-					"propertyTooltip": "The security mode for the procedure determines the procedure's access privileges at runtime. ",
-					"propertyType": "select",
-					"defaultValue": "invoker",
-					"options": [
-						"invoker",
-						"definer"
-					]
-				},
-				{
-					"propertyName": "Configuration parameter",
-					"propertyKeyword": "configurationParameter",
-					"propertyTooltip": "The SET clause causes the specified configuration_parameter to be set to the specified value when the procedure is entered. This clause then restores configuration_parameter to its earlier value when the procedure exits.",
-					"propertyType": "details",
-					"template": "textarea",
-					"markdown": false
-				},
-				{
-					"propertyName": "Remarks",
-					"propertyKeyword": "storedProcComments",
-					"propertyTooltip": "comments",
-					"addTimestampButton": false,
-					"propertyType": "details",
-					"template": "textarea"
-				}
-			]
-		}]
+		"structure": [
+			{
+				"propertyName": "Procedures",
+				"propertyType": "group",
+				"propertyKeyword": "Procedures",
+				"propertyTooltip": "Creates a new stored procedure or replaces an existing procedure for the current database.",
+				"structure": [
+					{
+						"propertyName": "Name",
+						"propertyKeyword": "name",
+						"propertyTooltip": "The name of the procedure.",
+						"propertyType": "text"
+					},
+					{
+						"propertyName": "Or replace",
+						"propertyKeyword": "orReplace",
+						"propertyType": "checkbox",
+						"propertyTooltip": "Specifies that if a function with the same name and input argument data types, or signature, as this one already exists, the existing function is replaced. You can only replace a function with a new function that defines an identical set of data types."
+					},
+					{
+						"propertyName": "Input arguments",
+						"propertyKeyword": "inputArgs",
+						"propertyTooltip": "A list of argument names, argument modes, and data types. Only the data type is required. Name and mode are optional and their position can be switched.  The argument mode can be IN, OUT, or INOUT. The default is IN.",
+						"propertyType": "details",
+						"template": "textarea",
+						"markdown": false
+					},
+					{
+						"propertyName": "Procedure body",
+						"propertyKeyword": "body",
+						"propertyTooltip": "A set of valid PL/pgSQL statements.",
+						"propertyType": "details",
+						"template": "textarea",
+						"markdown": false
+					},
+					{
+						"propertyName": "Language",
+						"propertyKeyword": "storedProcLanguage",
+						"propertyTooltip": "language",
+						"propertyType": "select",
+						"defaultValue": "plpgsql",
+						"options": ["plpgsql"]
+					},
+					{
+						"propertyName": "Security mode",
+						"propertyKeyword": "securityMode",
+						"propertyTooltip": "The security mode for the procedure determines the procedure's access privileges at runtime. ",
+						"propertyType": "select",
+						"defaultValue": "invoker",
+						"options": ["invoker", "definer"]
+					},
+					{
+						"propertyName": "Configuration parameter",
+						"propertyKeyword": "configurationParameter",
+						"propertyTooltip": "The SET clause causes the specified configuration_parameter to be set to the specified value when the procedure is entered. This clause then restores configuration_parameter to its earlier value when the procedure exits.",
+						"propertyType": "details",
+						"template": "textarea",
+						"markdown": false
+					},
+					{
+						"propertyName": "Remarks",
+						"propertyKeyword": "storedProcComments",
+						"propertyTooltip": "comments",
+						"addTimestampButton": false,
+						"propertyType": "details",
+						"template": "textarea"
+					}
+				]
+			}
+		]
 	}
 ]
-

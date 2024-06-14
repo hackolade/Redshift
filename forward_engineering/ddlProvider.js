@@ -314,7 +314,8 @@ module.exports = (baseProvider, options, app) => {
 				ifNotExist: jsonSchema.ifNotExists ? ' IF NOT EXISTS' : '',
 				backup: jsonSchema.BACKUP ? 'BACKUP YES' : '',
 				distStyle: jsonSchema.DISTSTYLE ? `DISTSTYLE ${jsonSchema.DISTSTYLE.toUpperCase()}` : '',
-				distKey: !_.isEmpty(distKey) && distKey.isActivated && distKey.name ? `DISTKEY ("${distKey.name}")` : '',
+				distKey:
+					!_.isEmpty(distKey) && distKey.isActivated && distKey.name ? `DISTKEY ("${distKey.name}")` : '',
 				compoundPrimaryKey: _.isEmpty(compoundPrimaryKey)
 					? ''
 					: generateConstraint(compoundPrimaryKey, templates.compoundPrimaryKey, jsonSchema.isActivated),

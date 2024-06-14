@@ -1,15 +1,15 @@
 'use strict';
 
 const noConnectionError = { message: 'Connection error' };
-const ddlViewCreationHelper = require('./ddlViewCreationHelper')
+const ddlViewCreationHelper = require('./ddlViewCreationHelper');
 let _;
 let containers = {};
-let types = {}
+let types = {};
 let helperLogger;
 let redshift = null;
 let aws = null;
 
-const getParamsForConnect = (connectionInfo) => {
+const getParamsForConnect = connectionInfo => {
 	const { accessKeyId, secretAccessKey, region, sessionToken } = connectionInfo;
 	const params = {
 		...(region === 'none' ? {} : { region }),
@@ -26,8 +26,8 @@ const getParamsForConnect = (connectionInfo) => {
 			secretAccessKey,
 			sessionToken,
 		},
-	}
-}
+	};
+};
 
 const connect = async (connectionInfo, logger) => {
 	helperLogger = logger;
@@ -40,107 +40,113 @@ const connect = async (connectionInfo, logger) => {
 		redshift = await setServerLess(params, workgroupName, databaseName);
 	}
 	redshift = { ...redshift, redshiftDataInstance, instanceType };
-}
+};
 
 const setCluster = async (params, clusterIdentifier, databaseName) => {
 	const redshiftInstance = new aws.redshift.Redshift({ apiVersion: '2012-12-01', ...params });
 	const clusters = await redshiftInstance.describeClusters({ ClusterIdentifier: clusterIdentifier });
 	const requiredCluster = clusters.Clusters.find(cluster => cluster.ClusterIdentifier === clusterIdentifier);
 	if (!requiredCluster) {
-		throw new Error(`Cluster with '${clusterIdentifier}' identifier was not found`)
+		throw new Error(`Cluster with '${clusterIdentifier}' identifier was not found`);
 	}
 	const connectionParams = {
 		ClusterIdentifier: requiredCluster.ClusterIdentifier,
 		Database: databaseName.toLowerCase(),
 		DbUser: requiredCluster.MasterUsername,
-	}
+	};
 	return {
 		redshiftInstance,
 		connectionParams,
-	}
-}
+	};
+};
 
 const setServerLess = async (params, workgroupName, databaseName) => {
 	const redshiftInstance = new aws.redshiftLess.RedshiftServerless({ apiVersion: '2021-04-21', ...params });
 	const workGroups = await listWorkGroups(redshiftInstance);
 	const requiredWorkGroup = workGroups.find(workgroup => workgroup.workgroupName === workgroupName);
 	if (!requiredWorkGroup) {
-		throw new Error(`Workgoup with '${workgroupName}' name was not found`)
+		throw new Error(`Workgoup with '${workgroupName}' name was not found`);
 	}
 	const connectionParams = {
 		WorkgroupName: workgroupName,
 		Database: databaseName.toLowerCase(),
-	}
+	};
 	return {
 		redshiftInstance,
 		connectionParams,
-	}
-}
+	};
+};
 
-const listWorkGroups = async (redshiftInstance) => {
+const listWorkGroups = async redshiftInstance => {
 	let workGroups = [];
 	let NextToken;
 	do {
-		const result = await redshiftInstance.listWorkgroups({ maxResults: 10, NextToken});
-		workGroups = [...workGroups, ...result?.workgroups || []];
+		const result = await redshiftInstance.listWorkgroups({ maxResults: 10, NextToken });
+		workGroups = [...workGroups, ...(result?.workgroups || [])];
 		NextToken = result.NextToken;
-	} while (NextToken)
+	} while (NextToken);
 
-	return workGroups
-}
+	return workGroups;
+};
 
 const testConnection = async (connectionInfo, logger) => {
-	await connect(connectionInfo, logger)
+	await connect(connectionInfo, logger);
 	await redshift.redshiftDataInstance.listTables({ ...redshift.connectionParams });
-}
+};
 
-const execute = async (sqlStatement) => {
+const execute = async sqlStatement => {
 	if (!redshift && !redshift.redshiftDataInstance) {
 		helperLogger.log('error', { message: "Redshift instance wasn't created" });
-		return Promise.reject(noConnectionError)
+		return Promise.reject(noConnectionError);
 	}
 	helperLogger.log('info', { message: `Executing query: ${sqlStatement}` }, 'execute');
-	const { Id } = await redshift.redshiftDataInstance.executeStatement({ ...redshift.connectionParams, Sql: sqlStatement });
+	const { Id } = await redshift.redshiftDataInstance.executeStatement({
+		...redshift.connectionParams,
+		Sql: sqlStatement,
+	});
 	let records = [];
 	let NextToken;
 	let queryDescription;
 	do {
 		queryDescription = await redshift.redshiftDataInstance.describeStatement({ Id });
 		if (queryDescription.Error) {
-			throw new Error(queryDescription.Error)
+			throw new Error(queryDescription.Error);
 		}
-	} while (queryDescription.Status !== "FINISHED");
+	} while (queryDescription.Status !== 'FINISHED');
 	do {
 		const queryResult = await redshift.redshiftDataInstance.getStatementResult({ Id, NextToken });
-		records = records.concat(queryResult.Records)
+		records = records.concat(queryResult.Records);
 		NextToken = queryResult.NextToken;
 	} while (NextToken);
 	return records;
-}
+};
 
-const executeApplyToInstanceScript = async (sqlStatement) => {
+const executeApplyToInstanceScript = async sqlStatement => {
 	if (!redshift && !redshift.redshiftDataInstance) {
-		return Promise.reject(noConnectionError)
+		return Promise.reject(noConnectionError);
 	}
-	const result = await redshift.redshiftDataInstance.executeStatement({ ...redshift.connectionParams, Sql: sqlStatement });
-	const { Id } = result
+	const result = await redshift.redshiftDataInstance.executeStatement({
+		...redshift.connectionParams,
+		Sql: sqlStatement,
+	});
+	const { Id } = result;
 	let queryDescription;
 	do {
 		queryDescription = await redshift.redshiftDataInstance.describeStatement({ Id });
 		if (queryDescription.Error) {
-			throw new Error(queryDescription.Error)
+			throw new Error(queryDescription.Error);
 		}
-	} while (queryDescription.Status !== "FINISHED");
+	} while (queryDescription.Status !== 'FINISHED');
 
 	return {};
-}
+};
 
 const getTableDDL = async (schemaName, tableName) => {
-	const getTableDDLQuery = ddlViewCreationHelper.getTablesDDLQuery(schemaName, tableName)
+	const getTableDDLQuery = ddlViewCreationHelper.getTablesDDLQuery(schemaName, tableName);
 	let records = await execute(getTableDDLQuery);
 	const recordsWithoutDropCommand = records.slice(1);
 	return concatRecords(recordsWithoutDropCommand);
-}
+};
 
 const getViewDDL = async (schemaName, viewName) => {
 	const getViewDDLQuery = ddlViewCreationHelper.getViewsDDLQuery(schemaName, viewName);
@@ -155,33 +161,36 @@ const getViewDescription = async viewName => {
 	return _.get(res, '[0][0].stringValue');
 };
 
-const concatRecords = (records) => {
-	const skipNewLineRecords = ['(', ')', ';']
+const concatRecords = records => {
+	const skipNewLineRecords = ['(', ')', ';'];
 	const ddl = records.reduce((ddl, record) => {
-		const recordValue = _.get(record, '[4].stringValue')
+		const recordValue = _.get(record, '[4].stringValue');
 		if (skipNewLineRecords.includes(recordValue)) {
 			return ddl + recordValue;
 		}
 		return ddl + `\n${recordValue}`;
 	}, '');
 	return ddl;
-}
+};
 
 const getSchemaNames = async () => {
-	const systemSchemaNames = ['information_schema', 'pg_catalog', 'catalog_history', 'pg_internal']
+	const systemSchemaNames = ['information_schema', 'pg_catalog', 'catalog_history', 'pg_internal'];
 	let schemas = [];
 	let NextToken;
 
 	do {
-		const listSchemasResult = await redshift.redshiftDataInstance.listSchemas({ ...redshift.connectionParams, NextToken });
+		const listSchemasResult = await redshift.redshiftDataInstance.listSchemas({
+			...redshift.connectionParams,
+			NextToken,
+		});
 		NextToken = listSchemasResult.NextToken;
-		schemas = schemas.concat(listSchemasResult.Schemas)
+		schemas = schemas.concat(listSchemasResult.Schemas);
 	} while (NextToken);
 
 	return schemas
 		.filter(schema => !systemSchemaNames.includes(schema))
-		.filter(schema => (!schema.match(/^pg_toast.*$/)) && (!schema.match(/^pg_temp_.*$/)));
-}
+		.filter(schema => !schema.match(/^pg_toast.*$/) && !schema.match(/^pg_temp_.*$/));
+};
 
 const getAllTables = async (params, logger) => {
 	const tablesResponse = await redshift.redshiftDataInstance.listTables(params);
@@ -194,15 +203,13 @@ const getAllTables = async (params, logger) => {
 
 	logger.info('getting next chunk of tables');
 
-	return tablesResponse.Tables.concat(
-		await getAllTables({...params, NextToken: tablesResponse.NextToken }, logger),
-	);
+	return tablesResponse.Tables.concat(await getAllTables({ ...params, NextToken: tablesResponse.NextToken }, logger));
 };
 
 const getSchemaCollectionNames = async (schemaName, logger) => {
 	const tables = await getAllTables({ ...redshift.connectionParams, SchemaPattern: schemaName }, logger);
 	const tableNames = tables
-		.filter(({ type }) => type === "TABLE" || type === "VIEW")
+		.filter(({ type }) => type === 'TABLE' || type === 'VIEW')
 		.map(({ name, type }) => markViewName(name, type));
 
 	logger.info(`Found ${tableNames.length} tables and views in schema "${schemaName}"`);
@@ -212,14 +219,14 @@ const getSchemaCollectionNames = async (schemaName, logger) => {
 		dbCollections: tableNames,
 		isEmpty: _.isEmpty(tableNames),
 	};
-}
+};
 
 const markViewName = (name, type) => {
-	if (type === "VIEW") {
-		return name + ' (v)'
+	if (type === 'VIEW') {
+		return name + ' (v)';
 	}
 	return name;
-}
+};
 
 const splitTableAndViewNames = names => {
 	const namesByCategory = _.partition(names, isView);
@@ -230,7 +237,6 @@ const splitTableAndViewNames = names => {
 const isView = name => name.slice(-4) === ' (v)';
 
 const getContainerData = async schemaName => {
-
 	if (containers[schemaName]) {
 		return containers[schemaName];
 	}
@@ -248,7 +254,7 @@ const getContainerData = async schemaName => {
 	const description = await getSchemaDescription(schemaName);
 	const functions = await getFunctions(schemaName, dbUser);
 	const procedures = await getProcedures(schemaName, dbUser);
-	const externalOptions = await getExternalOptions(schemaName)
+	const externalOptions = await getExternalOptions(schemaName);
 
 	const data = {
 		description,
@@ -257,25 +263,25 @@ const getContainerData = async schemaName => {
 		quota,
 		Procedures: procedures,
 		UDFs: functions,
-		...externalOptions
+		...externalOptions,
 	};
 
 	containers[schemaName] = data;
 
 	return data;
-}
+};
 
 const getSchemaUserOwner = async schemaName => {
 	const userOwners = await execute(ddlViewCreationHelper.getSchemaUserOwner());
 	const userOwner = (userOwners || []).find(userOwner => _.get(userOwner, '[0].stringValue') === schemaName);
 
 	return _.get(userOwner, '[1].stringValue');
-}
+};
 
-const getSchemaQuota = async (schemaName) => {
-	const quota = await execute(`SELECT quota FROM svv_schema_quota_state WHERE schema_name =  '${schemaName}';`)
-	return _.get(quota, '[0][0].longValue')
-}
+const getSchemaQuota = async schemaName => {
+	const quota = await execute(`SELECT quota FROM svv_schema_quota_state WHERE schema_name =  '${schemaName}';`);
+	return _.get(quota, '[0][0].longValue');
+};
 
 const getSchemaDescription = async schemaName => {
 	const res = await execute(
@@ -285,8 +291,10 @@ const getSchemaDescription = async schemaName => {
 	return _.get(res, '[0][0].stringValue');
 };
 
-const getExternalOptions = async (schemaName) => {
-	const external = await execute(`SELECT schema_type, source_database, schema_option FROM svv_all_schemas WHERE schema_name =  '${schemaName}';`);
+const getExternalOptions = async schemaName => {
+	const external = await execute(
+		`SELECT schema_type, source_database, schema_option FROM svv_all_schemas WHERE schema_name =  '${schemaName}';`,
+	);
 	const schemaType = _.get(external, '[0][0].stringValue');
 	const isExternal = schemaType === 'external';
 
@@ -296,85 +304,93 @@ const getExternalOptions = async (schemaName) => {
 };
 
 const getFunctions = async (schemaName, dbUser) => {
-	const userOIDRecord = await execute(`SELECT usesysid FROM pg_user WHERE usename = '${dbUser}';`)
-	const userOID = _.get(userOIDRecord, '[0][0].longValue')
-	const schemaOIDRecord = await execute(`SELECT oid FROM pg_namespace WHERE nspname = '${schemaName}';`)
-	const schemaOID = _.get(schemaOIDRecord, '[0][0].longValue')
-	const functionsDataRecords = await execute(ddlViewCreationHelper.getSchemaFunctionsData(schemaOID, userOID))
-	const functionsData = await Promise.all(functionsDataRecords.map(async record => {
-		const funcName = _.get(record, '[0].stringValue', '');
-		const language = _.get(record, '[1].stringValue', '')
-		const statement = _.get(record, '[2].stringValue', '');
-		const typess = _.get(record, '[3].stringValue', '').split(' ');
-		const inputArgsNames = getArgsNames(_.get(record, '[6].stringValue', ''));
-		const convertedInputArgTypes = await Promise.all(typess.map(async (typeOID, index) => {
-			if (types[typeOID]) {
-				return getArg(types[typeOID], inputArgsNames[index]);
-			}
-			const typeNameRecord = await execute(`SELECT typname from pg_type WHERE oid = '${typeOID}';`)
-			const typeName = _.get(typeNameRecord, '[0][0].stringValue', '')
-			types[typeOID] = typeName
+	const userOIDRecord = await execute(`SELECT usesysid FROM pg_user WHERE usename = '${dbUser}';`);
+	const userOID = _.get(userOIDRecord, '[0][0].longValue');
+	const schemaOIDRecord = await execute(`SELECT oid FROM pg_namespace WHERE nspname = '${schemaName}';`);
+	const schemaOID = _.get(schemaOIDRecord, '[0][0].longValue');
+	const functionsDataRecords = await execute(ddlViewCreationHelper.getSchemaFunctionsData(schemaOID, userOID));
+	const functionsData = await Promise.all(
+		functionsDataRecords.map(async record => {
+			const funcName = _.get(record, '[0].stringValue', '');
+			const language = _.get(record, '[1].stringValue', '');
+			const statement = _.get(record, '[2].stringValue', '');
+			const typess = _.get(record, '[3].stringValue', '').split(' ');
+			const inputArgsNames = getArgsNames(_.get(record, '[6].stringValue', ''));
+			const convertedInputArgTypes = await Promise.all(
+				typess.map(async (typeOID, index) => {
+					if (types[typeOID]) {
+						return getArg(types[typeOID], inputArgsNames[index]);
+					}
+					const typeNameRecord = await execute(`SELECT typname from pg_type WHERE oid = '${typeOID}';`);
+					const typeName = _.get(typeNameRecord, '[0][0].stringValue', '');
+					types[typeOID] = typeName;
 
-			return getArg(typeName, inputArgsNames[index]);
-		}));
-		const inputArgTypes = convertedInputArgTypes.join(', ');
-		const returnType = _.get(record, '[4].stringValue', '');
-		const volatility = getVolatility(_.get(record, '[5].stringValue', ''));
-		return {
-			name: funcName,
-			functionArguments: inputArgTypes,
-			functionReturnType: returnType,
-			functionVolatility: volatility,
-			functionBody: statement,
-			functionLanguage: language
-		}
-	}))
-	return functionsData
-}
+					return getArg(typeName, inputArgsNames[index]);
+				}),
+			);
+			const inputArgTypes = convertedInputArgTypes.join(', ');
+			const returnType = _.get(record, '[4].stringValue', '');
+			const volatility = getVolatility(_.get(record, '[5].stringValue', ''));
+			return {
+				name: funcName,
+				functionArguments: inputArgTypes,
+				functionReturnType: returnType,
+				functionVolatility: volatility,
+				functionBody: statement,
+				functionLanguage: language,
+			};
+		}),
+	);
+	return functionsData;
+};
 
-const getVolatility = (volatilitySign) => {
+const getVolatility = volatilitySign => {
 	switch (volatilitySign) {
 		case 's':
-			return 'Stable'
+			return 'Stable';
 		case 'i':
-			return 'Immutable'
+			return 'Immutable';
 		default:
-			return 'Volatile'
+			return 'Volatile';
 	}
-}
+};
 
 const getProcedures = async (schemaName, dbUser) => {
-	const userOIDRecord = await execute(`SELECT usesysid FROM pg_user WHERE usename = '${dbUser}';`)
-	const userOID = _.get(userOIDRecord, '[0][0].longValue')
-	const schemaOIDRecord = await execute(`SELECT oid FROM pg_namespace WHERE nspname = '${schemaName}';`)
-	const schemaOID = _.get(schemaOIDRecord, '[0][0].longValue')
-	const proceduresDataRecords = await execute(ddlViewCreationHelper.getSchemaProceduresData(schemaOID, userOID))
-	const proceduresData = await Promise.all(proceduresDataRecords.map(async record => {
-		const funcName = _.get(record, '[0].stringValue', '');
-		const language = _.get(record, '[1].stringValue', '')
-		const body = _.get(record, '[2].stringValue', '');
-		const typess = _.get(record, '[3].stringValue', '').split(' ');
-		const inputArgsNames = getArgsNames(_.get(record, '[4].stringValue', ''));
-		const convertedInputArgTypes = await Promise.all(typess.map(async (typeOID, index) => {
-			if (types[typeOID]) {
-				return getArg(types[typeOID], inputArgsNames[index]);
-			}
-			const typeNameRecord = await execute(`SELECT typname from pg_type WHERE oid = '${typeOID}';`);
-			const typeName = _.get(typeNameRecord, '[0][0].stringValue', '');
-			types[typeOID] = typeName;
+	const userOIDRecord = await execute(`SELECT usesysid FROM pg_user WHERE usename = '${dbUser}';`);
+	const userOID = _.get(userOIDRecord, '[0][0].longValue');
+	const schemaOIDRecord = await execute(`SELECT oid FROM pg_namespace WHERE nspname = '${schemaName}';`);
+	const schemaOID = _.get(schemaOIDRecord, '[0][0].longValue');
+	const proceduresDataRecords = await execute(ddlViewCreationHelper.getSchemaProceduresData(schemaOID, userOID));
+	const proceduresData = await Promise.all(
+		proceduresDataRecords.map(async record => {
+			const funcName = _.get(record, '[0].stringValue', '');
+			const language = _.get(record, '[1].stringValue', '');
+			const body = _.get(record, '[2].stringValue', '');
+			const typess = _.get(record, '[3].stringValue', '').split(' ');
+			const inputArgsNames = getArgsNames(_.get(record, '[4].stringValue', ''));
+			const convertedInputArgTypes = await Promise.all(
+				typess.map(async (typeOID, index) => {
+					if (types[typeOID]) {
+						return getArg(types[typeOID], inputArgsNames[index]);
+					}
+					const typeNameRecord = await execute(`SELECT typname from pg_type WHERE oid = '${typeOID}';`);
+					const typeName = _.get(typeNameRecord, '[0][0].stringValue', '');
+					types[typeOID] = typeName;
 
-			return getArg(typeName, inputArgsNames[index]);
-		}));
-		const inputArgTypes = convertedInputArgTypes.join(', ');
-		return {
-			name: funcName,
-			inputArgs: inputArgTypes,
-			body,
-			storedProcLanguage: language
-		}
-	}))
-	return proceduresData
-}
+					return getArg(typeName, inputArgsNames[index]);
+				}),
+			);
+			const inputArgTypes = convertedInputArgTypes.join(', ');
+			return {
+				name: funcName,
+				inputArgs: inputArgTypes,
+				body,
+				storedProcLanguage: language,
+			};
+		}),
+	);
+	return proceduresData;
+};
 
 const getArg = (type, argName) => {
 	if (!Boolean(argName)) {
@@ -382,7 +398,7 @@ const getArg = (type, argName) => {
 	}
 
 	return `${argName} ${type}`;
-}
+};
 
 const getArgsNames = argsName => {
 	const resMatch = argsName.match(/^\{([\s\S]+)\}$/);
@@ -391,7 +407,7 @@ const getArgsNames = argsName => {
 	}
 
 	return resMatch[1].split(',').map(res => res.replaceAll('"', ''));
-}
+};
 
 const getModelData = async () => {
 	if (redshift.instanceType === 'Cluster') {
@@ -399,10 +415,12 @@ const getModelData = async () => {
 	}
 
 	return await getServerLessModelData();
-}
+};
 
 const getClusterModelData = async () => {
-	const clustersData = await redshift.redshiftInstance.describeClusters({ ClusterIdentifier: redshift.connectionParams.ClusterIdentifier });
+	const clustersData = await redshift.redshiftInstance.describeClusters({
+		ClusterIdentifier: redshift.connectionParams.ClusterIdentifier,
+	});
 	const selctedClusterData = _.first(clustersData.Clusters);
 	const clusterNamespace = selctedClusterData.ClusterNamespaceArn.match(/namespace:([\d\w-]+)/)[1];
 	const tags = selctedClusterData.Tags.map(tag => ({ key: tag.Key, value: tag.Value }));
@@ -414,12 +432,14 @@ const getClusterModelData = async () => {
 		port: selctedClusterData.Endpoint.Port,
 		databaseName: selctedClusterData.DBName,
 		instanceType: redshift.instanceType,
-		tags
-	}
-}
+		tags,
+	};
+};
 
 const getServerLessModelData = async () => {
-	const { workgroup } = await redshift.redshiftInstance.getWorkgroup({ workgroupName: redshift.connectionParams.WorkgroupName });
+	const { workgroup } = await redshift.redshiftInstance.getWorkgroup({
+		workgroupName: redshift.connectionParams.WorkgroupName,
+	});
 
 	return {
 		host: workgroup.endpoint.address,
@@ -428,12 +448,12 @@ const getServerLessModelData = async () => {
 		workgroupName: workgroup.workgroupName,
 		instanceType: redshift.instanceType,
 	};
-}
+};
 
 const getRowsCount = async tableName => {
 	try {
 		const record = await execute(`SELECT count(*) AS COUNT FROM ${tableName};`);
-		return _.get(record, '[0][0].longValue')
+		return _.get(record, '[0][0].longValue');
 	} catch {
 		return '';
 	}
@@ -494,15 +514,18 @@ const getSuperPropertyType = property => {
 	return type;
 };
 
-
 const describeTable = async (schemaName, tableName) => {
 	try {
-		const records = await redshift.redshiftDataInstance.describeTable({ ...redshift.connectionParams, Table: tableName, Schema: schemaName });
-		return _.get(records, 'ColumnList').map(column => ({ name: column.name, type: column.typeName }))
+		const records = await redshift.redshiftDataInstance.describeTable({
+			...redshift.connectionParams,
+			Table: tableName,
+			Schema: schemaName,
+		});
+		return _.get(records, 'ColumnList').map(column => ({ name: column.name, type: column.typeName }));
 	} catch (err) {
 		return [];
 	}
-}
+};
 
 const handleJsonString = value => {
 	if (typeof value !== 'string') {
@@ -511,36 +534,38 @@ const handleJsonString = value => {
 
 	try {
 		return JSON.parse(value);
-	} catch(err) {
+	} catch (err) {
 		return value;
 	}
-}
+};
 
 const getDocuments = async (schemaName, tableName, quantity, recordSamplingSettings) => {
-	const limit = getSampleDocSize(quantity, recordSamplingSettings)
+	const limit = getSampleDocSize(quantity, recordSamplingSettings);
 	const columns = await describeTable(schemaName, tableName);
 	if (!tableHasColumnsOfSuperType(columns)) {
 		return [];
 	}
 	const records = await execute(`SELECT * FROM "${schemaName}"."${tableName}" LIMIT ${limit};`);
-	const documents = records.map(document =>
-		document.reduce((rows, row, index) => {
-			if (row && columns[index].type === 'super') {
-				let value = JSON.parse(_.first(Object.values(row)));
-				value = handleJsonString(value);
-				return { ...rows, [`${columns[index].name}`]: value }
-			}
-			return rows;
-		}, {}))
+	const documents = records
+		.map(document =>
+			document.reduce((rows, row, index) => {
+				if (row && columns[index].type === 'super') {
+					let value = JSON.parse(_.first(Object.values(row)));
+					value = handleJsonString(value);
+					return { ...rows, [`${columns[index].name}`]: value };
+				}
+				return rows;
+			}, {}),
+		)
 		.filter(document => !_.isEmpty(document))
 		.map(filterNull);
 	return documents;
 };
 
-const tableHasColumnsOfSuperType = (columns) => {
-	const columnsOfSuperType = columns.filter(column => column.type === "super");
-	return !_.isEmpty(columnsOfSuperType)
-}
+const tableHasColumnsOfSuperType = columns => {
+	const columnsOfSuperType = columns.filter(column => column.type === 'super');
+	return !_.isEmpty(columnsOfSuperType);
+};
 
 const filterNull = row => {
 	return Object.keys(row).reduce((filteredRow, key) => {
@@ -550,17 +575,17 @@ const filterNull = row => {
 		}
 		return {
 			...filteredRow,
-			[key]: value
+			[key]: value,
 		};
 	}, {});
 };
 
-const getJsonSchema = async ({ documents, schemaName, tableName, logger}) => {
+const getJsonSchema = async ({ documents, schemaName, tableName, logger }) => {
 	try {
-		let rows = await describeTable(schemaName, tableName)
-		rows = rows.filter(row => row.type === 'super')
+		let rows = await describeTable(schemaName, tableName);
+		rows = rows.filter(row => row.type === 'super');
 		return {
-			properties: getJsonSchemaFromRows(documents, rows)
+			properties: getJsonSchemaFromRows(documents, rows),
 		};
 	} catch (err) {
 		logger.error(err);
@@ -569,16 +594,14 @@ const getJsonSchema = async ({ documents, schemaName, tableName, logger}) => {
 };
 
 const getJsonSchemaFromRows = (documents, rows) => {
-	const properties = rows
-		.reduce((properties, row) => {
-			return {
-				...properties,
-				[row.name]: handleSuper(documents, row.name)
-			};
-		}, {});
+	const properties = rows.reduce((properties, row) => {
+		return {
+			...properties,
+			[row.name]: handleSuper(documents, row.name),
+		};
+	}, {});
 	return properties;
 };
-
 
 const handleComplexTypesDocuments = (jsonSchema, documents) => {
 	try {
@@ -590,7 +613,7 @@ const handleComplexTypesDocuments = (jsonSchema, documents) => {
 					if (!_.isArray(property)) {
 						return {
 							...rows,
-							[key]: property
+							[key]: property,
 						};
 					}
 					return {
@@ -600,21 +623,21 @@ const handleComplexTypesDocuments = (jsonSchema, documents) => {
 								return [...items, JSON.stringify(item)];
 							}
 							return items;
-						}, [])
+						}, []),
 					};
 				}
 				return {
 					...rows,
-					[key]: property
+					[key]: property,
 				};
-			}, {})
+			}, {});
 		});
 	} catch (err) {
 		return documents;
 	}
-}
+};
 
-const setDependencies = (dependencies) => {
+const setDependencies = dependencies => {
 	_ = dependencies.lodash;
 	aws = dependencies.aws;
 };
@@ -637,5 +660,5 @@ module.exports = {
 	getDocuments,
 	getJsonSchema,
 	getModelData,
-	getViewDescription
+	getViewDescription,
 };
