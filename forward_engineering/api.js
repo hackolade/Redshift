@@ -1,5 +1,6 @@
 'use strict';
 
+const _ = require('lodash');
 const applyToInstanceHelper = require('./helpers/applyToInstanceHelper');
 const { commentDropStatements } = require('./helpers/commentDropStatements');
 const { DROP_STATEMENTS } = require('./helpers/constants');
