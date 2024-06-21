@@ -1,11 +1,11 @@
 /*
-* Copyright © 2016-2017 by IntegrIT S.A. dba Hackolade.  All rights reserved.
-*
-* The copyright to the computer software herein is the property of IntegrIT S.A.
-* The software may be used and/or copied only with the written permission of
-* IntegrIT S.A. or in accordance with the terms and conditions stipulated in
-* the agreement/contract under which the software has been supplied.
-*/
+ * Copyright © 2016-2017 by IntegrIT S.A. dba Hackolade.  All rights reserved.
+ *
+ * The copyright to the computer software herein is the property of IntegrIT S.A.
+ * The software may be used and/or copied only with the written permission of
+ * IntegrIT S.A. or in accordance with the terms and conditions stipulated in
+ * the agreement/contract under which the software has been supplied.
+ */
 
 [
 	{
@@ -69,11 +69,7 @@
 				"propertyKeyword": "DISTSTYLE",
 				"propertyTooltip": "Keyword that defines the data distribution style for the whole table.  AUTO: Amazon Redshift assigns an optimal distribution style based on the table data. EVEN: The data in the table is spread evenly across the nodes in a cluster in a round-robin distribution. KEY: The data is distributed by the values in the distKey column. ALL: A copy of the entire table is distributed to every node. ",
 				"propertyType": "select",
-				"options": [
-					"Even",
-					"Key",
-					"All"
-				],
+				"options": ["Even", "Key", "All"],
 				"dependency": {
 					"key": "materialized",
 					"value": true
@@ -84,20 +80,22 @@
 				"propertyKeyword": "distKey",
 				"propertyType": "group",
 				"propertyTooltip": "Keyword that specifies that the column is the distribution key for the table.",
-				"groupItemLimit":1,
-				"structure": [{
-					"propertyName": "Key",
-					"propertyKeyword": "compositeDistKey",
-					"propertyType": "compositeKeySetter",
-					"disabledItemStrategy": "default",
-					"abbr": "dk",
-					"setPrimaryKey": false,
-					"isCompositeKey":true,
-					"template": "collectiontree",
-					"templateOptions": {
-						"maxFields": 1
+				"groupItemLimit": 1,
+				"structure": [
+					{
+						"propertyName": "Key",
+						"propertyKeyword": "compositeDistKey",
+						"propertyType": "compositeKeySetter",
+						"disabledItemStrategy": "default",
+						"abbr": "dk",
+						"setPrimaryKey": false,
+						"isCompositeKey": true,
+						"template": "collectiontree",
+						"templateOptions": {
+							"maxFields": 1
+						}
 					}
-				}],
+				],
 				"dependency": {
 					"key": "materialized",
 					"value": true
@@ -158,22 +156,26 @@
 	},
 	{
 		"lowerTab": "Compound keys",
-		"structure": [{
-			"propertyName": "Sort key",
-			"propertyType": "group",
-			"propertyKeyword": "sortKey",
-			"propertyTooltip": "",
-			"structure": [{
-				"propertyName": "Key",
-				"propertyKeyword": "compositeSortKey",
-				"propertyType": "compositeKeySetter",
-				"disabledItemStrategy": "default",
-				"setPrimaryKey": false,
-				"abbr": "sk",
-				"attributeList": [],
-				"template": "collectiontree",
-				"isCompositeKey": true
-			}]
-		}]
+		"structure": [
+			{
+				"propertyName": "Sort key",
+				"propertyType": "group",
+				"propertyKeyword": "sortKey",
+				"propertyTooltip": "",
+				"structure": [
+					{
+						"propertyName": "Key",
+						"propertyKeyword": "compositeSortKey",
+						"propertyType": "compositeKeySetter",
+						"disabledItemStrategy": "default",
+						"setPrimaryKey": false,
+						"abbr": "sk",
+						"attributeList": [],
+						"template": "collectiontree",
+						"isCompositeKey": true
+					}
+				]
+			}
+		]
 	}
 ]
