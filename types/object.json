@@ -25,7 +25,8 @@
 				"time",
 				"timetz",
 				"super",
-				"varbyte"
+				"varbyte",
+				"object"
 			]
 		}
 	}

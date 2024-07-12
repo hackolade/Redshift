@@ -1,6 +1,6 @@
 {
     "name": "Redshift",
-    "version": "0.2.1",
+    "version": "0.2.2",
     "author": "hackolade",
     "engines": {
         "hackolade": "6.1.2",
@@ -63,9 +63,9 @@
     "description": "Hackolade plugin for Amazon Redshift",
     "disabled": false,
     "dependencies": {
-        "@aws-sdk/client-redshift": "3.154.0",
-        "@aws-sdk/client-redshift-data": "3.154.0",
-        "@aws-sdk/client-redshift-serverless": "3.154.0",
+        "@aws-sdk/client-redshift": "3.600.0",
+        "@aws-sdk/client-redshift-data": "3.600.0",
+        "@aws-sdk/client-redshift-serverless": "3.600.0",
         "lodash": "4.17.21"
     },
     "lint-staged": {
