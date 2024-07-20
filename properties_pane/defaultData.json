@@ -1,17 +1,17 @@
 {
 	"model": {
-		"modelName": "New model",
+		"modelName": "new_model",
 		"dbVersion": "",
 		"dbVendor": "Redshift"
 	},
 	"container": {
-		"name": "New schema",
+		"name": "new_schema",
 		"unlimitedQuota": false,
 		"ifNotExists": true,
 		"indexes": []
 	},
 	"collection": {
-		"collectionName": "New table",
+		"collectionName": "new_table",
 		"autoSortKey": true,
 		"ifNotExists": true,
 		"sortStyle": "Compound",
@@ -20,7 +20,7 @@
 		}
 	},
 	"field": {
-		"name": "New column",
+		"name": "new_column",
 		"caseSensitivity": "",
 		"accentSensitivity": "",
 		"punctuationSensitivity": "",
@@ -88,7 +88,7 @@
 		"autoSortKey": false
 	},
 	"SecIdxs": {
-		"name": "New Secondary Index",
+		"name": "new_secondary_index",
 		"SecIndxKey": "",
 		"SecIndxID": "",
 		"SecIndxDescription": "",
