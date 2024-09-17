@@ -40,7 +40,9 @@ module.exports = app => {
 	const escapeString = str => str.replace(/^\'([\S\s]+)\'$/, '$1').replace(/\'/g, "''");
 
 	const getDefault = (type, defaultValue) => {
-		if (isString(type)) {
+		const constantsValues = ['current_timestamp', 'current_user', 'null'];
+
+		if (isString(type) && !constantsValues.includes(_.toLower(defaultValue))) {
 			return `'${escapeString(String(defaultValue))}'`;
 		} else if (_.toUpper(type) === 'BOOLEAN') {
 			return _.toUpper(defaultValue);
