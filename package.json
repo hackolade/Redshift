@@ -54,7 +54,14 @@
             "enableComplexTypesNormalization": true,
             "enableKeysMultipleAbrr": true,
             "relationships": {
-                "compositeRelationships": true
+                "compositeRelationships": {
+                    "allowRelationshipsByProperties": [
+                        "primaryKey",
+                        "unique",
+                        "compositeUniqueKey",
+                        "compositePrimaryKey"
+                    ]
+                }
             },
             "FEScriptCommentsSupported": true,
             "discoverRelationships": true
