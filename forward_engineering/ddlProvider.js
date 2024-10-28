@@ -1,9 +1,12 @@
+const _ = require('lodash');
+
 const defaultTypes = require('./configs/defaultTypes');
 const templates = require('./configs/templates');
 const types = require('./configs/types');
+const { commentIfDeactivated } = require('./helpers/commentDeactivatedHelper');
+const { getTableAttributes, getTableConstraints, getTableLikeConstraint } = require('./helpers/tableHelper');
 
 module.exports = (baseProvider, options, app) => {
-	const _ = app.require('lodash');
 	const { hasType } = app.require('@hackolade/ddl-fe-utils').general;
 	const assignTemplates = app.require('@hackolade/ddl-fe-utils').assignTemplates;
 	const {
@@ -30,8 +33,6 @@ module.exports = (baseProvider, options, app) => {
 		getColumnsDefinitions,
 	} = require('./helpers/columnDefinitionHelper')(app);
 	const { generateConstraint } = require('./helpers/constraintHelper')(app);
-	const commentIfDeactivated = require('./helpers/commentDeactivatedHelper')(app);
-	const { getTableAttributes, getTableConstraints, getTableLikeConstraint } = require('./helpers/tableHelper')(app);
 
 	return {
 		createDatabase({

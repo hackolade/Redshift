@@ -1,5 +1,6 @@
+const _ = require('lodash');
+
 module.exports = app => {
-	const _ = app.require('lodash');
 	const { mapProperties } = app.require('@hackolade/ddl-fe-utils');
 	const ddlProvider = require('../../ddlProvider')(null, null, app);
 	const { getCompositeName } = require('../general')(app);

@@ -1,9 +1,10 @@
+const _ = require('lodash');
+const { modifyGroupItems } = require('./common');
+
 module.exports = app => {
-	const _ = app.require('lodash');
 	const ddlProvider = require('../../ddlProvider')(null, null, app);
 	const { getDbData, getDbName } = app.require('@hackolade/ddl-fe-utils').general;
 	const { hydrateUdf, hydrateProcedure, filterUdf, filterProcedure } = require('../general')(app);
-	const { modifyGroupItems } = require('./common')(app);
 
 	const getAddContainerScript = containerData => {
 		const constructedDbData = getDbData([containerData]);

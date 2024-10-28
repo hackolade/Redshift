@@ -5,6 +5,9 @@ const applyToInstanceHelper = require('./helpers/applyToInstanceHelper');
 const { commentDropStatements } = require('./helpers/commentDropStatements');
 const { DROP_STATEMENTS } = require('./helpers/constants');
 
+// Delete once v7.8.3 is released
+const getHiddenKeys = hiddenKeys => [...hiddenKeys, 'password'];
+
 module.exports = {
 	generateScript(data, logger, callback, app) {
 		try {
@@ -52,7 +55,7 @@ module.exports = {
 
 	applyToInstance(connectionInfo, logger, cb, app) {
 		logger.clear();
-		logger.log('info', connectionInfo, 'connectionInfo', connectionInfo.hiddenKeys);
+		logger.log('info', connectionInfo, 'connectionInfo', getHiddenKeys(connectionInfo.hiddenKeys));
 
 		applyToInstanceHelper
 			.applyToInstance(connectionInfo, logger, app)
@@ -83,7 +86,7 @@ module.exports = {
 
 	logInfo(step, connectionInfo, logger) {
 		logger.clear();
-		logger.log('info', connectionInfo, 'connectionInfo', connectionInfo.hiddenKeys);
+		logger.log('info', connectionInfo, 'connectionInfo', getHiddenKeys(connectionInfo.hiddenKeys));
 	},
 
 	isDropInStatements(data, logger, callback, app) {
