@@ -3,7 +3,7 @@ module.exports = app => {
 	const assignTemplates = app.require('@hackolade/ddl-fe-utils').assignTemplates;
 
 	const generateConstraint = (keys, template, isParentActivated, options = {}) => {
-		const keysAsStrings = keys.map(key => Object.assign({}, key, { name: `"${key.name}"` }));
+		const keysAsStrings = keys.map(key => ({ ...key, name: `"${key.name}"` }));
 		const atLeastOneActive = keysAsStrings.some(key => key.isActivated);
 		let finalStringOfKeys = foreignActiveKeysToString(keysAsStrings);
 		if (atLeastOneActive && isParentActivated) {

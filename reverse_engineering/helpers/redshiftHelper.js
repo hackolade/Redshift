@@ -1,13 +1,18 @@
 'use strict';
 
-const noConnectionError = { message: 'Connection error' };
+const _ = require('lodash');
+const redshiftClient = require('@aws-sdk/client-redshift');
+const redshiftData = require('@aws-sdk/client-redshift-data');
+const redshiftLess = require('@aws-sdk/client-redshift-serverless');
 const ddlViewCreationHelper = require('./ddlViewCreationHelper');
-let _;
+
+const noConnectionError = { message: 'Connection error' };
+
 let containers = {};
 let types = {};
 let helperLogger;
+
 let redshift = null;
-let aws = null;
 
 const getParamsForConnect = connectionInfo => {
 	const { accessKeyId, secretAccessKey, region, sessionToken } = connectionInfo;
@@ -33,7 +38,7 @@ const connect = async (connectionInfo, logger) => {
 	helperLogger = logger;
 	const { clusterIdentifier, databaseName, workgroupName, instanceType = 'Cluster' } = connectionInfo;
 	const params = getParamsForConnect(connectionInfo);
-	const redshiftDataInstance = new aws.redshiftData.RedshiftData({ apiVersion: '2019-12-20', ...params });
+	const redshiftDataInstance = new redshiftData.RedshiftData({ apiVersion: '2019-12-20', ...params });
 	if (instanceType === 'Cluster') {
 		redshift = await setCluster(params, clusterIdentifier, databaseName);
 	} else if (instanceType === 'ServerLess') {
@@ -43,7 +48,7 @@ const connect = async (connectionInfo, logger) => {
 };
 
 const setCluster = async (params, clusterIdentifier, databaseName) => {
-	const redshiftInstance = new aws.redshift.Redshift({ apiVersion: '2012-12-01', ...params });
+	const redshiftInstance = new redshiftClient.Redshift({ apiVersion: '2012-12-01', ...params });
 	const clusters = await redshiftInstance.describeClusters({ ClusterIdentifier: clusterIdentifier });
 	const requiredCluster = clusters.Clusters.find(cluster => cluster.ClusterIdentifier === clusterIdentifier);
 	if (!requiredCluster) {
@@ -61,7 +66,7 @@ const setCluster = async (params, clusterIdentifier, databaseName) => {
 };
 
 const setServerLess = async (params, workgroupName, databaseName) => {
-	const redshiftInstance = new aws.redshiftLess.RedshiftServerless({ apiVersion: '2021-04-21', ...params });
+	const redshiftInstance = new redshiftLess.RedshiftServerless({ apiVersion: '2021-04-21', ...params });
 	const workGroups = await listWorkGroups(redshiftInstance);
 	const requiredWorkGroup = workGroups.find(workgroup => workgroup.workgroupName === workgroupName);
 	if (!requiredWorkGroup) {
@@ -95,7 +100,7 @@ const testConnection = async (connectionInfo, logger) => {
 };
 
 const execute = async sqlStatement => {
-	if (!redshift && !redshift.redshiftDataInstance) {
+	if (!redshift?.redshiftDataInstance) {
 		helperLogger.log('error', { message: "Redshift instance wasn't created" });
 		return Promise.reject(noConnectionError);
 	}
@@ -248,7 +253,7 @@ const getContainerData = async schemaName => {
 		dbUser = await getSchemaUserOwner(schemaName);
 	} else if (redshift.instanceType === 'Cluster') {
 		quota = await getSchemaQuota(schemaName);
-		unlimitedQuota = quota ? false : true;
+		unlimitedQuota = !quota;
 	}
 
 	const description = await getSchemaDescription(schemaName);
@@ -393,7 +398,7 @@ const getProcedures = async (schemaName, dbUser) => {
 };
 
 const getArg = (type, argName) => {
-	if (!Boolean(argName)) {
+	if (!argName) {
 		return type;
 	}
 
@@ -401,8 +406,8 @@ const getArg = (type, argName) => {
 };
 
 const getArgsNames = argsName => {
-	const resMatch = argsName.match(/^\{([\s\S]+)\}$/);
-	if (!Boolean(resMatch)) {
+	const resMatch = argsName.match(/^\{([\s\S]+)}$/);
+	if (!resMatch) {
 		return [];
 	}
 
@@ -421,16 +426,16 @@ const getClusterModelData = async () => {
 	const clustersData = await redshift.redshiftInstance.describeClusters({
 		ClusterIdentifier: redshift.connectionParams.ClusterIdentifier,
 	});
-	const selctedClusterData = _.first(clustersData.Clusters);
-	const clusterNamespace = selctedClusterData.ClusterNamespaceArn.match(/namespace:([\d\w-]+)/)[1];
-	const tags = selctedClusterData.Tags.map(tag => ({ key: tag.Key, value: tag.Value }));
+	const selectedClusterData = _.first(clustersData.Clusters);
+	const clusterNamespace = selectedClusterData.ClusterNamespaceArn.match(/namespace:([\d\w-]+)/)[1];
+	const tags = selectedClusterData.Tags.map(tag => ({ key: tag.Key, value: tag.Value }));
 	return {
-		author: selctedClusterData.MasterUsername,
-		clusterIdentifier: selctedClusterData.ClusterIdentifier,
+		author: selectedClusterData.MasterUsername,
+		clusterIdentifier: selectedClusterData.ClusterIdentifier,
 		clusterNamespace,
-		host: selctedClusterData.Endpoint.Address,
-		port: selctedClusterData.Endpoint.Port,
-		databaseName: selctedClusterData.DBName,
+		host: selectedClusterData.Endpoint.Address,
+		port: selectedClusterData.Endpoint.Port,
+		databaseName: selectedClusterData.DBName,
 		instanceType: redshift.instanceType,
 		tags,
 	};
@@ -637,16 +642,10 @@ const handleComplexTypesDocuments = (jsonSchema, documents) => {
 	}
 };
 
-const setDependencies = dependencies => {
-	_ = dependencies.lodash;
-	aws = dependencies.aws;
-};
-
 module.exports = {
 	execute,
 	connect,
 	testConnection,
-	setDependencies,
 	getSchemaNames,
 	splitTableAndViewNames,
 	executeApplyToInstanceScript,

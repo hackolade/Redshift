@@ -1,9 +1,10 @@
-module.exports = app => {
-	const _ = app.require('lodash');
-	const { checkAllKeysActivated, clean, tab } = app.require('@hackolade/ddl-fe-utils').general;
-	const commentIfDeactivated = require('./commentDeactivatedHelper')(app);
+const _ = require('lodash');
+const { commentIfDeactivated } = require('./commentDeactivatedHelper');
 
-	const escape = value => String(value).replace(/\'/g, "''").replace(/\\\\/g, '\\').replace(/\\/g, '\\\\');
+module.exports = app => {
+	const { checkAllKeysActivated, clean, tab } = app.require('@hackolade/ddl-fe-utils').general;
+
+	const escape = value => String(value).replace(/'/g, "''").replace(/\\\\/g, '\\').replace(/\\/g, '\\\\');
 	const toString = value => (_.isUndefined(value) ? value : `'${escape(value)}'`);
 	const isNone = value => _.toLower(value) === 'none';
 	const isAuto = value => _.toLower(value) === 'auto';

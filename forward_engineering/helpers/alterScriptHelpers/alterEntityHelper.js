@@ -1,12 +1,16 @@
+const _ = require('lodash');
+const { checkFieldPropertiesChanged, getCompMod, setTableKeys, getKeys, setNewProperties } = require('./common');
+const { createColumnDefinitionBySchema } = require('./createColumnDefinition');
+
 module.exports = app => {
-	const _ = app.require('lodash');
-	const { getEntityName } = app.require('@hackolade/ddl-fe-utils').general;
-	const { createColumnDefinitionBySchema } = require('./createColumnDefinition')(_);
+	const {
+		generateIdToNameHashTable,
+		generateIdToActivatedHashTable,
+		general: { getEntityName },
+	} = app.require('@hackolade/ddl-fe-utils');
+
 	const { getCompositeName } = require('../general')(app);
 	const ddlProvider = require('../../ddlProvider')(null, null, app);
-	const { generateIdToNameHashTable, generateIdToActivatedHashTable } = app.require('@hackolade/ddl-fe-utils');
-	const { checkFieldPropertiesChanged, getCompMod, setTableKeys, getKeys, setNewProperties } =
-		require('./common')(app);
 
 	const getAddCollectionScript = collection => {
 		const dbName = collection.compMod.keyspaceName;

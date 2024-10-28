@@ -1,8 +1,9 @@
+const _ = require('lodash');
+const { commentIfDeactivated } = require('./commentDeactivatedHelper');
+
 module.exports = app => {
 	const templates = require('../configs/templates');
 	const assignTemplates = app.require('@hackolade/ddl-fe-utils').assignTemplates;
-	const commentIfDeactivated = require('./commentDeactivatedHelper')(app);
-	const _ = app.require('lodash');
 	const { toString } = require('./general')(app);
 
 	const decorateType = (type, columnDefinition) => {
@@ -37,7 +38,7 @@ module.exports = app => {
 
 	const isTimestamp = type => ['TIME', 'TIMESTAMP', 'TIMESTAMPTZ', 'TIMETZ'].includes(_.toUpper(type));
 
-	const escapeString = str => str.replace(/^\'([\S\s]+)\'$/, '$1').replace(/\'/g, "''");
+	const escapeString = str => str.replace(/^'([\S\s]+)'$/, '$1').replace(/'/g, "''");
 
 	const getDefault = (type, defaultValue) => {
 		const constantsValues = ['current_timestamp', 'current_user', 'null'];

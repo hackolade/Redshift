@@ -1,13 +1,14 @@
 'use strict';
 
 const redshiftHelper = require('./helpers/redshiftHelper');
-const { setDependencies, dependencies } = require('./helpers/appDependencies');
-let _;
+const _ = require('lodash');
 
-const connect = async (connectionInfo, logger, cb, app) => {
-	initDependencies(app);
+// Delete once v7.8.3 is released
+const getHiddenKeys = hiddenKeys => [...hiddenKeys, 'password'];
+
+const connect = async (connectionInfo, logger, cb) => {
 	logger.clear();
-	logger.log('info', connectionInfo, 'connectionInfo', connectionInfo.hiddenKeys);
+	logger.log('info', connectionInfo, 'connectionInfo', getHiddenKeys(connectionInfo.hiddenKeys));
 	try {
 		await redshiftHelper.connect(connectionInfo, logger);
 	} catch (err) {
@@ -19,11 +20,10 @@ const disconnect = async (connectionInfo, logger, cb) => {
 	cb();
 };
 
-const testConnection = async (connectionInfo, logger, cb, app) => {
-	initDependencies(app);
+const testConnection = async (connectionInfo, logger, cb) => {
 	try {
 		logger.clear();
-		logger.log('info', connectionInfo, 'connectionInfo', connectionInfo.hiddenKeys);
+		logger.log('info', connectionInfo, 'connectionInfo', getHiddenKeys(connectionInfo.hiddenKeys));
 		await redshiftHelper.testConnection(connectionInfo, logger);
 		cb();
 	} catch (err) {
@@ -31,9 +31,9 @@ const testConnection = async (connectionInfo, logger, cb, app) => {
 	}
 };
 
-const getDbCollectionsNames = async (connectionInfo, loggerInstance, cb, app) => {
+const getDbCollectionsNames = async (connectionInfo, loggerInstance, cb) => {
 	const logger = createLogger('Retrieving databases and tables information', loggerInstance);
-	await connect(connectionInfo, loggerInstance, cb, app);
+	await connect(connectionInfo, loggerInstance, cb);
 	try {
 		const redshiftSchemaNames = await redshiftHelper.getSchemaNames();
 		logger.info(`Schema names: ${JSON.stringify(redshiftSchemaNames)}`);
@@ -181,12 +181,6 @@ const handleError = (logger, error, cb) => {
 	const message = _.isString(error) ? error : _.get(error, 'message', 'Reverse Engineering error');
 	logger.log('error', { error }, 'Reverse Engineering error');
 	cb(message);
-};
-
-const initDependencies = app => {
-	setDependencies(app);
-	_ = dependencies.lodash;
-	redshiftHelper.setDependencies(dependencies);
 };
 
 const createLogger = (title, logger) => {
