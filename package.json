@@ -73,6 +73,7 @@
         "@aws-sdk/client-redshift": "3.679.0",
         "@aws-sdk/client-redshift-data": "3.679.0",
         "@aws-sdk/client-redshift-serverless": "3.679.0",
+        "@hackolade/fetch": "1.1.0",
         "lodash": "4.17.21"
     },
     "lint-staged": {
