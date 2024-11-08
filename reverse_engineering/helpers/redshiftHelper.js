@@ -5,6 +5,7 @@ const redshiftClient = require('@aws-sdk/client-redshift');
 const redshiftData = require('@aws-sdk/client-redshift-data');
 const redshiftLess = require('@aws-sdk/client-redshift-serverless');
 const ddlViewCreationHelper = require('./ddlViewCreationHelper');
+const { hckFetchAwsSdkHttpHandler } = require('@hackolade/fetch');
 
 const noConnectionError = { message: 'Connection error' };
 
@@ -36,15 +37,26 @@ const getParamsForConnect = connectionInfo => {
 
 const connect = async (connectionInfo, logger) => {
 	helperLogger = logger;
-	const { clusterIdentifier, databaseName, workgroupName, instanceType = 'Cluster' } = connectionInfo;
+	const {
+		clusterIdentifier,
+		databaseName,
+		workgroupName,
+		instanceType = 'Cluster',
+		queryRequestTimeout,
+	} = connectionInfo;
 	const params = getParamsForConnect(connectionInfo);
-	const redshiftDataInstance = new redshiftData.RedshiftData({ apiVersion: '2019-12-20', ...params });
+	const requestHandler = hckFetchAwsSdkHttpHandler({ requestTimeout: queryRequestTimeout });
+	const redshiftDataInstance = new redshiftData.RedshiftData({
+		apiVersion: '2019-12-20',
+		...params,
+		requestHandler,
+	});
 	if (instanceType === 'Cluster') {
 		redshift = await setCluster(params, clusterIdentifier, databaseName);
 	} else if (instanceType === 'ServerLess') {
 		redshift = await setServerLess(params, workgroupName, databaseName);
 	}
-	redshift = { ...redshift, redshiftDataInstance, instanceType };
+	redshift = { ...redshift, redshiftDataInstance, instanceType, requestHandler };
 };
 
 const setCluster = async (params, clusterIdentifier, databaseName) => {
