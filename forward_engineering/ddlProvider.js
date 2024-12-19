@@ -53,6 +53,7 @@ module.exports = (baseProvider, options, app) => {
 			functions,
 			procedures,
 			comment,
+			isActivated = true,
 		}) {
 			let database;
 			const schemaComment = assignTemplates(templates.comment, {
@@ -86,9 +87,10 @@ module.exports = (baseProvider, options, app) => {
 			const userProcedures = procedures.map(procedure =>
 				assignTemplates(templates.createProcedure, setOrReplace(procedure)),
 			);
-			return [database, comment ? _.trimStart(schemaComment) : '', ...userFunctions, ...userProcedures]
+			const statement = [database, comment ? _.trimStart(schemaComment) : '', ...userFunctions, ...userProcedures]
 				.filter(Boolean)
 				.join('\n');
+			return commentIfDeactivated(statement, { isActivated });
 		},
 
 		createTable(tableData, isActivated) {
@@ -283,6 +285,7 @@ module.exports = (baseProvider, options, app) => {
 					? procedures.map(hydrateProcedure(containerData.name)).filter(filterProcedure)
 					: [],
 				comment: containerData.description,
+				isActivated: containerData.isActivated,
 			};
 		},
 
