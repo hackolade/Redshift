@@ -1,5 +1,3 @@
-const _ = require('lodash');
-
 const commentIfDeactivated = (statement, data, isPartOfLine) => {
 	if (data.isActivated === false) {
 		if (isPartOfLine) {
