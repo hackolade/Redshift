@@ -53,7 +53,7 @@ module.exports = (baseProvider, options, app) => {
 			functions,
 			procedures,
 			comment,
-			isActivated,
+			isActivated = true,
 		}) {
 			let database;
 			const schemaComment = assignTemplates(templates.comment, {
