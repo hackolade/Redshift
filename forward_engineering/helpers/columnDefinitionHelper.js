@@ -23,7 +23,7 @@ module.exports = app => {
 		}
 
 		if (['NUMBER', 'DECIMAL', 'NUMERIC'].includes(type)) {
-			if (!_.isNaN(columnDefinition.scale) && !_.isNaN(columnDefinition.precision)) {
+			if (!isNaN(columnDefinition.scale) && !isNaN(columnDefinition.precision)) {
 				resultType = `${type}(${Number(columnDefinition.precision)},${Number(columnDefinition.scale)})`;
 			}
 		}
