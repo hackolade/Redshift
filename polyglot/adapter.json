@@ -1,0 +1,51 @@
+/**
+ *
+ * {
+ * 		"add": {
+ * 			"entity": [<names of new property>],
+ * 			"container": [<names of new property>],
+ * 			"model": [<names of new property>],
+ * 			"view": [<names of new property>],
+ *			"field": {
+ *				"<type>": [<names of new property>]
+ *			}
+ * 		},
+ * 		"delete": {
+ * 			"entity": [<names of new property>],
+ * 			"container": [<names of new property>],
+ * 			"model": [<names of new property>],
+ * 			"view": [<names of new property>],
+ *			"field": {
+ *				"<type>": [<names of new property>]
+ *			}
+ * 		},
+ * 		"modify": {
+ *	 		"entity": [
+ *	 			{
+ *					"from": { <properties that identify record> },
+ *					"to": { <properties that need to be changed> }
+ *				}
+ *			],
+ *			"container": [],
+ *			"model": [],
+ *			"view": [],
+ *			"field": []
+ * 		},
+ * }
+ */
+ {
+	"modify": {
+		"field": [
+            {
+				"from": {
+					"type": "binary",
+                    "mode": "varbinary",
+					"hasMaxLength": true
+				},
+				"to": {
+					"length": 1024000
+				}
+			}
+		]
+	}
+}
