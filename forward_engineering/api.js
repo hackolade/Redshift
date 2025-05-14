@@ -1,12 +1,7 @@
-'use strict';
-
 const _ = require('lodash');
 const applyToInstanceHelper = require('./helpers/applyToInstanceHelper');
 const { commentDropStatements } = require('./helpers/commentDropStatements');
 const { DROP_STATEMENTS } = require('./helpers/constants');
-
-// Delete once v7.8.3 is released
-const getHiddenKeys = hiddenKeys => [...hiddenKeys, 'password'];
 
 module.exports = {
 	generateScript(data, logger, callback, app) {
@@ -54,9 +49,6 @@ module.exports = {
 	},
 
 	applyToInstance(connectionInfo, logger, cb, app) {
-		logger.clear();
-		logger.log('info', connectionInfo, 'connectionInfo', getHiddenKeys(connectionInfo.hiddenKeys));
-
 		applyToInstanceHelper
 			.applyToInstance(connectionInfo, logger, app)
 			.then(result => {
@@ -69,7 +61,6 @@ module.exports = {
 	},
 
 	async testConnection(connectionInfo, logger, cb, app) {
-		this.logInfo('Test connection', connectionInfo, logger);
 		try {
 			await applyToInstanceHelper.testConnection(connectionInfo, logger, app);
 			cb();
@@ -82,11 +73,6 @@ module.exports = {
 		const message = _.isString(error) ? error : _.get(error, 'message', 'Forvard Engineering error');
 		logger.log('error', { error }, 'Forvard Engineering error');
 		cb(message);
-	},
-
-	logInfo(step, connectionInfo, logger) {
-		logger.clear();
-		logger.log('info', connectionInfo, 'connectionInfo', getHiddenKeys(connectionInfo.hiddenKeys));
 	},
 
 	isDropInStatements(data, logger, callback, app) {
