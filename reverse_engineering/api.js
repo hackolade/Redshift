@@ -1,7 +1,14 @@
+'use strict';
+
 const redshiftHelper = require('./helpers/redshiftHelper');
 const _ = require('lodash');
 
+// Delete once v7.8.3 is released
+const getHiddenKeys = hiddenKeys => [...hiddenKeys, 'password'];
+
 const connect = async (connectionInfo, logger, cb) => {
+	logger.clear();
+	logger.log('info', connectionInfo, 'connectionInfo', getHiddenKeys(connectionInfo.hiddenKeys));
 	try {
 		await redshiftHelper.connect(connectionInfo, logger);
 	} catch (err) {
@@ -15,6 +22,8 @@ const disconnect = async (connectionInfo, logger, cb) => {
 
 const testConnection = async (connectionInfo, logger, cb) => {
 	try {
+		logger.clear();
+		logger.log('info', connectionInfo, 'connectionInfo', getHiddenKeys(connectionInfo.hiddenKeys));
 		await redshiftHelper.testConnection(connectionInfo, logger);
 		cb();
 	} catch (err) {
