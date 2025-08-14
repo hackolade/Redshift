@@ -154,9 +154,11 @@ module.exports = (baseProvider, options, app) => {
 			const schemaName = viewData.schemaName === '' ? 'public' : viewData.schemaName;
 			const { columnList, tableColumns, tables } = viewData.keys.reduce(
 				(result, key) => {
+					const keyAlias = key.alias ? ` AS "${key.alias}"` : '';
+
 					result.columnList.push({ name: `"${key.alias || key.name}"`, isActivated: key.isActivated });
 					result.tableColumns.push({
-						name: `"${key.entityName}"."${key.name}"`,
+						name: `"${key.entityName}"."${key.name}"${keyAlias}`,
 						isActivated: key.isActivated,
 					});
 
