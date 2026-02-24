@@ -35,7 +35,7 @@ module.exports = (baseProvider, options, app) => {
 	const { generateConstraint } = require('./helpers/constraintHelper')(app);
 
 	return {
-		createDatabase({
+		createSchema({
 			name,
 			authorization,
 			quota,
@@ -252,7 +252,7 @@ module.exports = (baseProvider, options, app) => {
 			return { statement: columnStatement, isActivated: columnDefinition.isActivated };
 		},
 
-		hydrateDatabase(containerData, { udfs, procedures } = {}) {
+		hydrateSchema(containerData, { udfs, procedures } = {}) {
 			return {
 				name: containerData.name,
 				authorization: containerData.authorizationUsername
@@ -409,6 +409,14 @@ module.exports = (baseProvider, options, app) => {
 
 		commentIfDeactivated(statement, data, isPartOfLine) {
 			return commentIfDeactivated(statement, data, isPartOfLine);
+		},
+
+		commentStatement(statement) {
+			return commentIfDeactivated(statement, { isActivated: false });
+		},
+
+		prepareName(name) {
+			return `"${name}"`;
 		},
 
 		// * statements for alter script from delta model
