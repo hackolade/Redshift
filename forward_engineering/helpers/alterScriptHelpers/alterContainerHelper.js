@@ -8,12 +8,12 @@ module.exports = app => {
 
 	const getAddContainerScript = containerData => {
 		const constructedDbData = getDbData([containerData]);
-		const schemaData = ddlProvider.hydrateDatabase(constructedDbData, {
+		const schemaData = ddlProvider.hydrateSchema(constructedDbData, {
 			udfs: containerData.role?.UDFs,
 			procedures: containerData.role?.Procedures,
 		});
 
-		return _.trim(ddlProvider.createDatabase(schemaData));
+		return _.trim(ddlProvider.createSchema(schemaData));
 	};
 
 	const getDeleteContainerScript = containerData => {
@@ -28,7 +28,7 @@ module.exports = app => {
 			containerData.compMod.quota?.old !== containerData.compMod.quota?.new;
 
 		const constructedDbData = getDbData([containerData]);
-		const schemaData = ddlProvider.hydrateDatabase(constructedDbData, {
+		const schemaData = ddlProvider.hydrateSchema(constructedDbData, {
 			udfs: containerData.role?.UDFs,
 			procedures: containerData.role?.Procedures,
 		});
