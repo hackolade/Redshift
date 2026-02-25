@@ -291,6 +291,11 @@ module.exports = (baseProvider, options, app) => {
 			};
 		},
 
+		// Keep it because it was used to hydrate `dbData` for the API
+		hydrateDatabase(containerData, data) {
+			return this.hydrateSchema(containerData, data).bind(this);
+		},
+
 		hydrateTable({ tableData, entityData, jsonSchema }) {
 			const firstTab = _.get(entityData, '[0]', {});
 			const secondTab = _.get(entityData, '[1]', {});
