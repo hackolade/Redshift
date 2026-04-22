@@ -83,6 +83,17 @@ class DbtProvider {
 
 		return constraintHelper.getColumnConstraints({ columnDefinition });
 	}
+
+	/**
+	 * @param {{ modelData: object[]; containerData: object[]; entityData: object[];}}
+	 * @returns {{ databaseName?: string, schemaName?: string }}
+	 */
+	getEntityProperties({ modelData, containerData, entityData }) {
+		return {
+			databaseName: modelData?.[0]?.databaseName,
+			schemaName: containerData?.[0]?.code ?? containerData?.[0]?.name,
+		};
+	}
 }
 
 module.exports = DbtProvider;
