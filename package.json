@@ -73,9 +73,10 @@
     "description": "Hackolade plugin for Amazon Redshift",
     "disabled": false,
     "dependencies": {
-        "@aws-sdk/client-redshift": "3.1011.0",
-        "@aws-sdk/client-redshift-data": "3.1011.0",
-        "@aws-sdk/client-redshift-serverless": "3.1011.0",
+        "@aws-sdk/client-redshift": "3.1036.0",
+        "@aws-sdk/client-redshift-data": "3.1036.0",
+        "@aws-sdk/client-redshift-serverless": "3.1036.0",
+        "@aws-sdk/xml-builder": "3.972.19",
         "@hackolade/fetch": "1.1.0",
         "lodash": "4.18.1"
     },
@@ -104,6 +105,6 @@
     },
     "overrides": {
         "minimatch": "10.2.4",
-        "fast-xml-parser": "5.5.7"
+        "fast-xml-parser": "5.7.1"
     }
 }
