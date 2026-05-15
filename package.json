@@ -1,6 +1,6 @@
 {
     "name": "Redshift",
-    "version": "0.2.26",
+    "version": "0.2.27",
     "author": "hackolade",
     "engines": {
         "hackolade": "7.7.10",
@@ -72,7 +72,6 @@
     },
     "description": "Hackolade plugin for Amazon Redshift",
     "disabled": false,
-
     "simple-git-hooks": {
         "pre-commit": "npm run package && npx lint-staged --config lint-staged.config.js",
         "pre-push": "npm run lint"
