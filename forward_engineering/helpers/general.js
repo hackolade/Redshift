@@ -1,5 +1,6 @@
 const _ = require('lodash');
 const { commentIfDeactivated } = require('./commentDeactivatedHelper');
+const { ROW_FORMAT_TYPES, STORED_AS_TYPES } = require('./constants');
 
 module.exports = app => {
 	const { checkAllKeysActivated, clean, tab } = app.require('@hackolade/ddl-fe-utils').general;
@@ -203,6 +204,39 @@ module.exports = app => {
 			.join(', ');
 	};
 
+	const getRowFormat = tableData => {
+		if (tableData.rowFormatType === ROW_FORMAT_TYPES.DELIMITED && tableData.rowFormatDelimited) {
+			return `\nROW FORMAT DELIMITED ${tableData.rowFormatDelimited}`;
+		}
+
+		if (tableData.rowFormatType === ROW_FORMAT_TYPES.SERDE && tableData.rowFormatSerde) {
+			let format = `\nROW FORMAT SERDE ${toString(tableData.rowFormatSerde)}`;
+			const serdeProps = parseProps(tableData.serdeProperties);
+
+			if (serdeProps) {
+				format += `\nWITH SERDEPROPERTIES (${serdeProps})`;
+			}
+			return format;
+		}
+
+		return '';
+	};
+
+	const getStoredAs = tableData => {
+		if (tableData.storedAs === STORED_AS_TYPES.INPUT_OUTPUT_FORMAT) {
+			if (tableData.inputFormatClass && tableData.outputFormatClass) {
+				return `\nSTORED AS INPUTFORMAT ${toString(tableData.inputFormatClass)}\nOUTPUTFORMAT ${toString(tableData.outputFormatClass)}`;
+			}
+			return '';
+		}
+
+		if (tableData.storedAs) {
+			return `\nSTORED AS ${tableData.storedAs}`;
+		}
+
+		return '';
+	};
+
 	return {
 		toString,
 		toNumber,
@@ -222,5 +256,7 @@ module.exports = app => {
 		getCompositeName,
 		parseTextArea,
 		parseProps,
+		getRowFormat,
+		getStoredAs,
 	};
 };

@@ -5,7 +5,6 @@ const templates = require('./configs/templates');
 const types = require('./configs/types');
 const { commentIfDeactivated } = require('./helpers/commentDeactivatedHelper');
 const { getTableAttributes, getTableConstraints, getTableLikeConstraint } = require('./helpers/tableHelper');
-const { ROW_FORMAT_TYPES, STORED_AS_TYPES } = require('./helpers/constants');
 
 module.exports = (baseProvider, options, app) => {
 	const { hasType } = app.require('@hackolade/ddl-fe-utils').general;
@@ -24,6 +23,8 @@ module.exports = (baseProvider, options, app) => {
 		toString,
 		parseTextArea,
 		parseProps,
+		getRowFormat,
+		getStoredAs,
 	} = require('./helpers/general')(app);
 	const {
 		decorateType,
@@ -42,23 +43,8 @@ module.exports = (baseProvider, options, app) => {
 			? `\nPARTITIONED BY (${parseTextArea(tableData.partitionedBy)})`
 			: '';
 
-		let rowFormat = '';
-		if (tableData.rowFormatType === ROW_FORMAT_TYPES.DELIMITED && tableData.rowFormatDelimited) {
-			rowFormat = `\nROW FORMAT DELIMITED ${tableData.rowFormatDelimited}`;
-		} else if (tableData.rowFormatType === ROW_FORMAT_TYPES.SERDE && tableData.rowFormatSerde) {
-			rowFormat = `\nROW FORMAT SERDE ${toString(tableData.rowFormatSerde)}`;
-			const serdeProps = parseProps(tableData.serdeProperties);
-			if (serdeProps) rowFormat += `\nWITH SERDEPROPERTIES (${serdeProps})`;
-		}
-
-		let storedAs = '';
-		if (tableData.storedAs === STORED_AS_TYPES.INPUT_OUTPUT_FORMAT) {
-			if (tableData.inputFormatClass && tableData.outputFormatClass) {
-				storedAs = `\nSTORED AS INPUTFORMAT ${toString(tableData.inputFormatClass)}\nOUTPUTFORMAT ${toString(tableData.outputFormatClass)}`;
-			}
-		} else if (tableData.storedAs) {
-			storedAs = `\nSTORED AS ${tableData.storedAs}`;
-		}
+		const rowFormat = getRowFormat(tableData);
+		const storedAs = getStoredAs(tableData);
 
 		const location = tableData.externalLocation ? `\nLOCATION ${toString(tableData.externalLocation)}` : '';
 		const tblProperties = tableData.tableProperties
