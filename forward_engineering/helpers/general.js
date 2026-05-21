@@ -178,6 +178,31 @@ module.exports = app => {
 		}
 	};
 
+	const parseTextArea = text =>
+		text
+			? text
+					.split('\n')
+					.map(l => l.trim())
+					.filter(Boolean)
+					.join(', ')
+			: '';
+
+	const parseProps = text => {
+		if (!text) return '';
+
+		return text
+			.split('\n')
+			.map(line => line.trim())
+			.filter(line => line.includes('='))
+			.map(line => {
+				const [propertyKey, ...valueParts] = line.split('=');
+				const propertyValue = valueParts.join('=').trim();
+
+				return `'${escape(propertyKey.trim())}'='${escape(propertyValue)}'`;
+			})
+			.join(', ');
+	};
+
 	return {
 		toString,
 		toNumber,
@@ -195,5 +220,7 @@ module.exports = app => {
 		filterProcedure,
 		setOrReplace,
 		getCompositeName,
+		parseTextArea,
+		parseProps,
 	};
 };

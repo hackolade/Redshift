@@ -14,6 +14,12 @@ module.exports = {
 	createTableAs:
 		'CREATE ${temporary}TABLE "${schemaName}"."${name}" ${backup}${tableAttribute} AS ${query};\n${comment}${columnDescriptions}',
 
+	createExternalTable:
+		'CREATE EXTERNAL TABLE "${schemaName}"."${name}" (${columnDefinitions})${partitionedBy}${rowFormat}${storedAs}${location}${tableProperties};${comment}${columnDescriptions}',
+
+	createExternalTableAs:
+		'CREATE EXTERNAL TABLE "${schemaName}"."${name}"${partitionedBy}${rowFormat}${storedAs}${location}${tableProperties} AS\n${query};${comment}${columnDescriptions}',
+
 	createView:
 		'CREATE${orReplace} VIEW "${schemaName}"."${name}"(\n' +
 		'\t${column_list}\n' +
