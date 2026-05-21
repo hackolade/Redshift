@@ -125,6 +125,135 @@ making sure that you maintain a proper JSON format.
 				"template": "textarea"
 			},
 			{
+				"propertyName": "External",
+				"propertyKeyword": "externalTable",
+				"propertyType": "checkbox",
+				"propertyTooltip": "Specifies that the table is an external table.",
+				"dependency": {
+					"type": "not",
+					"values": {
+						"key": "temporary",
+						"value": true
+					}
+				}
+			},
+			{
+				"propertyName": "Partitioned by",
+				"propertyKeyword": "partitionedBy",
+				"propertyTooltip": "Specify partition columns as col_name data_type, e.g.:feed_name string",
+				"propertyType": "details",
+				"template": "textarea",
+				"markdown": false,
+				"valueType": "string",
+				"dependency": {
+					"key": "externalTable",
+					"value": true
+				}
+			},
+			{
+				"propertyName": "Row format type",
+				"propertyKeyword": "rowFormatType",
+				"propertyTooltip": "Choose between DELIMITED or SERDE",
+				"propertyType": "select",
+				"options": ["", "DELIMITED", "SERDE"],
+				"dependency": {
+					"key": "externalTable",
+					"value": true
+				}
+			},
+			{
+				"propertyName": "Row format delimited",
+				"propertyKeyword": "rowFormatDelimited",
+				"propertyType": "text",
+				"propertyTooltip": "Specify delimiters, e.g., FIELDS TERMINATED BY, LINES TERMINATED BY",
+				"dependency": {
+					"key": "rowFormatType",
+					"value": "DELIMITED"
+				}
+			},
+			{
+				"propertyName": "Row format SerDe",
+				"propertyKeyword": "rowFormatSerde",
+				"propertyType": "text",
+				"dependency": {
+					"key": "rowFormatType",
+					"value": "SERDE"
+				}
+			},
+			{
+				"propertyName": "SerDe properties",
+				"propertyKeyword": "serdeProperties",
+				"propertyType": "details",
+				"template": "textarea",
+				"markdown": false,
+				"propertyTooltip": "Add SerDe properties as key=value pairs",
+				"dependency": {
+					"key": "rowFormatType",
+					"value": "SERDE"
+				}
+			},
+			{
+				"propertyName": "Stored as",
+				"propertyKeyword": "storedAs",
+				"propertyTooltip": "The file format for data files.",
+				"propertyType": "select",
+				"options": [
+					"",
+					"PARQUET",
+					"RCFILE",
+					"SEQUENCEFILE",
+					"TEXTFILE",
+					"ORC",
+					"AVRO",
+					"INPUTFORMAT / OUTPUTFORMAT"
+				],
+				"dependency": {
+					"key": "externalTable",
+					"value": true
+				}
+			},
+			{
+				"propertyName": "Input Format Class",
+				"propertyKeyword": "inputFormatClass",
+				"propertyType": "text",
+				"dependency": {
+					"key": "storedAs",
+					"value": "INPUTFORMAT / OUTPUTFORMAT"
+				}
+			},
+			{
+				"propertyName": "Output Format Class",
+				"propertyKeyword": "outputFormatClass",
+				"propertyType": "text",
+				"dependency": {
+					"key": "storedAs",
+					"value": "INPUTFORMAT / OUTPUTFORMAT"
+				}
+			},
+			{
+				"propertyName": "Location",
+				"propertyKeyword": "externalLocation",
+				"propertyTooltip": "The path to the Amazon S3 bucket/folder or a manifest file, e.g., s3://my-bucket/folder/ or s3://my-bucket/manifest.json",
+				"propertyType": "text",
+				"dependency": {
+					"key": "externalTable",
+					"value": true
+				}
+			},
+			{
+				"propertyName": "Table properties",
+				"propertyKeyword": "tableProperties",
+				"propertyTooltip": "Add table properties as key=value pairs",
+				"propertyType": "details",
+				"template": "textarea",
+				"markdown": false,
+				"valueType": "string",
+				"dependency": {
+					"key": "externalTable",
+					"value": true
+				}
+			},
+			{
 				"propertyName": "Table role",
 				"propertyKeyword": "tableRole",
 				"propertyTooltip": "Select from list of options",
@@ -152,26 +281,54 @@ making sure that you maintain a proper JSON format.
 				"propertyName": "Temporary",
 				"propertyKeyword": "temporary",
 				"propertyType": "checkbox",
-				"propertyTooltip": "Creates a temporary table that is visible only within the current session. The table is automatically dropped at the end of the session in which it is created."
+				"propertyTooltip": "Creates a temporary table that is visible only within the current session. The table is automatically dropped at the end of the session in which it is created.",
+				"dependency": {
+					"type": "not",
+					"values": {
+						"key": "externalTable",
+						"value": true
+					}
+				}
 			},
 			{
 				"propertyName": "If not exists",
 				"propertyKeyword": "ifNotExists",
 				"propertyType": "checkbox",
-				"propertyTooltip": "if the specified table already exists, the command should make no changes and return a message that the table exists, rather than terminating with an error. "
+				"propertyTooltip": "if the specified table already exists, the command should make no changes and return a message that the table exists, rather than terminating with an error. ",
+				"dependency": {
+					"type": "not",
+					"values": {
+						"key": "externalTable",
+						"value": true
+					}
+				}
 			},
 			{
 				"propertyName": "Backup",
 				"propertyKeyword": "BACKUP",
 				"propertyType": "checkbox",
-				"propertyTooltip": "Specifies whether the table should be included in automated and manual cluster snapshots."
+				"propertyTooltip": "Specifies whether the table should be included in automated and manual cluster snapshots.",
+				"dependency": {
+					"type": "not",
+					"values": {
+						"key": "externalTable",
+						"value": true
+					}
+				}
 			},
 			{
 				"propertyName": "Distribution style",
 				"propertyKeyword": "DISTSTYLE",
 				"propertyTooltip": "keyword that defines the data distribution style for the whole table.  AUTO: Amazon Redshift assigns an optimal distribution style based on the table data. EVEN: The data in the table is spread evenly across the nodes in a cluster in a round-robin distribution. KEY: The data is distributed by the values in the distKey column. ALL: A copy of the entire table is distributed to every node. ",
 				"propertyType": "select",
-				"options": ["Auto", "Even", "Key", "All"]
+				"options": ["Auto", "Even", "Key", "All"],
+				"dependency": {
+					"type": "not",
+					"values": {
+						"key": "externalTable",
+						"value": true
+					}
+				}
 			},
 			{
 				"propertyName": "Dist key",
@@ -193,13 +350,27 @@ making sure that you maintain a proper JSON format.
 							"maxFields": 1
 						}
 					}
-				]
+				],
+				"dependency": {
+					"type": "not",
+					"values": {
+						"key": "externalTable",
+						"value": true
+					}
+				}
 			},
 			{
 				"propertyName": "Auto sort key",
 				"propertyKeyword": "autoSortKey",
 				"propertyType": "checkbox",
-				"propertyTooltip": "If you don't specify any sort keys options, the default is AUTO."
+				"propertyTooltip": "If you don't specify any sort keys options, the default is AUTO.",
+				"dependency": {
+					"type": "not",
+					"values": {
+						"key": "externalTable",
+						"value": true
+					}
+				}
 			},
 			{
 				"propertyName": "Sort key",
@@ -221,11 +392,23 @@ making sure that you maintain a proper JSON format.
 					}
 				],
 				"dependency": {
-					"type": "not",
-					"values": {
-						"key": "autoSortKey",
-						"value": true
-					}
+					"type": "and",
+					"values": [
+						{
+							"type": "not",
+							"values": {
+								"key": "autoSortKey",
+								"value": true
+							}
+						},
+						{
+							"type": "not",
+							"values": {
+								"key": "externalTable",
+								"value": true
+							}
+						}
+					]
 				}
 			},
 			{
@@ -235,11 +418,23 @@ making sure that you maintain a proper JSON format.
 				"propertyType": "select",
 				"options": ["Compound", "Interleaved"],
 				"dependency": {
-					"type": "not",
-					"values": {
-						"key": "autoSortKey",
-						"value": true
-					}
+					"type": "and",
+					"values": [
+						{
+							"type": "not",
+							"values": {
+								"key": "autoSortKey",
+								"value": true
+							}
+						},
+						{
+							"type": "not",
+							"values": {
+								"key": "externalTable",
+								"value": true
+							}
+						}
+					]
 				}
 			},
 			{
@@ -249,7 +444,14 @@ making sure that you maintain a proper JSON format.
 				"propertyType": "selecthashed",
 				"template": "entities",
 				"withEmptyOption": true,
-				"excludeCurrent": true
+				"excludeCurrent": true,
+				"dependency": {
+					"type": "not",
+					"values": {
+						"key": "externalTable",
+						"value": true
+					}
+				}
 			},
 			{
 				"propertyName": "Include defaults",

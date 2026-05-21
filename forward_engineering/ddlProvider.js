@@ -21,6 +21,10 @@ module.exports = (baseProvider, options, app) => {
 		setOrReplace,
 		getCompositeName,
 		toString,
+		parseTextArea,
+		parseProps,
+		getRowFormat,
+		getStoredAs,
 	} = require('./helpers/general')(app);
 	const {
 		decorateType,
@@ -33,6 +37,49 @@ module.exports = (baseProvider, options, app) => {
 		getColumnsDefinitions,
 	} = require('./helpers/columnDefinitionHelper')(app);
 	const { generateConstraint } = require('./helpers/constraintHelper')(app);
+
+	const buildExternalTable = ({ tableData, schemaName, asSelect, isActivated, comment, columnDescriptions }) => {
+		const partitionedBy = tableData.partitionedBy
+			? `\nPARTITIONED BY (${parseTextArea(tableData.partitionedBy)})`
+			: '';
+
+		const rowFormat = getRowFormat(tableData);
+		const storedAs = getStoredAs(tableData);
+
+		const location = tableData.externalLocation ? `\nLOCATION ${toString(tableData.externalLocation)}` : '';
+		const tblProperties = tableData.tableProperties
+			? `\nTABLE PROPERTIES (${parseProps(tableData.tableProperties)})`
+			: '';
+		const columnDefinitions = getColumnsDefinitions(tableData.columns, isActivated);
+
+		if (asSelect) {
+			return assignTemplates(templates.createExternalTableAs, {
+				name: tableData.name,
+				schemaName,
+				partitionedBy,
+				rowFormat,
+				storedAs,
+				location,
+				tableProperties: tblProperties,
+				query: asSelect,
+				comment: tableData.comment ? comment : '',
+				columnDescriptions,
+			});
+		}
+
+		return assignTemplates(templates.createExternalTable, {
+			name: tableData.name,
+			schemaName,
+			columnDefinitions: columnDefinitions === '' ? '' : '\n\t' + columnDefinitions,
+			partitionedBy,
+			rowFormat,
+			storedAs,
+			location,
+			tableProperties: tblProperties,
+			comment: tableData.comment ? comment : '',
+			columnDescriptions,
+		});
+	};
 
 	return {
 		createSchema({
@@ -106,6 +153,17 @@ module.exports = (baseProvider, options, app) => {
 				getCompositeName(tableData.name, schemaName),
 				tableData.columnDefinitions,
 			);
+
+			if (tableData.externalTable) {
+				return buildExternalTable({
+					tableData,
+					schemaName,
+					asSelect,
+					isActivated,
+					comment,
+					columnDescriptions,
+				});
+			}
 
 			if (asSelect) {
 				return assignTemplates(templates.createTableAs, {
@@ -338,6 +396,17 @@ module.exports = (baseProvider, options, app) => {
 						? ''
 						: generateConstraint(sortKey, templates.compoundSortKey, jsonSchema.isActivated, { sortStyle }),
 				query: '',
+				externalTable: firstTab.externalTable,
+				partitionedBy: firstTab.partitionedBy,
+				rowFormatType: firstTab.rowFormatType,
+				rowFormatDelimited: firstTab.rowFormatDelimited,
+				rowFormatSerde: firstTab.rowFormatSerde,
+				serdeProperties: firstTab.serdeProperties,
+				storedAs: firstTab.storedAs,
+				inputFormatClass: firstTab.inputFormatClass,
+				outputFormatClass: firstTab.outputFormatClass,
+				externalLocation: firstTab.externalLocation,
+				tableProperties: firstTab.tableProperties,
 			};
 		},
 
