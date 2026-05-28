@@ -332,13 +332,16 @@ module.exports = (baseProvider, options, app) => {
 				iamRole: containerData.IAM_ROLE,
 				secretARN: getARN(containerData.SECRET_ARN, containerData.fromSource),
 				catalogRole:
-					containerData.CATALOG_ROLE && containerData.source === 'Data catalog'
-						? ` CATALOG_ROLE ${containerData.CATALOG_ROLE}`
+					containerData.CATALOG_ROLE && containerData.fromSource === 'Data catalog'
+						? `\nCATALOG_ROLE '${containerData.CATALOG_ROLE}'`
 						: '',
 				uri: getUri(containerData.URI, containerData.port, containerData.fromSource),
-				region: containerData.source === 'Data catalog' ? containerData.region : '',
+				region:
+					containerData.fromSource === 'Data catalog' && containerData.region
+						? `\nREGION '${containerData.region}'`
+						: '',
 				createExternalDatabase: containerData.createExternalDatabaseIfNotExists
-					? ' CREATE EXTERNAL DATABASE IF NOT EXISTS'
+					? '\nCREATE EXTERNAL DATABASE IF NOT EXISTS'
 					: '',
 				functions: Array.isArray(udfs) ? udfs.map(hydrateUdf(containerData.name)).filter(filterUdf) : [],
 				procedures: Array.isArray(procedures)

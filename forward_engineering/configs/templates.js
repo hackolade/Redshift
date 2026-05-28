@@ -2,7 +2,7 @@ module.exports = {
 	createDatabase: '',
 	createSchema: 'CREATE SCHEMA${ifNotExist} "${name}"${authorization}${quota};\n',
 	createExternalSchema:
-		'CREATE EXTERNAL SCHEMA${ifNotExist} "${name}" FROM ${source} DATABASE "${sourceDBName}"${sourceSchemaName}${region}${uri} IAM_ROLE "${iamRole}"${secretARN}${catalogRole}${createExternalDatabase};\n',
+		"CREATE EXTERNAL SCHEMA${ifNotExist} \"${name}\" FROM ${source}\nDATABASE '${sourceDBName}'${sourceSchemaName}${region}${uri}\nIAM_ROLE '${iamRole}'${secretARN}${catalogRole}${createExternalDatabase};\n",
 
 	createTable:
 		'CREATE ${temporary}TABLE' +
