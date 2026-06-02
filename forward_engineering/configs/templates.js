@@ -2,7 +2,7 @@ module.exports = {
 	createDatabase: '',
 	createSchema: 'CREATE SCHEMA${ifNotExist} "${name}"${authorization}${quota};\n',
 	createExternalSchema:
-		'CREATE EXTERNAL SCHEMA${ifNotExist} "${name}" FROM ${source} DATABASE "${sourceDBName}"${sourceSchemaName}${region}${uri} IAM_ROLE "${iamRole}"${secretARN}${catalogRole}${createExternalDatabase};\n',
+		"CREATE EXTERNAL SCHEMA${ifNotExist} \"${name}\" FROM ${source}\nDATABASE '${sourceDBName}'${sourceSchemaName}${region}${uri}\nIAM_ROLE '${iamRole}'${secretARN}${catalogRole}${createExternalDatabase};\n",
 
 	createTable:
 		'CREATE ${temporary}TABLE' +
@@ -13,6 +13,12 @@ module.exports = {
 		'${comment}${columnDescriptions}',
 	createTableAs:
 		'CREATE ${temporary}TABLE "${schemaName}"."${name}" ${backup}${tableAttribute} AS ${query};\n${comment}${columnDescriptions}',
+
+	createExternalTable:
+		'CREATE EXTERNAL TABLE "${schemaName}"."${name}" (${columnDefinitions})${partitionedBy}${rowFormat}${storedAs}${location}${tableProperties};${comment}${columnDescriptions}',
+
+	createExternalTableAs:
+		'CREATE EXTERNAL TABLE "${schemaName}"."${name}"${partitionedBy}${rowFormat}${storedAs}${location}${tableProperties} AS\n${query};${comment}${columnDescriptions}',
 
 	createView:
 		'CREATE${orReplace} VIEW "${schemaName}"."${name}"(\n' +
