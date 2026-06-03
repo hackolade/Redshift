@@ -50,8 +50,22 @@ const getTableLikeConstraint = (likeTableName, includingDefault, needComma) => {
 	return likeStatement;
 };
 
+const formatIamRole = iamRole => {
+	if (!iamRole) {
+		return "''";
+	}
+
+	const normalizedRole = String(iamRole).trim();
+	if (normalizedRole.toLowerCase() === 'default') {
+		return 'default';
+	}
+
+	return `'${normalizedRole}'`;
+};
+
 module.exports = {
 	getTableAttributes,
 	getTableConstraints,
 	getTableLikeConstraint,
+	formatIamRole,
 };
