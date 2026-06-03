@@ -191,7 +191,10 @@ module.exports = app => {
 	const stripQuotes = str => {
 		if (!str) return '';
 
-		return str.trim().replaceAll(/^['"]+|['"]+$/g, '');
+		return str
+			.trim()
+			.replace(/^['"]+/, '')
+			.replace(/['"]+$/, '');
 	};
 
 	const parseProps = text => {
