@@ -188,13 +188,15 @@ module.exports = app => {
 					.join(', ')
 			: '';
 
-	const stripQuotes = str => {
-		if (!str) return '';
+	const stripQuotes = value => {
+		if (!value) return '';
+		let string = value.trim();
 
-		return str
-			.trim()
-			.replace(/^['"]+/, '')
-			.replace(/['"]+$/, '');
+		while (/^['"]|['"]$/.test(string)) {
+			string = string.replaceAll(/^['"]|['"]$/g, '');
+		}
+
+		return string;
 	};
 
 	const parseProps = text => {
