@@ -188,18 +188,33 @@ module.exports = app => {
 					.join(', ')
 			: '';
 
+	const stripQuotes = value => {
+		if (!value) return '';
+		let string = value.trim();
+
+		while (/^['"]|['"]$/.test(string)) {
+			string = string.replaceAll(/^['"]|['"]$/g, '');
+		}
+
+		return string;
+	};
+
 	const parseProps = text => {
 		if (!text) return '';
 
 		return text
 			.split('\n')
 			.map(line => line.trim())
+			.map(line => line.replace(/,$/, '').trim())
 			.filter(line => line.includes('='))
 			.map(line => {
 				const [propertyKey, ...valueParts] = line.split('=');
 				const propertyValue = valueParts.join('=').trim();
 
-				return `'${escape(propertyKey.trim())}'='${escape(propertyValue)}'`;
+				const cleanKey = stripQuotes(propertyKey);
+				const cleanValue = stripQuotes(propertyValue);
+
+				return `'${escape(cleanKey)}'='${escape(cleanValue)}'`;
 			})
 			.join(', ');
 	};
@@ -210,7 +225,10 @@ module.exports = app => {
 		}
 
 		if (tableData.rowFormatType === ROW_FORMAT_TYPES.SERDE && tableData.rowFormatSerde) {
-			let format = `\nROW FORMAT SERDE ${toString(tableData.rowFormatSerde)}`;
+			const cleanSerdeClass = stripQuotes(tableData.rowFormatSerde);
+
+			let format = `\nROW FORMAT SERDE ${toString(cleanSerdeClass)}`;
+
 			const serdeProps = parseProps(tableData.serdeProperties);
 
 			if (serdeProps) {

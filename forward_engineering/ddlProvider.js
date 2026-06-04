@@ -4,7 +4,12 @@ const defaultTypes = require('./configs/defaultTypes');
 const templates = require('./configs/templates');
 const types = require('./configs/types');
 const { commentIfDeactivated } = require('./helpers/commentDeactivatedHelper');
-const { getTableAttributes, getTableConstraints, getTableLikeConstraint } = require('./helpers/tableHelper');
+const {
+	getTableAttributes,
+	getTableConstraints,
+	getTableLikeConstraint,
+	formatIamRole,
+} = require('./helpers/tableHelper');
 
 module.exports = (baseProvider, options, app) => {
 	const { hasType } = app.require('@hackolade/ddl-fe-utils').general;
@@ -109,6 +114,8 @@ module.exports = (baseProvider, options, app) => {
 				comment: toString(comment),
 			});
 			if (external) {
+				const iamRoleFormatted = formatIamRole(iamRole);
+
 				database = assignTemplates(templates.createExternalSchema, {
 					name,
 					ifNotExist,
@@ -117,7 +124,7 @@ module.exports = (baseProvider, options, app) => {
 					sourceSchemaName,
 					region,
 					uri,
-					iamRole,
+					iamRole: iamRoleFormatted,
 					secretARN,
 					catalogRole,
 					createExternalDatabase,
