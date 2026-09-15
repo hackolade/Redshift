@@ -219,6 +219,18 @@ module.exports = app => {
 			.join(', ');
 	};
 
+	const getIdentityDefinition = jsonSchema => {
+		if (jsonSchema.defaultOption !== 'Identity') {
+			return null;
+		}
+
+		return {
+			generateIdentity: jsonSchema.generateIdentity,
+			seed: jsonSchema.identity?.seed,
+			increment: jsonSchema.identity?.increment,
+		};
+	};
+
 	const getRowFormat = tableData => {
 		if (tableData.rowFormatType === ROW_FORMAT_TYPES.DELIMITED && tableData.rowFormatDelimited) {
 			return `\nROW FORMAT DELIMITED ${tableData.rowFormatDelimited}`;
@@ -276,5 +288,6 @@ module.exports = app => {
 		parseProps,
 		getRowFormat,
 		getStoredAs,
+		getIdentityDefinition,
 	};
 };

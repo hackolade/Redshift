@@ -34,7 +34,7 @@ module.exports = {
 		'CREATE${orReplace}PROCEDURE ${name} (${arguments})\nAS $$\n${statement}\n$$ LANGUAGE plpgsql${securityMode}${configurationParameter};\n',
 
 	columnDefinition:
-		'"${name}" ${type}${default}${encoding}${distKey}${sortKey}${notNull}${unique}${primaryKey}${inlineConstraints}${references}',
+		'"${name}" ${type}${default}${identity}${encoding}${distKey}${sortKey}${notNull}${unique}${primaryKey}${inlineConstraints}${references}',
 
 	compoundSortKey: '${sortStyle} SORTKEY (${keys})',
 	compoundUniqueKey: 'UNIQUE (${keys})',
