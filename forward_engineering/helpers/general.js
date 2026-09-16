@@ -227,7 +227,7 @@ module.exports = app => {
 		return {
 			generateIdentity: jsonSchema.generateIdentity,
 			seed: jsonSchema.identity?.seed,
-			increment: jsonSchema.identity?.increment,
+			step: jsonSchema.identity?.step,
 		};
 	};
 

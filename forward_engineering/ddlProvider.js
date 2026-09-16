@@ -491,6 +491,7 @@ module.exports = (baseProvider, options, app) => {
 				primaryKey: columnDefinition.primaryKey && !jsonSchema.compositePrimaryKey,
 				encoding: jsonSchema.encoding,
 				identity: getIdentityDefinition(jsonSchema),
+				reference: '',
 			};
 		},
 
