@@ -1,4 +1,4 @@
-const { toUpper, isNaN, toLower, chain, partition, get } = require('lodash');
+const { toUpper, toLower, chain, partition, get } = require('lodash');
 const { commentIfDeactivated } = require('./commentDeactivatedHelper');
 
 module.exports = app => {
@@ -11,19 +11,19 @@ module.exports = app => {
 		let resultType = type;
 
 		if (isTimestamp(type)) {
-			if (columnDefinition.timePrecision && !isNaN(columnDefinition.timePrecision)) {
+			if (columnDefinition.timePrecision && !Number.isNaN(columnDefinition.timePrecision)) {
 				resultType = `${type}(${columnDefinition.timePrecision})`;
 			}
 		}
 
 		if (['VARCHAR', 'CHAR', 'CHARACTER', 'VARBYTE'].includes(type)) {
-			if (columnDefinition.length && !isNaN(columnDefinition.length)) {
+			if (columnDefinition.length && !Number.isNaN(columnDefinition.length)) {
 				resultType = `${type}(${columnDefinition.length})`;
 			}
 		}
 
 		if (['NUMBER', 'DECIMAL', 'NUMERIC'].includes(type)) {
-			if (!isNaN(columnDefinition.scale) && !isNaN(columnDefinition.precision)) {
+			if (!Number.isNaN(columnDefinition.scale) && !Number.isNaN(columnDefinition.precision)) {
 				resultType = `${type}(${Number(columnDefinition.precision)},${Number(columnDefinition.scale)})`;
 			}
 		}
