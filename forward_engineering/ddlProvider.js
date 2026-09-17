@@ -30,11 +30,13 @@ module.exports = (baseProvider, options, app) => {
 		parseProps,
 		getRowFormat,
 		getStoredAs,
+		getIdentityDefinition,
 	} = require('./helpers/general')(app);
 	const {
 		decorateType,
 		getDefault,
 		getQuota,
+		getIdentity,
 		getUri,
 		getARN,
 		getSourceSchemaNameForExternalSchema,
@@ -307,6 +309,7 @@ module.exports = (baseProvider, options, app) => {
 				default: !_.isUndefined(columnDefinition.default)
 					? ' DEFAULT ' + getDefault(columnDefinition.type, columnDefinition.default)
 					: '',
+				identity: getIdentity(columnDefinition.identity),
 				distKey: columnDefinition.distKey ? ' DISTKEY' : '',
 				sortKey: columnDefinition.sortKey ? ' SORTKEY' : '',
 				primaryKey: columnDefinition.primaryKey ? ' PRIMARY KEY' : '',
@@ -487,7 +490,8 @@ module.exports = (baseProvider, options, app) => {
 				sortKey: jsonSchema.sortKey && !jsonSchema.compositeSortKey,
 				primaryKey: columnDefinition.primaryKey && !jsonSchema.compositePrimaryKey,
 				encoding: jsonSchema.encoding,
-				references: '',
+				identity: getIdentityDefinition(jsonSchema),
+				reference: '',
 			};
 		},
 
