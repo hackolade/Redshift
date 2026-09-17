@@ -65,8 +65,8 @@ module.exports = app => {
 			return ` ${prefix}`;
 		}
 
-		const seed = Number(get(identity, 'seed', 0));
-		const step = Number(get(identity, 'step', 1));
+		const seed = Number(identity.seed || 0);
+		const step = Number(identity.step || 1);
 
 		return ` ${prefix}(${seed}, ${step})`;
 	};
