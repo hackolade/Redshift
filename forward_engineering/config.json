@@ -8,6 +8,7 @@
 	"hasUpdateScript": false,
 	"resolvedDefinitions": true,
 	"applyScriptToInstance": true,
+	"combinedContainers": true,
 	"level": {
 		"container": true,
 		"entity": true,
