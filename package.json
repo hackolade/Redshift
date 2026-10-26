@@ -55,6 +55,7 @@
             "disableDenormalization": true,
             "enableComplexTypesNormalization": true,
             "generateAssociativeEntitiesForManyToManyRelationships": true,
+            "createForeignKeysForConceptualRelationships": true,
             "enableKeysMultipleAbrr": true,
             "relationships": {
                 "compositeRelationships": {
