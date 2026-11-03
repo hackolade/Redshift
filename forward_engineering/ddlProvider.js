@@ -297,7 +297,7 @@ module.exports = (baseProvider, options, app) => {
 
 			return {
 				statement: foreignKeyStatement,
-				isActivated: isRelationActivated,
+				isActivated: isRelationActivated && fkData.isActivated !== false,
 			};
 		},
 
