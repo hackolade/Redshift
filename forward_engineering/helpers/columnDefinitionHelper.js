@@ -36,6 +36,21 @@ module.exports = app => {
 			toUpper(type),
 		);
 
+	const COLLATION_TYPES = new Set(['CHAR', 'VARCHAR', 'CHARACTER', 'NCHAR', 'BPCHAR']);
+
+	const getCollationKeyword = ({ type = '', collate = false, caseSensitivity = '' } = {}) => {
+		if (!collate || !COLLATION_TYPES.has(toUpper(type))) {
+			return '';
+		}
+
+		const sensitivity = toLower(caseSensitivity);
+		if (sensitivity === 'cs' || sensitivity === 'ci') {
+			return toUpper(sensitivity);
+		}
+
+		return '';
+	};
+
 	const isTimestamp = type => ['TIME', 'TIMESTAMP', 'TIMESTAMPTZ', 'TIMETZ'].includes(toUpper(type));
 
 	const escapeString = str => str.replace(/^'([\S\s]+)'$/, '$1').replace(/'/g, "''");
@@ -145,6 +160,7 @@ module.exports = app => {
 		getUri,
 		getARN,
 		decorateType,
+		getCollationKeyword,
 		getDefault,
 		getColumnComments,
 		getColumnsDefinitions,

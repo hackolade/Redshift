@@ -56,7 +56,18 @@ FROM
                 schemaname,
                 tablename,
                 seq,
-                '\t' + col_delim + col_name + ' ' + col_datatype + ' ' + col_nullable + ' ' + col_default + ' ' + col_encoding AS ddl
+                '\t' +
+                col_delim + col_name +
+                ' ' +
+                col_datatype +
+                ' ' +
+                col_nullable +
+                ' ' +
+                col_default +
+                ' ' +
+                col_encoding +
+                ' ' +
+                col_collation AS ddl
             FROM
                 (
                     SELECT
@@ -92,6 +103,11 @@ FROM
                             WHEN format_encoding((a.attencodingtype) :: integer) = 'none' THEN 'ENCODE RAW'
                             ELSE 'ENCODE ' + format_encoding((a.attencodingtype) :: integer)
                         END AS col_encoding,
+                        CASE
+                            WHEN a.attencrypttype = 1 THEN 'COLLATE CS'
+                            WHEN a.attencrypttype = 2 THEN 'COLLATE CI'
+                            ELSE ''
+                        END AS col_collation,
                         CASE
                             WHEN a.atthasdef IS TRUE THEN 'DEFAULT ' + adef.adsrc
                             ELSE ''
@@ -376,13 +392,13 @@ const getViewsDDLQuery = (schemaName, viewName) =>
 	`SELECT 'create view '|| nc.nspname::information_schema.sql_identifier ||'.'|| c.relname::information_schema.sql_identifier ||' as '||
 pg_get_viewdef(c.oid)::information_schema.character_data AS view_definition
 FROM pg_namespace nc, pg_class c, pg_user u
-WHERE c.relnamespace = nc.oid AND u.usesysid = c.relowner AND c.relkind = 'v'::"char" 
+WHERE c.relnamespace = nc.oid AND u.usesysid = c.relowner AND c.relkind = 'v'::"char"
 AND nc.nspname = '${schemaName}' AND c.relname::information_schema.sql_identifier = '${viewName}';`;
 
 const getSchemaFunctionsData = (schemaOID, userOID) =>
 	`SELECT proname, (SELECT lanname FROM pg_language WHERE oid = prolang) AS lang,
 prosrc AS body,proargtypes AS inputArgs,
-(SELECT typName FROM pg_type WHERE oid = prorettype) AS returnType, 
+(SELECT typName FROM pg_type WHERE oid = prorettype) AS returnType,
 provolatile AS volatility,
 proargnames as inputArgsNames
 FROM pg_proc
@@ -391,8 +407,8 @@ WHERE proowner = ${userOID} AND pronamespace = ${schemaOID} AND prorettype != 0`
 const getSchemaProceduresData = (schemaOID, userOID) =>
 	`SELECT proname, (SELECT lanname FROM pg_language WHERE oid = prolang) AS lang,
 prosrc AS body,proargtypes AS inputArgs, proargnames as inputArgsNames,
-(SELECT typName FROM pg_type WHERE oid = prorettype) AS returnType, 
-provolatile AS volatility FROM pg_proc 
+(SELECT typName FROM pg_type WHERE oid = prorettype) AS returnType,
+provolatile AS volatility FROM pg_proc
 WHERE proowner = ${userOID} AND pronamespace = ${schemaOID} AND prorettype = 0`;
 
 const getSchemaUserOwner = () =>
