@@ -97,16 +97,14 @@
         "simple-git-hooks": "2.13.1"
     },
     "dependencies": {
-        "@aws-sdk/client-redshift": "3.1045.0",
-        "@aws-sdk/client-redshift-data": "3.1045.0",
-        "@aws-sdk/client-redshift-serverless": "3.1045.0",
-        "@aws-sdk/xml-builder": "3.972.22",
+        "@aws-sdk/client-redshift": "3.1167.0",
+        "@aws-sdk/client-redshift-data": "3.1167.0",
+        "@aws-sdk/client-redshift-serverless": "3.1167.0",
         "@hackolade/fetch": "1.1.0",
         "lodash": "4.18.1"
     },
     "overrides": {
         "minimatch": "10.2.6",
-        "fast-xml-parser": "5.7.3",
         "brace-expansion": "5.0.12"
     }
 }
