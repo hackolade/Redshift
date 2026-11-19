@@ -1,4 +1,5 @@
 const _ = require('lodash');
+const { commentIfDeactivated } = require('./commentDeactivatedHelper');
 
 const getTableAttributes = (distStyle, distKey, compoundSortKey) => {
 	let attributes = [];
@@ -32,11 +33,26 @@ const getTableConstraints = (backup, compoundUniqueKey, compoundPrimaryKey, fore
 		constraints.push(compoundPrimaryKey.statement);
 	}
 
-	foreignKeyConstraints.forEach(constraint => {
+	const [activatedForeignKeys, deactivatedForeignKeys] = _.partition(
+		foreignKeyConstraints,
+		constraint => constraint.isActivated !== false,
+	);
+
+	activatedForeignKeys.forEach(constraint => {
 		constraints.push(constraint.statement);
 	});
 
-	return !_.isEmpty(constraints) ? ',\n\t' + constraints.join(',\n\t') : '';
+	const activatedConstraints = _.isEmpty(constraints) ? '' : ',\n\t' + constraints.join(',\n\t');
+	const deactivatedConstraints = _.isEmpty(deactivatedForeignKeys)
+		? ''
+		: '\n\t' +
+			commentIfDeactivated(
+				', ' + deactivatedForeignKeys.map(constraint => constraint.statement).join(',\n\t'),
+				{ isActivated: false },
+				true,
+			);
+
+	return activatedConstraints + deactivatedConstraints;
 };
 
 const getTableLikeConstraint = (likeTableName, includingDefault, needComma) => {
