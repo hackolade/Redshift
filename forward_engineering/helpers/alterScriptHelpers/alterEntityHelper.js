@@ -112,7 +112,7 @@ module.exports = app => {
 					ddlProvider,
 				}),
 			)
-			.map(ddlProvider.convertColumnDefinition)
+			.map(columnDefinition => ddlProvider.convertColumnDefinition({ ...columnDefinition, collation: '' }))
 			.map(({ statement }) => ddlProvider.addColumn(fullName, statement));
 	};
 

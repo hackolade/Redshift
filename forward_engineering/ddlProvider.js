@@ -34,6 +34,7 @@ module.exports = (baseProvider, options, app) => {
 	} = require('./helpers/general')(app);
 	const {
 		decorateType,
+		getCollationKeyword,
 		getDefault,
 		getQuota,
 		getIdentity,
@@ -312,6 +313,7 @@ module.exports = (baseProvider, options, app) => {
 				identity: getIdentity(columnDefinition.identity),
 				distKey: columnDefinition.distKey ? ' DISTKEY' : '',
 				sortKey: columnDefinition.sortKey ? ' SORTKEY' : '',
+				collation: columnDefinition.collation ? ` COLLATE ${columnDefinition.collation}` : '',
 				primaryKey: columnDefinition.primaryKey ? ' PRIMARY KEY' : '',
 				notNull: !columnDefinition.nullable ? ' NOT NULL' : '',
 				encoding: columnDefinition.encoding ? ` ENCODE ${columnDefinition.encoding}` : '',
@@ -490,6 +492,11 @@ module.exports = (baseProvider, options, app) => {
 				sortKey: jsonSchema.sortKey && !jsonSchema.compositeSortKey,
 				primaryKey: columnDefinition.primaryKey && !jsonSchema.compositePrimaryKey,
 				encoding: jsonSchema.encoding,
+				collation: getCollationKeyword({
+					type: columnDefinition.type,
+					collate: jsonSchema.collate,
+					caseSensitivity: jsonSchema.caseSensitivity,
+				}),
 				identity: getIdentityDefinition(jsonSchema),
 				reference: '',
 			};
