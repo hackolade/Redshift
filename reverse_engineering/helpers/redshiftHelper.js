@@ -44,12 +44,14 @@ const connect = async (connectionInfo, logger) => {
 		instanceType = 'Cluster',
 		queryRequestTimeout,
 	} = connectionInfo;
-	const params = getParamsForConnect(connectionInfo);
 	const requestHandler = hckFetchAwsSdkHttpHandler({ requestTimeout: queryRequestTimeout });
+	const params = {
+		...getParamsForConnect(connectionInfo),
+		requestHandler,
+	};
 	const redshiftDataInstance = new redshiftData.RedshiftData({
 		apiVersion: '2019-12-20',
 		...params,
-		requestHandler,
 	});
 	if (instanceType === 'Cluster') {
 		redshift = await setCluster(params, clusterIdentifier, databaseName);
