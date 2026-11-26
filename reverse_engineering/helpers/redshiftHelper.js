@@ -110,7 +110,20 @@ const listWorkGroups = async redshiftInstance => {
 
 const testConnection = async (connectionInfo, logger) => {
 	await connect(connectionInfo, logger);
-	await redshift.redshiftDataInstance.listTables({ ...redshift.connectionParams });
+	await execute('SELECT 1');
+};
+
+const waitForStatement = async Id => {
+	let queryDescription;
+	do {
+		queryDescription = await redshift.redshiftDataInstance.describeStatement({ Id });
+		if (queryDescription.Error) {
+			throw new Error(queryDescription.Error);
+		}
+		if (['FAILED', 'ABORTED'].includes(queryDescription.Status)) {
+			throw new Error(`Query ended with status ${queryDescription.Status}`);
+		}
+	} while (queryDescription.Status !== 'FINISHED');
 };
 
 const execute = async sqlStatement => {
@@ -125,13 +138,7 @@ const execute = async sqlStatement => {
 	});
 	let records = [];
 	let NextToken;
-	let queryDescription;
-	do {
-		queryDescription = await redshift.redshiftDataInstance.describeStatement({ Id });
-		if (queryDescription.Error) {
-			throw new Error(queryDescription.Error);
-		}
-	} while (queryDescription.Status !== 'FINISHED');
+	await waitForStatement(Id);
 	do {
 		const queryResult = await redshift.redshiftDataInstance.getStatementResult({ Id, NextToken });
 		records = records.concat(queryResult.Records);
@@ -149,13 +156,7 @@ const executeApplyToInstanceScript = async sqlStatement => {
 		Sql: sqlStatement,
 	});
 	const { Id } = result;
-	let queryDescription;
-	do {
-		queryDescription = await redshift.redshiftDataInstance.describeStatement({ Id });
-		if (queryDescription.Error) {
-			throw new Error(queryDescription.Error);
-		}
-	} while (queryDescription.Status !== 'FINISHED');
+	await waitForStatement(Id);
 
 	return {};
 };
