@@ -110,13 +110,25 @@ const listWorkGroups = async redshiftInstance => {
 
 const testConnection = async (connectionInfo, logger) => {
 	await connect(connectionInfo, logger);
-	await execute('SELECT 1');
+	const { Id, Status } = await redshift.redshiftDataInstance.executeStatement({
+		...redshift.connectionParams,
+		Sql: 'SELECT 1',
+		WaitTimeSeconds: 30,
+	});
+	if (Status === 'FINISHED') {
+		return;
+	}
+	const { Error: error } = await redshift.redshiftDataInstance.describeStatement({ Id });
+	throw new Error(
+		error ||
+			'Redshift did not run the test query within 30 seconds. The cluster may be busy or starting up; try again in a moment.',
+	);
 };
 
 const waitForStatement = async Id => {
 	let queryDescription;
 	do {
-		queryDescription = await redshift.redshiftDataInstance.describeStatement({ Id });
+		queryDescription = await redshift.redshiftDataInstance.describeStatement({ Id, WaitTimeSeconds: 10 });
 		if (queryDescription.Error) {
 			throw new Error(queryDescription.Error);
 		}
