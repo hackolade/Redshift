@@ -119,7 +119,10 @@ const testConnection = async (connectionInfo, logger) => {
 		return;
 	}
 	const { Error: error } = await redshift.redshiftDataInstance.describeStatement({ Id });
-	throw new Error(error || 'Redshift did not run the test query within 30 seconds');
+	throw new Error(
+		error ||
+			'Redshift did not run the test query within 30 seconds. The cluster may be busy or starting up; try again in a moment.',
+	);
 };
 
 const waitForStatement = async Id => {
